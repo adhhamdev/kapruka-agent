@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-sans), sans-serif;
+  --font-serif: var(--font-serif), serif;
+  
+  /* Bold Typography Palette */
+  --color-accent-orange: #F27D26;
+  --color-accent-orange-hover: #D76513;
+  --color-brand-cream: #FAF9F6;
+  --color-brand-dark: #1A1A1A;
+}
+
+@utility serif {
+  font-family: var(--font-serif), serif;
+}
+
+@utility sans {
+  font-family: var(--font-sans), sans-serif;
+}
+
+@utility glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+@utility chat-shadow {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.06);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+

@@ -1,0 +1,6 @@
+{
+  "name": "Ayla - Kapruka Shopping Agent",
+  "description": "Sri Lanka's premier conversational e-commerce agent for the Kapruka Agent Challenge. Browse, search, query delivery cities, and create real guest checkouts in Sinhala, Tanglish, and English.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
