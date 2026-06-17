@@ -1,8 +1,8 @@
-export const WELCOME_MESSAGE = `Hello! I'm Kapruka Agent, your AI shopping concierge for Kapruka.
+export const WELCOME_MESSAGE = `Hello. I'm your Kapruka shopping assistant.
 
-I can search our live catalog, check delivery quotes, manage your cart, and generate a guest payment link.
+I can search our catalog, check delivery options, manage your basket, and help you checkout.
 
-What are you looking for today?`;
+What would you like to find today?`;
 
 export interface QuickStarter {
   label: string;

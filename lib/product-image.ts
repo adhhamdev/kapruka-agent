@@ -1,9 +1,10 @@
 import { PRODUCT_PLACEHOLDER_IMAGE } from '@/constants/urls';
+import { isTrustedKaprukaImageUrl } from '@/lib/kapruka-product-image';
 
 /** Resolve the initial image src for a product — remote URL or local placeholder. */
 export function resolveProductImageSrc(imageUrl?: string | null): string {
-  if (imageUrl && /^https?:\/\//i.test(imageUrl.trim())) {
-    return imageUrl.trim();
+  if (isTrustedKaprukaImageUrl(imageUrl)) {
+    return imageUrl!.trim();
   }
   return PRODUCT_PLACEHOLDER_IMAGE;
 }

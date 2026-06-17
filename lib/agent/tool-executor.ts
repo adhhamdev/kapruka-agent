@@ -13,6 +13,11 @@ import {
   searchProducts,
   trackOrder,
 } from '@/lib/kapruka-mcp';
+import {
+  enrichKaprukaProduct,
+  enrichKaprukaProducts,
+  resolveKaprukaProductImageUrl,
+} from '@/lib/kapruka-product-image';
 import type { Widget } from '@/types/widgets';
 
 export interface ToolExecutionResult {
@@ -78,30 +83,35 @@ export async function executeToolCall(
         args.order_number as string,
       )) as Record<string, unknown>;
       break;
-    case 'show_products_carousel':
+    case 'show_products_carousel': {
+      const products = await enrichKaprukaProducts(
+        (args.products as Widget extends { type: 'carousel' } ? Widget['data'] : never) ??
+          [],
+      );
       widgets.push({
         type: 'carousel',
-        data: args.products as Widget extends { type: 'carousel' }
-          ? Widget['data']
-          : never,
+        data: products,
       });
       toolResult = {
         status: 'success',
         message: 'Rendered product listing carousel in browser.',
       };
       break;
-    case 'show_product_detail':
+    }
+    case 'show_product_detail': {
+      const product = await enrichKaprukaProduct(
+        args.product as Widget extends { type: 'detail' } ? Widget['data'] : never,
+      );
       widgets.push({
         type: 'detail',
-        data: args.product as Widget extends { type: 'detail' }
-          ? Widget['data']
-          : never,
+        data: product,
       });
       toolResult = {
         status: 'success',
         message: 'Displayed granular product page features.',
       };
       break;
+    }
     case 'show_delivery_quote':
       widgets.push({
         type: 'delivery_quote',
@@ -141,11 +151,15 @@ export async function executeToolCall(
     case 'add_to_cart_action': {
       const { product_id, name: pName, price, imageUrl, productUrl, url } =
         args;
+      const resolvedImageUrl = await resolveKaprukaProductImageUrl(
+        product_id as string | undefined,
+        imageUrl as string | undefined,
+      );
       updatedCart = addProductToCart(currentCart, {
         product_id: product_id as string,
         name: pName as string,
         price: Number(price),
-        imageUrl: imageUrl as string | undefined,
+        imageUrl: resolvedImageUrl,
         productUrl: (productUrl ?? url) as string | undefined,
       });
       toolResult = {
