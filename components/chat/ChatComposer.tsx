@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   ArrowRight,
   Loader2,
@@ -56,6 +56,7 @@ export function ChatComposer({
   speechLanguageCode,
 }: ChatComposerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const messageInputRef = useRef<HTMLInputElement>(null);
   const {
     attachments,
     attachmentError,
@@ -86,6 +87,16 @@ export function ChatComposer({
     !isPending &&
     !isListening &&
     (value.trim().length > 0 || attachments.length > 0);
+
+  const inputDisabled =
+    disabled || isPending || isListening || isRequestingPermission;
+
+  useEffect(() => {
+    if (inputDisabled) return;
+    requestAnimationFrame(() => {
+      messageInputRef.current?.focus();
+    });
+  }, [inputDisabled]);
 
   const handleSubmit = () => {
     if (!canSend) return;
@@ -202,14 +213,16 @@ export function ChatComposer({
             Message to Agent
           </label>
           <input
+            ref={messageInputRef}
             id='chat-message'
             name='message'
             type='text'
             autoComplete='off'
+            autoFocus
             spellCheck={false}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            disabled={disabled || isPending || isListening || isRequestingPermission}
+            disabled={inputDisabled}
             placeholder={isListening ? 'Listening…' : 'Message Agent…'}
             className='flex-1 min-w-0 w-0 basis-0 bg-transparent text-[16px] focus:outline-none min-h-[36px] sm:min-h-[44px] placeholder-[color:var(--color-text-tertiary)]'
           />
