@@ -3,6 +3,7 @@
 import {
   ArrowRight,
   CreditCard,
+  ExternalLink,
   MessageSquare,
   Minus,
   Plus,
@@ -17,6 +18,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { type CartItem, useCartStorage } from '@/lib/cart-storage';
 import { ERROR_MESSAGES, parseApiError } from '@/lib/errors';
 import { createMessageId } from '@/lib/message-ids';
+import {
+  getKaprukaProductUrl,
+  type KaprukaProduct,
+} from '@/lib/products';
 
 interface Message {
   id: string;
@@ -156,6 +161,7 @@ export default function Home() {
             imageUrl:
               product.imageUrl ||
               `https://picsum.photos/seed/${product.productId}/300/300`,
+            productUrl: getKaprukaProductUrl(product),
           },
         ];
       }
@@ -200,8 +206,18 @@ export default function Home() {
     }).format(price);
   };
 
-  const parseMarkdownText = (text: string) => {
+  const parseMarkdownText = (
+    text: string,
+    role: Message['role'] = 'assistant',
+  ) => {
     if (!text) return '';
+    const isUser = role === 'user';
+    const textClass = isUser
+      ? 'text-white'
+      : 'text-[color:var(--color-ink-2)]';
+    const strongClass = isUser
+      ? 'font-semibold text-white'
+      : 'font-semibold text-[color:var(--color-ink)]';
     const lines = text.split('\n');
     return lines.map((line, idx) => {
       let content: React.ReactNode = line;
@@ -214,9 +230,7 @@ export default function Home() {
         content = parts.map((part, pIdx) => {
           if (pIdx % 2 === 1) {
             return (
-              <strong
-                key={pIdx}
-                className='font-semibold text-[color:var(--color-text-primary)]'>
+              <strong key={pIdx} className={strongClass}>
                 {part}
               </strong>
             );
@@ -229,7 +243,7 @@ export default function Home() {
         return (
           <li
             key={idx}
-            className='ml-4 list-disc text-[15px] text-[color:var(--color-text-secondary)] leading-relaxed mb-1.5'
+            className={`ml-4 list-disc text-[15px] ${textClass} leading-relaxed mb-1.5`}
             id={`bullet-${idx}`}>
             {content}
           </li>
@@ -243,7 +257,7 @@ export default function Home() {
       return (
         <p
           key={idx}
-          className='text-[15px] text-[color:var(--color-text-secondary)] leading-relaxed mb-1.5'
+          className={`text-[15px] ${textClass} leading-relaxed mb-1.5`}
           id={`p-${idx}`}>
           {content}
         </p>
@@ -283,26 +297,14 @@ export default function Home() {
           <Image
             src='/logo-square.jpeg'
             alt='Kapruka'
-            width={36}
-            height={36}
-            className='rounded-lg object-contain shrink-0 ring-1 ring-white/10'
+            width={100}
+            height={100}
+            className='object-contain shrink-0'
             priority
           />
-          <div className='flex flex-col min-w-0'>
             <span className='font-semibold text-[15px] tracking-tight text-white leading-tight truncate'>
-              Kapruka Agent
+             Agent
             </span>
-            <span className='text-[11px] text-white/70 font-medium'>
-              Ayla · AI Concierge
-            </span>
-          </div>
-        </div>
-
-        <div className='flex items-center gap-2'>
-          <div className='flex items-center gap-1.5 bg-white/10 rounded-full px-2.5 py-1 text-[11px] text-white/90 font-medium'>
-            <span className='w-1.5 h-1.5 rounded-full bg-[color:var(--color-accent)] animate-status-pulse' />
-            <span>Live</span>
-          </div>
         </div>
       </header>
 
@@ -373,7 +375,7 @@ export default function Home() {
           className={`
             ${activeTab === 'chat' ? 'flex flex-col animate-fade-in' : 'hidden'} 
             lg:flex flex-1 flex-col h-full relative bg-[color:var(--color-bg-surface)]
-          `}
+          pb-30`}
           id='chat-surface'>
           {/* Messages */}
           <div
@@ -387,26 +389,26 @@ export default function Home() {
                 <div
                   className={`flex items-end gap-2 max-w-[90%] sm:max-w-[75%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                   {msg.role === 'assistant' && (
-                    <div className='w-7 h-7 rounded-full overflow-hidden shrink-0 border border-[color:var(--color-border-default)] mb-1 relative bg-white'>
+                    <div className='w-10 h-10 rounded-full shrink-0 border border-[color:var(--color-border-default)] mb-1 relative bg-white'>
                       <Image
                         src='/icon.png'
                         alt='Kapruka'
                         fill
-                        className='object-cover p-1'
+                        className='object-cover p-1 rounded-full'
                       />
                     </div>
                   )}
 
                   <div className='space-y-1'>
                     <div
-                      className={`px-4 py-3 text-[15px] leading-relaxed ${
+                      className={`px-4 text-white py-3 text-[15px] leading-relaxed ${
                         msg.isError
                           ? 'chat-bubble-error'
                           : msg.role === 'user'
                             ? 'chat-bubble-user'
                             : 'chat-bubble-assistant'
                       }`}>
-                      {parseMarkdownText(msg.content)}
+                      {parseMarkdownText(msg.content, msg.role)}
                     </div>
                   </div>
                 </div>
@@ -422,49 +424,139 @@ export default function Home() {
                         return (
                           <div key={widIdx} className='w-full'>
                             <div className='flex overflow-x-auto pb-4 gap-3 snap-x scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0'>
-                              {widget.data.map((prod: any, prodIdx: number) => (
-                                <div
+                              {widget.data.map((prod: KaprukaProduct, prodIdx: number) => {
+                                const productUrl = getKaprukaProductUrl(prod);
+                                return (
+                                <article
                                   key={prodIdx}
-                                  className='w-[160px] shrink-0 bg-white border border-[color:var(--color-border-default)] rounded-[18px] p-2 snap-start shadow-sm flex flex-col justify-between'>
-                                  <div>
-                                    <div className='relative w-full aspect-square rounded-[12px] overflow-hidden bg-[color:var(--color-bg-base)] mb-3'>
+                                  className='group w-[168px] shrink-0 bg-white border border-[color:var(--color-border-default)] rounded-[18px] p-2 snap-start shadow-sm flex flex-col'>
+                                  <div className='relative w-full aspect-square rounded-[12px] overflow-hidden bg-[color:var(--color-bg-base)] mb-2.5'>
+                                    <a
+                                      href={productUrl}
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='block w-full h-full'
+                                      aria-label={`View ${prod.name} on Kapruka`}>
                                       <Image
                                         src={
                                           prod.imageUrl ||
                                           `https://picsum.photos/seed/${prod.productId}/300/300`
                                         }
-                                        alt={prod.name}
+                                        alt={prod.name ?? 'Product'}
                                         fill
-                                        sizes='160px'
-                                        className='object-cover'
+                                        sizes='168px'
+                                        className='object-cover transition-transform duration-[var(--dur-medium)] ease-[var(--ease-out)] group-hover:scale-[1.03]'
                                       />
-                                      {prod.inStock ? (
-                                        <button
-                                          onClick={() =>
-                                            handleLocalAddToCart(prod)
-                                          }
-                                          className='absolute bottom-2 right-2 w-8 h-8 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-full flex items-center justify-center hover:bg-[color:var(--color-accent-hover)] transition-all shadow-sm active:scale-95'>
-                                          <Plus className='w-4 h-4' />
-                                        </button>
-                                      ) : (
-                                        <span className='absolute top-2 left-2 text-[10px] font-medium px-2 py-1 bg-white/95 text-red-600 rounded-md shadow-sm'>
-                                          Sold Out
-                                        </span>
-                                      )}
-                                    </div>
-                                    <div className='px-1'>
-                                      <h5 className='font-medium text-[13px] text-[color:var(--color-text-primary)] line-clamp-2 leading-tight'>
-                                        {prod.name}
-                                      </h5>
-                                      <p className='font-semibold text-[13px] text-[color:var(--color-text-primary)] mt-1.5'>
-                                        {formatPrice(prod.price)}
-                                      </p>
-                                    </div>
+                                    </a>
+                                    {prod.inStock ? (
+                                      <button
+                                        type='button'
+                                        onClick={() =>
+                                          handleLocalAddToCart(prod)
+                                        }
+                                        aria-label={`Add ${prod.name} to basket`}
+                                        className='absolute bottom-2 right-2 z-10 w-8 h-8 bg-[color:var(--color-accent)] text-[color:var(--color-accent-ink)] rounded-full flex items-center justify-center hover:bg-[color:var(--color-accent-hover)] transition-all shadow-sm active:scale-95'>
+                                        <Plus className='w-4 h-4' />
+                                      </button>
+                                    ) : (
+                                      <span className='absolute top-2 left-2 text-[10px] font-medium px-2 py-1 bg-white/95 text-red-600 rounded-md shadow-sm'>
+                                        Sold Out
+                                      </span>
+                                    )}
                                   </div>
-                                </div>
-                              ))}
+                                  <div className='px-1 flex flex-col gap-1.5 flex-1'>
+                                    <a
+                                      href={productUrl}
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='font-medium text-[13px] text-[color:var(--color-primary)] hover:text-[color:var(--color-primary-hover)] hover:underline line-clamp-2 leading-tight inline-flex gap-1 items-start'>
+                                      <span className='flex-1 min-w-0'>
+                                        {prod.name}
+                                      </span>
+                                      <ExternalLink className='w-3 h-3 shrink-0 mt-0.5 opacity-50' />
+                                    </a>
+                                    <p className='font-semibold text-[13px] text-[color:var(--color-text-primary)]'>
+                                      {formatPrice(prod.price ?? 0)}
+                                    </p>
+                                    <a
+                                      href={productUrl}
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='mt-auto text-[11px] font-medium text-[color:var(--color-primary)] hover:underline inline-flex items-center gap-1'>
+                                      View on Kapruka
+                                      <ExternalLink className='w-3 h-3' />
+                                    </a>
+                                  </div>
+                                </article>
+                              );
+                              })}
                             </div>
                           </div>
+                        );
+                      }
+
+                      if (widget.type === 'detail' && widget.data) {
+                        const prod = widget.data as KaprukaProduct;
+                        const productUrl = getKaprukaProductUrl(prod);
+                        return (
+                          <article
+                            key={widIdx}
+                            className='bg-white border border-[color:var(--color-border-default)] rounded-[var(--radius-xl)] p-4 max-w-sm shadow-sm'>
+                            <div className='flex gap-3'>
+                              <a
+                                href={productUrl}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                className='relative w-24 h-24 rounded-[var(--radius-md)] overflow-hidden bg-[color:var(--color-bg-base)] shrink-0'>
+                                <Image
+                                  src={
+                                    prod.imageUrl ||
+                                    `https://picsum.photos/seed/${prod.productId}/300/300`
+                                  }
+                                  alt={prod.name ?? 'Product'}
+                                  fill
+                                  sizes='96px'
+                                  className='object-cover'
+                                />
+                              </a>
+                              <div className='flex-1 min-w-0'>
+                                <a
+                                  href={productUrl}
+                                  target='_blank'
+                                  rel='noopener noreferrer'
+                                  className='font-semibold text-[15px] text-[color:var(--color-primary)] hover:underline line-clamp-2 leading-snug inline-flex gap-1 items-start'>
+                                  <span>{prod.name}</span>
+                                  <ExternalLink className='w-3.5 h-3.5 shrink-0 mt-0.5 opacity-50' />
+                                </a>
+                                <p className='font-semibold text-[15px] text-[color:var(--color-text-primary)] mt-1'>
+                                  {formatPrice(prod.price ?? 0)}
+                                </p>
+                                {prod.description && (
+                                  <p className='text-[13px] text-[color:var(--color-text-secondary)] mt-2 line-clamp-3'>
+                                    {prod.description}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <div className='mt-4 flex gap-2'>
+                              {prod.inStock !== false && (
+                                <button
+                                  type='button'
+                                  onClick={() => handleLocalAddToCart(prod)}
+                                  className='flex-1 py-2.5 bg-[color:var(--color-primary)] hover:bg-[color:var(--color-primary-hover)] text-white rounded-[var(--radius-md)] text-[14px] font-medium transition-all active:scale-[0.98]'>
+                                  Add to Basket
+                                </button>
+                              )}
+                              <a
+                                href={productUrl}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                                className='flex-1 py-2.5 border border-[color:var(--color-rule-strong)] text-[color:var(--color-primary)] rounded-[var(--radius-md)] text-[14px] font-medium text-center hover:bg-[color:var(--color-paper-3)] transition-all inline-flex items-center justify-center gap-1.5'>
+                                View Product
+                                <ExternalLink className='w-3.5 h-3.5' />
+                              </a>
+                            </div>
+                          </article>
                         );
                       }
 
@@ -562,14 +654,14 @@ export default function Home() {
           </div>
 
           {/* Input Area */}
-          <div className='absolute bottom-0 left-0 right-0 p-3 pb-[calc(env(safe-area-inset-bottom)+10px)] lg:pb-4 ios-glass border-t flex flex-col gap-2 z-20'>
+          <div className='absolute bottom-15 left-0 right-0 p-3 pb-[calc(env(safe-area-inset-bottom)+10px)] lg:pb-4 ios-glass border-t flex flex-col gap-2 z-20'>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSendMessage(inputText);
               }}
               className='flex items-center gap-2'>
-              <div className='flex-1 relative flex items-center bg-[color:var(--color-paper)] border border-[color:var(--color-rule-strong)] rounded-[var(--radius-lg)] focus-within:border-[color:var(--color-primary)] focus-within:ring-2 focus-within:ring-[color:var(--color-primary)]/10 transition-all pl-4 pr-12 py-1.5'>
+              <div className='flex-1 relative flex items-center bg-[color:var(--color-paper)] border border-[color:var(--color-rule-strong)] rounded-[var(--radius-lg)] focus-within:ring-2 focus-within:ring-[color:var(--color-primary)]/10 transition-all pl-4 pr-12 py-1.5'>
                 <input
                   type='text'
                   value={inputText}
@@ -616,11 +708,21 @@ export default function Home() {
                   </p>
                 </div>
               ) : (
-                cart.map((item, idx) => (
+                cart.map((item, idx) => {
+                  const itemUrl = getKaprukaProductUrl({
+                    productId: item.product_id,
+                    name: item.name,
+                    productUrl: item.productUrl,
+                  });
+                  return (
                   <div
                     key={item.product_id}
                     className='flex gap-3 bg-white border border-[color:var(--color-border-default)] rounded-[16px] p-3 shadow-sm'>
-                    <div className='relative w-[60px] h-[60px] rounded-[10px] overflow-hidden bg-[color:var(--color-bg-base)] border border-black/5 shrink-0'>
+                    <a
+                      href={itemUrl}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='relative w-[60px] h-[60px] rounded-[10px] overflow-hidden bg-[color:var(--color-bg-base)] border border-black/5 shrink-0'>
                       <Image
                         src={
                           item.imageUrl ||
@@ -631,12 +733,16 @@ export default function Home() {
                         sizes='60px'
                         className='object-cover'
                       />
-                    </div>
+                    </a>
                     <div className='flex-1 min-w-0 flex flex-col justify-between py-0.5'>
                       <div>
-                        <h5 className='font-medium text-[14px] text-[color:var(--color-text-primary)] truncate'>
+                        <a
+                          href={itemUrl}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='font-medium text-[14px] text-[color:var(--color-primary)] hover:underline truncate block'>
                           {item.name}
-                        </h5>
+                        </a>
                         <p className='text-[13px] font-semibold text-[color:var(--color-text-primary)] mt-0.5'>
                           {formatPrice(item.price)}
                         </p>
@@ -669,7 +775,8 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
 

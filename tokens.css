@@ -1,7 +1,7 @@
 /* Kapruka Agent · design tokens · Congress Blue #422B73 */
 :root {
   /* Brand — Congress Blue + Kapruka Yellow */
-  --color-primary: oklch(31% 0.14 285);
+  --color-primary: #442A73;
   --color-primary-hover: oklch(26% 0.13 285);
   --color-primary-light: oklch(94% 0.03 285);
   --color-accent: oklch(88% 0.17 95);

@@ -9,13 +9,17 @@ export interface CartItem {
   price: number;
   quantity: number;
   imageUrl?: string;
+  productUrl?: string;
 }
 
 const listeners = new Set<() => void>();
 
+/** Single stable empty-cart reference — required for getServerSnapshot and empty states. */
+const EMPTY_CART: CartItem[] = [];
+
 /** Stable snapshot cache — getSnapshot must return the same reference when data is unchanged. */
 let cachedSerialized = '';
-let cachedSnapshot: CartItem[] = [];
+let cachedSnapshot: CartItem[] = EMPTY_CART;
 
 function emitCartChange() {
   listeners.forEach((listener) => listener());
@@ -23,11 +27,11 @@ function emitCartChange() {
 
 function invalidateSnapshotCache() {
   cachedSerialized = '';
-  cachedSnapshot = [];
+  cachedSnapshot = EMPTY_CART;
 }
 
 function readCartFromStorage(): CartItem[] {
-  if (typeof window === 'undefined') return [];
+  if (typeof window === 'undefined') return EMPTY_CART;
 
   const raw = localStorage.getItem(CART_STORAGE_KEY) ?? '';
   if (raw === cachedSerialized) {
@@ -35,7 +39,8 @@ function readCartFromStorage(): CartItem[] {
   }
 
   cachedSerialized = raw;
-  cachedSnapshot = safeParseCart(raw) as CartItem[];
+  const parsed = safeParseCart(raw) as CartItem[];
+  cachedSnapshot = parsed.length === 0 ? EMPTY_CART : parsed;
   return cachedSnapshot;
 }
 
@@ -55,14 +60,15 @@ function subscribeToCart(onStoreChange: () => void) {
 }
 
 function getServerCartSnapshot(): CartItem[] {
-  return [];
+  return EMPTY_CART;
 }
 
 export function writeCartToStorage(cart: CartItem[]) {
-  const serialized = JSON.stringify(cart);
+  const next = cart.length === 0 ? EMPTY_CART : cart;
+  const serialized = JSON.stringify(next);
   localStorage.setItem(CART_STORAGE_KEY, serialized);
   cachedSerialized = serialized;
-  cachedSnapshot = cart;
+  cachedSnapshot = next;
   emitCartChange();
 }
 

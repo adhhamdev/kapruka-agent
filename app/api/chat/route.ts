@@ -53,7 +53,9 @@ Strict Rules:
 - DO NOT list product names, descriptions, or prices in your text response when using show_products_carousel or show_product_detail! The client already displays these as rich cards. Only present a brief, warm introductory message (e.g., "Look at these amazing items I found for you! 👇").
 - Keep chat text responses extremely clean, concise, and focused on assisting. Avoid dumping large lists of product text or block paragraphs in messages.
 - If a product image URL or detail is provided in tools, pass it.
+- When calling show_products_carousel or show_product_detail, always include each product's 'url' field from Kapruka search/detail tool results when available.
 - Work step-by-step. Let the user know exactly what you are doing in friendly terms.`;
+
 
 // Declarations of Kapruka and Virtual UI tools
 const TOOL_DECLARATIONS = [
@@ -209,6 +211,7 @@ const TOOL_DECLARATIONS = [
               name: { type: Type.STRING },
               price: { type: Type.NUMBER },
               imageUrl: { type: Type.STRING, description: "Absolute photo URL" },
+              url: { type: Type.STRING, description: "Kapruka product page URL from search results" },
               inStock: { type: Type.BOOLEAN },
             },
             required: ["productId", "name", "price"],
@@ -304,6 +307,8 @@ const TOOL_DECLARATIONS = [
         name: { type: Type.STRING },
         price: { type: Type.NUMBER },
         imageUrl: { type: Type.STRING },
+        productUrl: { type: Type.STRING, description: "Kapruka product page URL" },
+        url: { type: Type.STRING, description: "Kapruka product page URL (alias)" },
       },
       required: ["product_id", "name", "price"],
     },
@@ -455,7 +460,7 @@ export async function POST(req: NextRequest) {
             widgets.push({ type: "order_status", data: args });
             toolResult = { status: "success", message: "Rendered order delivery timeline." };
           } else if (name === "add_to_cart_action") {
-            const { product_id, name: pName, price, imageUrl } = args as any;
+            const { product_id, name: pName, price, imageUrl, productUrl, url } = args as any;
             const existing = updatedCart.find((i) => i.product_id === product_id);
             if (existing) {
               existing.quantity += 1;
@@ -466,6 +471,7 @@ export async function POST(req: NextRequest) {
                 price: Number(price),
                 quantity: 1,
                 imageUrl: imageUrl || `https://picsum.photos/seed/${product_id}/300/300`,
+                productUrl: productUrl || url,
               });
             }
             toolResult = {
