@@ -302,55 +302,53 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-[#FAF9F6] sans antialiased text-[#1A1A1A]" id="app-root">
       
-      {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-black/5 px-4 md:px-6 py-4 shadow-3xs" id="nav-header">
+      {/* Hallmark · macrostructure: Multi-Panel Grid · tone: Atelier · anchor hue: orange */}
+      
+      {/* Top Elegant Header */}
+      <header className="sticky top-0 z-40 bg-[#FAF9F6]/90 backdrop-blur-md border-b border-zinc-200/50 px-4 md:px-8 py-3.5" id="nav-header">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="flex flex-col">
-              <h1 className="serif text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tighter uppercase italic flex items-center gap-1.5" id="title-logo">
-                Kapruka <span className="serif text-[#F27D26] not-italic lowercase font-light text-xs sm:text-sm bg-orange-50 px-2 py-0.5 rounded-md border border-orange-100/50">ayla agent</span>
+              <h1 className="serif text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 flex items-center gap-2" id="title-logo">
+                Kapruka <span className="sans text-[10px] font-bold tracking-widest bg-orange-50 text-[#F27D26] px-2.5 py-0.5 rounded-full border border-orange-100/40 uppercase">Ayla Concierge</span>
               </h1>
-              <p className="sans text-[8px] sm:text-[9px] uppercase tracking-[0.25em] font-semibold opacity-50 flex items-center gap-1">
-                <Globe className="w-2.5 h-2.5 text-[#F27D26]" /> Agent Challenge 2026 — Colombo, Sri Lanka
+              <p className="sans text-[9px] uppercase tracking-[0.2em] font-medium text-zinc-400 flex items-center gap-1.5 mt-0.5">
+                <Globe className="w-3 h-3 text-[#F27D26] animate-pulse" /> Agent Challenge 2026 · Colombo, Sri Lanka
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3 sm:space-x-5">
-            <div className="text-right hidden md:block">
-              <p className="sans text-[9px] uppercase font-bold opacity-40">Challenge Mission</p>
-              <p className="serif italic font-bold text-sm text-[#F27D26]">Apple M4 Mac Mini</p>
-            </div>
-            <div className="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center hover:bg-black/5 transition-all relative shrink-0">
-              <span className="sans font-extrabold text-[11px]">M4</span>
-              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-white"></div>
+          <div className="flex items-center space-x-4">
+            <div className="text-right hidden sm:block">
+              <p className="sans text-[8px] uppercase tracking-wider font-semibold text-zinc-400">Target Environment</p>
+              <p className="serif text-xs font-bold text-zinc-800">M4 Mac Mini</p>
             </div>
 
-            <div className="h-6 w-[1px] bg-black/5 hidden sm:block"></div>
+            <div className="h-4 w-[1px] bg-zinc-200/60 hidden sm:block"></div>
 
-            {/* Quick stats buttons */}
+            {/* Info Brief Toggle */}
             <button
               onClick={() => setActiveTab(activeTab === "chat" ? "info" : "chat")}
-              className="p-2 rounded-xl text-gray-700 hover:bg-black/5 hover:text-black active:scale-95 transition-all text-xs flex items-center gap-1.5 font-bold uppercase tracking-wider sans"
+              className="p-1.5 rounded-xl text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-all font-semibold uppercase tracking-wider sans text-[10px] flex items-center gap-1.5 cursor-pointer"
               title="Show Challenge Details"
               id="info-toggle"
             >
-              <HelpCircle className="w-4.5 h-4.5 text-[#F27D26]" />
-              <span className="hidden sm:inline text-[10px]">Brief</span>
+              <HelpCircle className="w-4 h-4 text-[#F27D26]" />
+              <span className="hidden md:inline">Brief</span>
             </button>
 
-            {/* Cart Button */}
+            {/* Cart Button Toggle */}
             <button
               onClick={() => {
                 setCartOpen(!cartOpen);
                 setActiveTab("chat");
               }}
-              className="relative p-2 rounded-xl hover:bg-orange-50 text-[#F27D26] active:scale-95 transition-all"
+              className="relative p-2 bg-zinc-950 hover:bg-zinc-800 text-[#FAF9F6] rounded-xl transition-all shadow-xs shrink-0 cursor-pointer"
               id="cart-toggle-btn"
             >
-              <ShoppingBag className="w-5 h-5" />
+              <ShoppingBag className="w-4.5 h-4.5 text-[#F27D26]" />
               {cart.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#F27D26] text-white text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-bounce shadow-md">
+                <span className="absolute -top-1.5 -right-1.5 bg-[#F27D26] text-white text-[9px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-md animate-bounce">
                   {cart.reduce((s, i) => s + i.quantity, 0)}
                 </span>
               )}
@@ -362,89 +360,106 @@ export default function Home() {
       {/* Main Container Layout */}
       <div className="flex-1 max-w-7xl w-full mx-auto flex flex-col lg:flex-row relative" id="layout-body">
         
-        {/* Left Side Panel on Widescreen or Toggleable Panel */}
-        <section className={`w-full lg:w-80 bg-white/40 border-r border-black/5 p-6 md:p-8 flex flex-col justify-between shrink-0 ${activeTab === "info" ? "flex" : "hidden lg:flex"}`} id="left-sidebar">
+        {/* Left Side Sidebar */}
+        <section className={`w-full lg:w-80 bg-white/30 border-r border-zinc-200/40 p-6 md:p-8 flex flex-col justify-between shrink-0 ${activeTab === "info" ? "flex" : "hidden lg:flex"}`} id="left-sidebar">
           <div className="space-y-6">
-            <h2 className="sans text-[58px] lg:text-[68px] font-black leading-[0.85] tracking-tighter mb-4 select-none text-black">
-              SHOP<br/>LIVE<span className="text-[#F27D26]">.</span>
-            </h2>
+            <div className="pb-4 border-b border-zinc-100">
+              <p className="sans text-[10px] font-bold uppercase tracking-widest text-[#F27D26] mb-1">Interactive Assistant</p>
+              <h2 className="serif text-3xl font-extrabold tracking-tight text-zinc-900 leading-tight">
+                Gifting Made <br />
+                <span className="italic font-bold text-zinc-900">Personal.</span>
+              </h2>
+            </div>
 
-            {/* Quick Discover Pathways from Mock HTML */}
-            <nav className="space-y-5 border-y border-black/5 py-5">
-              <div className="group cursor-pointer" onClick={() => handleSendMessage("Show me fresh flower bouquets available for delivery")}>
-                <p className="sans text-[9px] font-extrabold opacity-40 group-hover:opacity-100 uppercase tracking-widest transition-opacity">01 — Discover</p>
-                <p className="serif text-lg text-gray-800 group-hover:text-[#F27D26] transition-colors">Gift Finder</p>
+            {/* Quick Pathways */}
+            <nav className="space-y-4 py-1">
+              <div 
+                className="group cursor-pointer flex items-center justify-between p-2 -mx-2 rounded-xl hover:bg-zinc-100/50 transition-colors" 
+                onClick={() => handleSendMessage("Show me fresh flower bouquets available for delivery")}
+              >
+                <div>
+                  <p className="sans text-[8px] font-bold text-zinc-400 uppercase tracking-widest">01 — Discover</p>
+                  <p className="serif text-base text-zinc-800 group-hover:text-[#F27D26] transition-colors font-semibold">Gift Finder</p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-zinc-300 group-hover:text-[#F27D26] group-hover:translate-x-0.5 transition-all" />
               </div>
-              <div className="group cursor-pointer" onClick={() => handleSendMessage("Where is my order? Track shipping status")}>
-                <p className="sans text-[9px] font-extrabold opacity-40 group-hover:opacity-100 uppercase tracking-widest transition-opacity">02 — Tracker</p>
-                <p className="serif text-lg text-gray-800 group-hover:text-[#F27D26] transition-colors">Delivery Status</p>
-              </div>
-              <div className="group cursor-pointer" onClick={() => { setCartOpen(true); setActiveTab("chat"); }}>
-                <p className="sans text-[9px] font-extrabold uppercase tracking-widest text-[#F27D26]">03 — Current</p>
-                <p className="serif text-lg font-bold text-gray-900">Checkout Flow</p>
+
+              <div 
+                className="group cursor-pointer flex items-center justify-between p-2 -mx-2 rounded-xl hover:bg-zinc-100/50 transition-colors" 
+                onClick={() => handleSendMessage("Where is my order? Track shipping status")}
+              >
+                <div>
+                  <p className="sans text-[8px] font-bold text-zinc-400 uppercase tracking-widest">02 — Tracker</p>
+                  <p className="serif text-base text-zinc-800 group-hover:text-[#F27D26] transition-colors font-semibold">Delivery Status</p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-zinc-300 group-hover:text-[#F27D26] group-hover:translate-x-0.5 transition-all" />
               </div>
             </nav>
 
-            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1" id="shortcuts-panel">
+            {/* Quick Starters Group */}
+            <div className="space-y-4" id="shortcuts-panel">
               <div>
-                <h4 className="text-[10px] sans font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  🇱🇰 Prompt Starters
+                <h4 className="text-[10px] sans font-bold text-zinc-400 uppercase tracking-widest mb-2.5 flex items-center gap-1">
+                  <span>⚡ Prompt Starters</span>
                 </h4>
-                <div className="grid grid-cols-1 gap-1.5 animate-fadeIn">
+                <div className="grid grid-cols-1 gap-2">
                   {quickStarters.map((qs, i) => (
                     <button
                       key={i}
                       onClick={() => handleSendMessage(qs.prompt)}
-                      className="p-2.5 text-left bg-white/70 border border-black/5 rounded-xl text-xs hover:border-[#F27D26] hover:bg-orange-50/10 active:scale-98 transition-all flex items-start gap-2 group"
+                      className="p-3 text-left bg-white/60 border border-zinc-200/40 rounded-xl text-xs hover:border-[#F27D26] hover:bg-white active:scale-[0.99] transition-all flex items-start gap-2.5 group cursor-pointer"
                       id={`quick-starter-btn-${i}`}
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-[#F27D26] mt-0.5 shrink-0" />
-                      <span className="font-semibold text-gray-750 group-hover:text-black leading-snug">{qs.label}</span>
+                      <Sparkles className="w-3.5 h-3.5 text-[#F27D26] mt-0.5 shrink-0 group-hover:rotate-12 transition-transform" />
+                      <span className="font-semibold text-zinc-700 group-hover:text-zinc-950 leading-tight">{qs.label}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="border-t border-black/5 pt-3">
-                <h4 className="text-[10px] sans font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  🎯 Tested Capabilities
+              {/* Tested Capabilities */}
+              <div className="border-t border-zinc-200/40 pt-4">
+                <h4 className="text-[10px] sans font-bold text-zinc-400 uppercase tracking-widest mb-2.5">
+                  🎯 System Scopes
                 </h4>
-                <ul className="text-[11px] text-gray-600 space-y-1.5 leading-relaxed font-sans">
-                  <li className="flex gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> Search 25,000+ Lankan items</li>
-                  <li className="flex gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> Multi-item checkout pricing</li>
-                  <li className="flex gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> Local delivery city scopes</li>
-                  <li className="flex gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> Locked LKR pay-links</li>
+                <ul className="text-[11px] text-zinc-600 space-y-2 leading-relaxed font-sans">
+                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> Search 25,000+ Lankan items</li>
+                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> Multi-item checkout pricing</li>
+                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> Local delivery city scopes</li>
+                  <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> Locked LKR pay-links</li>
                 </ul>
               </div>
             </div>
           </div>
 
-          {/* Unified status cart status box matching the Mock Layout styling */}
-          <div 
+          {/* Connected Cart Box */}
+          <button 
             onClick={() => { setCartOpen(true); setActiveTab("chat"); }}
-            className="p-5 rounded-2xl bg-black text-white cursor-pointer mt-6 flex flex-col justify-between hover:bg-zinc-900 transition-all shadow-md group hover:scale-[1.02] active:scale-98"
+            className="p-5 rounded-2xl bg-zinc-950 text-white cursor-pointer mt-6 flex flex-col justify-between hover:bg-zinc-900 transition-all duration-300 border border-zinc-800 text-left group hover:scale-[1.01]"
           >
-            <div className="flex justify-between items-start">
+            <div className="flex justify-between items-start w-full">
               <div>
-                <p className="sans text-[9px] uppercase tracking-widest font-bold opacity-50 mb-1">Cart Status</p>
+                <p className="sans text-[9px] uppercase tracking-widest font-bold text-zinc-400 mb-1">Total Basket</p>
                 <p className="serif text-2xl font-bold text-[#F27D26]">{formatPrice(calculateSubtotal())}</p>
               </div>
-              <ShoppingBag className="w-5 h-5 text-[#F27D26]" />
+              <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-[#F27D26] group-hover:scale-105 transition-transform">
+                <ShoppingBag className="w-4 h-4" />
+              </div>
             </div>
-            <div className="h-[1px] w-full bg-white/10 my-3"></div>
-            <p className="sans text-[11px] opacity-70 flex justify-between items-center">
-              <span>{cart.reduce((s, idx) => s + idx.quantity, 0)} Items Pending</span>
-              <span className="text-[#F27D26] font-bold">Review →</span>
-            </p>
-          </div>
+            <div className="h-[1px] w-full bg-zinc-800 my-3.5"></div>
+            <div className="sans text-[11px] text-zinc-455 flex justify-between items-center w-full">
+              <span>{cart.reduce((s, idx) => s + idx.quantity, 0)} Items Selected</span>
+              <span className="text-[#F27D26] font-bold group-hover:translate-x-0.5 transition-transform">Review Basket →</span>
+            </div>
+          </button>
         </section>
 
-        {/* Central Chat Interface */}
-        <main className={`flex-1 flex flex-col bg-[#FAF9F6] overflow-hidden min-h-[500px] h-[calc(100vh-68px)] relative ${activeTab === "info" ? "hidden" : "flex"}`} id="chat-surface">
+        {/* Central Clean Chat Board */}
+        <main className={`flex-1 flex flex-col bg-[#FAF9F6] overflow-hidden min-h-[500px] h-[calc(100vh-73px)] relative ${activeTab === "info" ? "hidden" : "flex"}`} id="chat-surface">
           
-          {/* Active Conversations Stream */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5" id="messages-container">
-            {messages.map((msg, i) => (
+          {/* Messages Stream */}
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6" id="messages-container">
+            {messages.map((msg) => (
               <div
                 key={msg.id}
                 className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}
@@ -452,30 +467,29 @@ export default function Home() {
               >
                 <div className={`flex items-start gap-3.5 max-w-[85%] md:max-w-[78%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
                   
-                  {/* Avatar Icons */}
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border ${msg.role === "user" ? "bg-white border-black/10 text-gray-800 font-bold sans text-xs" : "bg-black border-transparent text-[#F27D26]"}`}>
+                  {/* Avatar Bubble */}
+                  <div className={`w-8.5 h-8.5 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300 ${msg.role === "user" ? "bg-white border-zinc-200 text-zinc-800 font-extrabold sans text-xs shadow-3xs" : "bg-zinc-950 border-transparent text-[#F27D26]"}`}>
                     {msg.role === "user" ? msg.content.substring(0, 1).toUpperCase() : <Sparkles className="w-4 h-4" />}
                   </div>
 
                   <div className="space-y-1">
-                    <p className="sans text-[10px] uppercase font-extrabold opacity-40 tracking-wider block px-1">
-                      {msg.role === "user" ? "Buyer Client" : "Kapruka Concierge"}
+                    <p className="sans text-[9px] uppercase font-bold tracking-widest text-zinc-400 block px-1">
+                      {msg.role === "user" ? "Buyer Client" : "Concierge Ayla"}
                     </p>
 
-                    {/* Message Bubble styled per mockup request */}
+                    {/* Message Text Bubble */}
                     <div
                       className={`${
                         msg.role === "user"
-                          ? "bg-[#1A1A1A] text-white p-4 rounded-2xl rounded-br-none shadow-sm text-sm font-sans"
-                          : "glass p-5 rounded-2xl rounded-tl-none chat-shadow serif text-[15px] leading-relaxed text-[#1A1A1A]"
+                          ? "bg-zinc-900 text-white p-4 rounded-2xl rounded-tr-none shadow-3xs text-sm font-sans"
+                          : "bg-white p-5 rounded-2xl rounded-tl-none border border-zinc-200/55 chat-shadow serif text-[14.5px] leading-relaxed text-zinc-800"
                       }`}
                       id={`bubble-${msg.id}`}
                     >
                       {parseMarkdownText(msg.content)}
                     </div>
 
-                    {/* Timestamp log */}
-                    <span className="text-[9px] font-mono text-gray-400 block px-1" suppressHydrationWarning>
+                    <span className="text-[9px] font-mono text-zinc-400 block px-1 pt-0.5" suppressHydrationWarning>
                       {mounted ? msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
                     </span>
                   </div>
@@ -483,25 +497,25 @@ export default function Home() {
 
                 {/* VISUAL WIDGETS ANCHOR */}
                 {msg.widgets && msg.widgets.length > 0 && (
-                  <div className="w-full mt-2 pl-11 pr-4 space-y-3" id={`widgets-for-${msg.id}`}>
+                  <div className="w-full mt-3 pl-12 pr-4 space-y-4" id={`widgets-for-${msg.id}`}>
                     {msg.widgets.map((widget, widIdx) => {
                       
                       // 1. CAROUSEL
                       if (widget.type === "carousel" && Array.isArray(widget.data)) {
                         return (
                           <div key={widIdx} className="w-full" id={`carousel-widget-${widIdx}`}>
-                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 mb-2 font-mono uppercase tracking-widest">
-                              <ShoppingBag className="w-3.5 h-3.5 text-[#F27D26]" /> Product matches ({widget.data.length})
+                            <div className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-400 mb-2.5 font-sans uppercase tracking-widest">
+                              <ShoppingBag className="w-3.5 h-3.5 text-[#F27D26]" /> Match Results ({widget.data.length})
                             </div>
-                            <div className="flex overflow-x-auto pb-3 gap-3 snap-x scrollbar-thin scrollbar-thumb-black/5">
+                            <div className="flex overflow-x-auto pb-3.5 gap-4 snap-x scrollbar-thin scrollbar-thumb-zinc-200">
                               {widget.data.map((prod: any, prodIdx: number) => (
                                 <div
                                   key={prodIdx}
-                                  className="w-[200px] shrink-0 bg-white border border-black/5 rounded-2xl p-3 snap-start shadow-xs hover:border-[#F27D26] hover:scale-[1.01] transition-all flex flex-col justify-between"
+                                  className="w-[205px] shrink-0 bg-white border border-zinc-200/40 rounded-2xl p-3.5 snap-start shadow-xs hover:border-[#F27D26] hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between"
                                   id={`prod-card-${prodIdx}`}
                                 >
                                   <div>
-                                    <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-[#FAF9F6] border border-black/5 mb-2">
+                                    <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-[#FAF9F6] border border-black/5 mb-3">
                                       <Image
                                         src={prod.imageUrl || `https://picsum.photos/seed/${prod.productId}/300/300`}
                                         alt={prod.name}
@@ -510,32 +524,32 @@ export default function Home() {
                                         referrerPolicy="no-referrer"
                                         className="object-cover"
                                       />
-                                      {prod.inStock ? (
-                                        <span className="absolute top-1.5 left-1.5 bg-emerald-500 text-white text-[8px] font-mono font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">In Stock</span>
-                                      ) : (
-                                        <span className="absolute top-1.5 left-1.5 bg-red-500 text-white text-[8px] font-mono font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Sold Out</span>
-                                      )}
+                                      <span className={`absolute top-2 left-2 text-[8px] font-mono font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wide shadow-3xs ${
+                                        prod.inStock ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"
+                                      }`}>
+                                        {prod.inStock ? "In Stock" : "Sold Out"}
+                                      </span>
                                     </div>
-                                    <h5 className="serif font-bold text-xs text-[#1A1A1A] line-clamp-2 h-8 leading-tight">{prod.name}</h5>
+                                    <h5 className="serif font-bold text-xs text-zinc-900 line-clamp-2 h-8 leading-tight">{prod.name}</h5>
                                     <p className="sans text-xs text-[#F27D26] font-extrabold mt-1.5">{formatPrice(prod.price)}</p>
-                                    <span className="text-[8px] font-mono text-gray-450 block mt-0.5 uppercase tracking-widest">Id: {prod.productId}</span>
+                                    <span className="text-[8px] font-mono text-zinc-400 block mt-0.5 uppercase tracking-wider">SKU: {prod.productId}</span>
                                   </div>
 
-                                  <div className="mt-3 space-y-1">
+                                  <div className="mt-3.5 space-y-1.5">
                                     <button
                                       disabled={!prod.inStock}
                                       onClick={() => handleLocalAddToCart(prod)}
-                                      className="w-full py-1.5 bg-[#121212] hover:bg-[#F27D26] disabled:bg-gray-100 disabled:text-gray-400 text-white rounded-xl text-[9px] uppercase font-bold tracking-wider transition-all active:scale-95 cursor-pointer"
+                                      className="w-full py-2 bg-zinc-950 hover:bg-[#F27D26] disabled:bg-zinc-100 disabled:text-zinc-400 text-white rounded-xl text-[9px] uppercase font-bold tracking-widest transition-all cursor-pointer"
                                       id={`buy-btn-${prod.productId}`}
                                     >
                                       Add to Cart
                                     </button>
                                     <button
                                       onClick={() => handleSendMessage(`Tell me details about product code: ${prod.productId}`)}
-                                      className="w-full py-1 text-gray-400 hover:text-black rounded-lg text-[9px] uppercase font-bold tracking-wider transition-all"
+                                      className="w-full py-1 text-zinc-400 hover:text-zinc-900 rounded-lg text-[9px] uppercase font-extrabold tracking-wider transition-colors cursor-pointer"
                                       id={`info-btn-${prod.productId}`}
                                     >
-                                      Inspect 🔍
+                                      Inspect details 🔍
                                     </button>
                                   </div>
                                 </div>
@@ -549,7 +563,7 @@ export default function Home() {
                       if (widget.type === "detail" && widget.data) {
                         const prod = widget.data;
                         return (
-                          <div key={widIdx} className="bg-white border border-black/5 rounded-2xl p-5 shadow-sm max-w-md" id="detail-widget">
+                          <div key={widIdx} className="bg-white border border-zinc-200/50 rounded-2xl p-5 shadow-xs max-w-md" id="detail-widget">
                             <div className="flex flex-col md:flex-row gap-4">
                               <div className="relative w-full md:w-32 aspect-square rounded-xl overflow-hidden bg-[#FAF9F6] shrink-0 border border-black/5">
                                 <Image
@@ -564,15 +578,15 @@ export default function Home() {
                               <div className="flex-1 flex flex-col justify-between">
                                 <div>
                                   <span className="text-[9px] sans uppercase tracking-wider bg-orange-50 text-[#F27D26] px-2.5 py-0.5 rounded-full font-bold">Product Showcase</span>
-                                  <h4 className="serif font-bold text-[#1A1A1A] text-sm mt-2">{prod.name}</h4>
+                                  <h4 className="serif font-bold text-zinc-900 text-sm mt-2">{prod.name}</h4>
                                   <p className="sans text-xs font-bold text-[#F27D26] mt-1">{formatPrice(prod.price)}</p>
-                                  <p className="sans text-[11px] text-gray-500 mt-1 lines-clamp-3 leading-relaxed">{prod.description || "No descriptions available presently."}</p>
+                                  <p className="sans text-[11px] text-zinc-500 mt-2.5 leading-relaxed line-clamp-3">{prod.description || "No descriptions available presently."}</p>
                                 </div>
                                 <div className="mt-4 flex gap-2">
                                   <button
                                     disabled={!prod.inStock}
                                     onClick={() => handleLocalAddToCart({ productId: prod.productId, name: prod.name, price: prod.price, imageUrl: prod.imageUrl })}
-                                    className="px-4 py-2 bg-[#1A1A1A] hover:bg-[#F27D26] disabled:bg-gray-150 disabled:text-gray-400 text-white rounded-xl text-[9px] uppercase tracking-wider font-extrabold transition-all active:scale-95 cursor-pointer whitespace-nowrap"
+                                    className="px-4 py-2.5 bg-zinc-950 hover:bg-[#F27D26] disabled:bg-zinc-150 disabled:text-zinc-400 text-white rounded-xl text-[9px] uppercase tracking-widest font-extrabold transition-all active:scale-[0.97] cursor-pointer whitespace-nowrap"
                                     id="detail-add-cart-btn"
                                   >
                                     Add to Cart
@@ -582,10 +596,10 @@ export default function Home() {
                                       href={prod.url}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="px-3 py-2 border border-black/10 text-gray-600 rounded-xl text-[9px] uppercase tracking-wider font-bold hover:bg-black/5 transition-all text-center"
+                                      className="px-3 py-2.5 border border-zinc-200 text-zinc-650 rounded-xl text-[9px] uppercase tracking-widest font-bold hover:bg-zinc-50 transition-all text-center flex items-center"
                                       id="detail-view-k-link"
                                     >
-                                      Kapruka
+                                      Kapruka Store
                                     </a>
                                   )}
                                 </div>
@@ -599,20 +613,37 @@ export default function Home() {
                       if (widget.type === "delivery_quote" && widget.data) {
                         const quote = widget.data;
                         return (
-                          <div key={widIdx} className="bg-white border border-black/5 rounded-2xl p-4 shadow-sm max-w-sm flex items-start gap-3" id="delivery-quote-widget">
-                            <Truck className="w-8 h-8 text-[#F27D26] shrink-0 p-1.5 bg-orange-50 rounded-xl" />
-                            <div>
-                              <h4 className="text-[9px] sans font-bold tracking-widest text-gray-400 uppercase">Delivery Check Status</h4>
-                              <p className="serif text-base font-bold text-[#1A1A1A] mt-0.5">City: {quote.city}</p>
-                              <div className="mt-1.5 space-y-1 text-xs text-gray-600 font-sans">
-                                <p className="flex items-center gap-1.5">📅 Schedule Target: <span className="font-semibold text-gray-950">{quote.deliveryDate}</span></p>
-                                <p className="flex items-center gap-1.5">🚚 Shipping Rate: <span className="font-bold text-[#F27D26]">{quote.cost ? formatPrice(quote.cost) : "LKR 450 (Standard)"}</span></p>
-                                <p className="flex items-center gap-1.5">🛑 Status: {quote.canDeliver ? <span className="text-emerald-600 font-semibold flex items-center gap-0.5">Deliverable <Check className="w-3.5 h-3.5" /></span> : <span className="text-red-500 font-semibold">Unavailable</span>}</p>
+                          <div key={widIdx} className="bg-white border border-zinc-200/50 rounded-2xl p-4.5 shadow-xs max-w-sm flex items-start gap-4" id="delivery-quote-widget">
+                            <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
+                              <Truck className="w-5 h-5 text-[#F27D26]" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-[9px] sans font-bold tracking-widest text-[#F27D26] uppercase">Delivery Quote</h4>
+                              <p className="serif text-base font-bold text-zinc-950 mt-0.5">{quote.city}</p>
+                              
+                              <div className="mt-2.5 space-y-1.5 text-xs text-zinc-600 font-sans">
+                                <p className="flex justify-between items-center py-0.5 border-b border-zinc-50">
+                                  <span>📅 Targeted Delivery</span>
+                                  <span className="font-bold text-zinc-900">{quote.deliveryDate}</span>
+                                </p>
+                                <p className="flex justify-between items-center py-0.5 border-b border-zinc-50">
+                                  <span>🚚 Courier Rate</span>
+                                  <span className="font-bold text-[#F27D26]">{quote.cost ? formatPrice(quote.cost) : "LKR 450 (Standard)"}</span>
+                                </p>
+                                <p className="flex justify-between items-center py-0.5">
+                                  <span>🛑 Dispatch Status</span>
+                                  {quote.canDeliver ? (
+                                    <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md text-[10px] flex items-center gap-0.5">Deliverable <Check className="w-3 h-3" /></span>
+                                  ) : (
+                                    <span className="text-red-700 font-bold bg-red-50 px-2 py-0.5 rounded-md text-[10px]">Unavailable</span>
+                                  )}
+                                </p>
                               </div>
+
                               {quote.warning && (
-                                <div className="mt-2.5 p-2 bg-amber-50 text-amber-800 text-[10px] rounded-lg border border-amber-100 flex items-start gap-1">
-                                  <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-500" />
-                                  <span>{quote.warning}</span>
+                                <div className="mt-3 p-2.5 bg-amber-50 text-amber-900 border border-amber-100/60 rounded-xl text-[10px] flex items-start gap-1.5">
+                                  <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-600 mt-0.5" />
+                                  <span className="leading-normal">{quote.warning}</span>
                                 </div>
                               )}
                             </div>
@@ -625,33 +656,33 @@ export default function Home() {
                         const check = widget.data;
                         const finalPayUrl = check.checkoutUrl;
                         return (
-                          <div key={widIdx} className="bg-white border-2 border-[#1A1A1A] rounded-2xl p-5 shadow-lg max-w-md relative overflow-hidden" id="checkout-invoice-widget">
-                            <div className="absolute top-0 right-0 py-1.5 px-3 bg-[#1A1A1A] text-white text-[8px] font-sans tracking-widest uppercase rounded-bl-xl font-extrabold">Receipt Invoice</div>
-                            <h4 className="serif font-bold text-sm text-[#1A1A1A] flex items-center gap-1.5">
-                              <CreditCard className="w-4 h-4 text-[#F27D26]" /> Order Ready!
+                          <div key={widIdx} className="bg-white border-2 border-zinc-900 rounded-2xl p-5.5 shadow-md max-w-md relative overflow-hidden" id="checkout-invoice-widget">
+                            <div className="absolute top-0 right-0 py-1.5 px-3 bg-zinc-900 text-white text-[8px] font-sans tracking-widest uppercase rounded-bl-xl font-extrabold">Invoice Summary</div>
+                            <h4 className="serif font-bold text-sm text-zinc-900 flex items-center gap-1.5 mt-1">
+                              <CreditCard className="w-4.5 h-4.5 text-[#F27D26]" /> Order Checkout Lock
                             </h4>
-                            <p className="text-xs text-gray-450 mt-0.5 sans">Transaction ID: <span className="font-mono text-gray-900 font-semibold">{check.orderNumber}</span></p>
+                            <p className="text-[10px] text-zinc-400 mt-0.5 sans">LKR Lock Reference: <span className="font-mono text-zinc-900 font-semibold">{check.orderNumber}</span></p>
                             
-                            <div className="border-t border-dashed border-black/10 my-3.5 pt-3.5">
-                              <div className="flex justify-between text-xs text-gray-500 font-medium">
-                                <span>Kapruka Guest Purchase Invoice:</span>
-                                <span className="font-bold text-gray-900">{check.itemsCount || cart.reduce((s, i) => s + i.quantity, 0)} Items</span>
+                            <div className="border-t border-dashed border-zinc-200 my-4 pt-4">
+                              <div className="flex justify-between text-xs text-zinc-500">
+                                <span>Guest Purchase Description</span>
+                                <span className="font-bold text-zinc-900">{check.itemsCount || cart.reduce((s, i) => s + i.quantity, 0)} Items Locked</span>
                               </div>
-                              <div className="flex justify-between text-base text-gray-900 font-bold mt-2">
-                                <span>TOTAL LOCKED AMOUNT:</span>
+                              <div className="flex justify-between text-sm text-zinc-900 font-bold mt-2.5">
+                                <span>TOTAL ASSIGNED:</span>
                                 <span className="serif text-lg font-bold text-[#F27D26]">{formatPrice(check.totalAmount)}</span>
                               </div>
                             </div>
 
-                            <p className="text-[10px] text-gray-500 leading-normal my-3 bg-[#FAF9F6] p-2.5 rounded-lg border border-black/5">
-                              ⚠️ **Note:** Standard guest checkout prices are locked for 60 minutes. Click below to pay on secure Kapruka Payment Center.
-                            </p>
+                            <div className="mt-3.5 p-3 bg-zinc-50 text-zinc-650 border border-zinc-150 rounded-xl text-[10px] leading-relaxed">
+                              ⚠️ Standard checkout lock references are secure and valid for 60 minutes. Click below to fulfill payment on Kapruka Payment Center.
+                            </div>
 
                             <a
                               href={finalPayUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="w-full py-2.5 bg-[#F27D26] hover:bg-accent-orange-hover text-white rounded-xl text-[10px] font-bold tracking-wider uppercase text-center flex items-center justify-center gap-1.5 mt-2 transition-all active:scale-95 cursor-pointer shadow-xs"
+                              className="w-full py-3 bg-[#F27D26] hover:bg-zinc-900 text-white rounded-xl text-[10px] font-bold tracking-widest uppercase text-center flex items-center justify-center gap-2 mt-4.5 transition-all shadow-xs active:scale-[0.98] cursor-pointer"
                               id="checkout-pay-now-btn"
                             >
                               💳 SECURE GUEST PAY NOW <ArrowRight className="w-4 h-4" />
@@ -664,26 +695,26 @@ export default function Home() {
                       if (widget.type === "order_status" && widget.data) {
                         const tracker = widget.data;
                         return (
-                          <div key={widIdx} className="bg-white border border-black/5 rounded-2xl p-5 shadow-sm max-w-sm" id="order-status-widget">
-                            <div className="flex items-center gap-1.5 mb-3 text-[10px] sans font-bold text-gray-400 uppercase tracking-widest">
-                              <Activity className="w-4 h-4 text-[#F27D26]" /> Dispatch Progress Log
+                          <div key={widIdx} className="bg-white border border-zinc-200/50 rounded-2xl p-5 shadow-xs max-w-sm" id="order-status-widget">
+                            <div className="flex items-center gap-1.5 mb-3.5 text-[9px] sans font-bold text-zinc-400 uppercase tracking-widest">
+                              <Activity className="w-4 h-4 text-[#F27D26]" /> Dispatch Tracker logs
                             </div>
-                            <h4 className="serif font-bold text-[#1A1A1A] text-sm">Order: {tracker.orderNumber}</h4>
-                            <p className="sans text-xs text-gray-500 mb-3">Recipient Name: <span className="font-semibold text-gray-800">{tracker.recipientName || "Valued Customer"}</span></p>
+                            <h4 className="serif font-bold text-zinc-950 text-sm">Receipt: {tracker.orderNumber}</h4>
+                            <p className="sans text-xs text-zinc-500 mb-4">Receiving recipient: <span className="font-semibold text-zinc-850">{tracker.recipientName || "Guest Customer"}</span></p>
                             
-                            <div className="space-y-4 relative pl-3 border-l border-black/5 ml-1.5" id="timeline-stepper">
+                            <div className="space-y-4 relative pl-3 border-l border-zinc-155 ml-1.5" id="timeline-stepper">
                               {tracker.logs && tracker.logs.length > 0 ? (
                                 tracker.logs.map((log: any, logIdx: number) => (
                                   <div key={logIdx} className="relative text-xs" id={`timeline-step-${logIdx}`}>
-                                    <div className="absolute -left-[16px] top-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-white animate-pulse"></div>
-                                    <span className="text-[9px] font-mono text-gray-400 block">{log.time}</span>
-                                    <span className="serif font-bold text-[#1A1A1A] leading-tight block">{log.activity}</span>
+                                    <div className="absolute -left-[16.5px] top-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-white animate-status-pulse"></div>
+                                    <span className="text-[9px] font-mono text-zinc-400 block">{log.time}</span>
+                                    <span className="serif font-bold text-zinc-900 leading-tight block mt-0.5">{log.activity}</span>
                                   </div>
                                 ))
                               ) : (
-                                <div className="text-xs text-gray-500 py-1 flex items-start gap-1 pb-1">
-                                  <Clock className="w-4 h-4 text-amber-500 shrink-0 animate-spin" />
-                                  <span>Tracking logs updated periodically. Status: <strong className="text-[#F27D26] font-bold">{tracker.status}</strong></span>
+                                <div className="text-xs text-zinc-500 py-1 flex items-start gap-2.5 pb-1">
+                                  <Clock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5 animate-spin" />
+                                  <span>No local dispatch history presently. Status: <strong className="text-[#F27D26] font-bold">{tracker.status}</strong></span>
                                 </div>
                               )}
                             </div>
@@ -699,60 +730,60 @@ export default function Home() {
             ))}
 
             {isPending && (
-              <div className="flex items-center gap-2.5 text-xs text-gray-400 pl-11" id="typing-indicator">
-                <div className="flex space-x-1">
+              <div className="flex items-center gap-2.5 text-xs text-zinc-400 pl-12" id="typing-indicator">
+                <div className="flex space-x-1.5">
                   <div className="w-1.5 h-1.5 bg-[#F27D26] rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                   <div className="w-1.5 h-1.5 bg-[#F27D26] rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                   <div className="w-1.5 h-1.5 bg-[#F27D26] rounded-full animate-bounce"></div>
                 </div>
-                <span className="sans text-[10px] uppercase font-bold tracking-wider text-gray-500">ayla concierge is typing...</span>
+                <span className="sans text-[10px] uppercase font-bold tracking-widest text-[#F27D26] animate-pulse">Ayla concierge is thinking...</span>
               </div>
             )}
             <div ref={chatEndRef} />
           </div>
 
-          {/* Quick Prompts Chips Bar updated to matches mock layouts styles */}
-          <div className="px-4 py-3 flex items-center gap-2 overflow-x-auto whitespace-nowrap bg-[#FAF9F6] border-t border-black/5" id="quick-queries-chips">
-            <span className="sans text-[10px] uppercase tracking-widest font-bold opacity-40 shrink-0">
+          {/* Quick suggestions pill chips */}
+          <div className="px-4 py-3 flex items-center gap-2.5 overflow-x-auto whitespace-nowrap bg-[#FAF9F6] border-t border-zinc-200/40" id="quick-queries-chips">
+            <span className="sans text-[9px] uppercase tracking-widest font-bold text-zinc-400 shrink-0">
               Suggestions:
             </span>
             <button
               onClick={() => handleSendMessage("Search fresh flower bouquets")}
-              className="sans text-[9px] uppercase font-bold px-3 py-1.5 bg-black/5 hover:bg-black/10 text-gray-800 rounded-full cursor-pointer transition-colors"
+              className="sans text-[9px] uppercase font-bold px-3.5 py-1.5 bg-white hover:bg-orange-50 border border-zinc-200/50 hover:border-orange-200/60 text-zinc-850 rounded-full cursor-pointer transition-all active:scale-[0.98]"
               id="chip-flowers"
             >
               Suggest Cakes 🎂
             </button>
             <button
               onClick={() => handleSendMessage("Recommend flower baskets or cake options")}
-              className="sans text-[9px] uppercase font-bold px-3 py-1.5 bg-black/5 hover:bg-black/10 text-gray-800 rounded-full cursor-pointer transition-colors"
+              className="sans text-[9px] uppercase font-bold px-3.5 py-1.5 bg-white hover:bg-orange-50 border border-zinc-200/50 hover:border-orange-200/60 text-zinc-850 rounded-full cursor-pointer transition-all active:scale-[0.98]"
               id="chip-cakes"
             >
               Same Day Options ⚡
             </button>
             <button
               onClick={() => handleSendMessage("Check delivery quote to Galle or Kandy")}
-              className="sans text-[9px] uppercase font-bold px-3 py-1.5 bg-black/5 hover:bg-black/10 text-gray-800 rounded-full cursor-pointer transition-colors"
+              className="sans text-[9px] uppercase font-bold px-3.5 py-1.5 bg-white hover:bg-orange-50 border border-zinc-200/50 hover:border-orange-200/60 text-zinc-850 rounded-full cursor-pointer transition-all active:scale-[0.98]"
               id="chip-delivery"
             >
-              Check Delivery Quote 🚚
+              Check Quote 🚚
             </button>
             <button
               onClick={() => handleSendMessage("Where is my order? Track number KAP3829")}
-              className="sans text-[9px] uppercase font-bold px-3 py-1.5 bg-black/5 hover:bg-black/10 text-gray-800 rounded-full cursor-pointer transition-colors"
+              className="sans text-[9px] uppercase font-bold px-3.5 py-1.5 bg-white hover:bg-orange-50 border border-zinc-200/50 hover:border-orange-200/60 text-zinc-850 rounded-full cursor-pointer transition-all active:scale-[0.98]"
               id="chip-track"
             >
-              Track Deliveries 📦
+              Track Order 📦
             </button>
           </div>
 
-          {/* Input Chat Field Bar with Bold styles */}
+          {/* Input text Box Bar */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleSendMessage(inputText);
             }}
-            className="p-4 bg-white border-t border-black/5 flex items-center space-x-2 shadow-xs"
+            className="p-4 bg-white border-t border-zinc-200/40 flex items-center space-x-2.5 shadow-3xs"
             id="chat-input-form"
           >
             <div className="flex-1 relative flex items-center">
@@ -767,13 +798,13 @@ export default function Home() {
                 }}
                 disabled={isPending}
                 placeholder="Ask about delivery to Kandy or find a specific gift..."
-                className="w-full bg-[#FAF9F6] border-2 border-black/10 rounded-2xl pl-4 pr-18 py-2.5 text-sm sans focus:outline-hidden focus:border-[#1A1A1A] resize-none h-[42px] max-h-[120px] scrollbar-none transition-colors"
+                className="w-full bg-[#FAF9F6] border border-zinc-200 rounded-xl pl-4 pr-18 py-2.5 text-sm sans focus:outline-hidden focus:border-zinc-900 resize-none h-[42px] max-h-[125px] scrollbar-none transition-all leading-normal"
                 id="message-text-area"
               />
               <button
                 type="button"
                 onClick={() => setInputText("සිංහලෙන්!")}
-                className="absolute right-3 p-1 text-gray-500 hover:text-[#F27D26] text-[9px] font-bold tracking-tight sans uppercase transition-colors rounded-lg bg-black/5 hover:bg-black/10"
+                className="absolute right-3.5 p-1 text-zinc-500 hover:text-[#F27D26] text-[8.5px] font-bold tracking-widest sans uppercase transition-colors rounded-md bg-zinc-100 hover:bg-orange-50"
                 title="සිංහලෙන් / Sinhala"
                 id="sinhala-shortcut-btn"
               >
@@ -783,7 +814,7 @@ export default function Home() {
             <button
               type="submit"
               disabled={!inputText.trim() || isPending}
-              className="px-5 py-2.5 bg-black hover:bg-zinc-800 disabled:bg-gray-100 disabled:text-gray-400 text-white rounded-xl active:scale-95 transition-all cursor-pointer font-bold uppercase tracking-widest h-[42px] flex items-center justify-center text-[10px]"
+              className="px-5 py-2.5 bg-zinc-950 hover:bg-[#F27D26] disabled:bg-zinc-100 disabled:text-zinc-400 text-[#FAF9F6] rounded-xl active:scale-[0.97] transition-all cursor-pointer font-bold uppercase tracking-widest h-[42px] flex items-center justify-center text-[10px]"
               id="send-msg-btn"
             >
               Send
@@ -791,7 +822,7 @@ export default function Home() {
           </form>
         </main>
 
-        {/* Floating Side Drawer - SHOPPING CART DETAILS */}
+        {/* Floating Shopping Cart Drawer */}
         <AnimatePresence>
           {cartOpen && (
             <motion.aside
@@ -799,50 +830,50 @@ export default function Home() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 220 }}
-              className="fixed top-0 right-0 h-full w-[310px] md:w-[350px] bg-white shadow-2xl border-l border-black/10 z-50 flex flex-col justify-between"
+              className="fixed top-0 right-0 h-full w-[320px] md:w-[360px] bg-white shadow-2xl border-l border-zinc-200 z-50 flex flex-col justify-between"
               id="floating-cart-drawer"
             >
               <div>
-                {/* Header of Drawer */}
-                <div className="p-4 border-b border-black/5 flex items-center justify-between bg-[#FAF9F6]" id="cart-drawer-header">
+                {/* Drawer Header */}
+                <div className="p-4 border-b border-zinc-200/40 flex items-center justify-between bg-[#FAF9F6]" id="cart-drawer-header">
                   <div className="flex items-center space-x-2">
                     <CartIcon className="w-5 h-5 text-[#F27D26]" />
-                    <span className="serif font-bold text-sm text-[#1A1A1A]" id="cart-drawer-title">Shopping Unified Cart</span>
+                    <span className="serif font-bold text-sm text-zinc-900" id="cart-drawer-title">Unified Cart</span>
                   </div>
                   <button
                     onClick={() => setCartOpen(false)}
-                    className="p-1 rounded-full hover:bg-black/5 text-gray-500 hover:text-black transition-colors"
+                    className="p-1 rounded-full hover:bg-zinc-100 text-zinc-500 hover:text-zinc-900 transition-colors cursor-pointer"
                     id="close-cart-btn"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                {/* Items list inside cart */}
-                <div className="p-4 space-y-3 overflow-y-auto max-h-[calc(100vh-210px)]" id="cart-drawer-items">
+                {/* Drawer Products list */}
+                <div className="p-4 space-y-3.5 overflow-y-auto max-h-[calc(100vh-210px)]" id="cart-drawer-items">
                   {cart.length === 0 ? (
-                    <div className="text-center py-12" id="cart-empty-message">
-                      <ShoppingBag className="w-12 h-12 text-gray-350 mx-auto stroke-1" />
-                      <p className="sans text-[11px] text-gray-500 font-bold uppercase tracking-wider mt-4">your cart is empty, Malli!</p>
+                    <div className="text-center py-16" id="cart-empty-message">
+                      <ShoppingBag className="w-10 h-10 text-zinc-300 mx-auto stroke-1" />
+                      <p className="sans text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-4">Basket is presently empty</p>
                       <button
                         onClick={() => {
                           handleSendMessage("Recommend a popular gift item");
                           setCartOpen(false);
                         }}
-                        className="text-[10px] font-bold text-[#F27D26] uppercase tracking-wider mt-2.5 underline"
+                        className="text-[10px] font-bold text-[#F27D26] uppercase tracking-widest mt-3.5 underline cursor-pointer hover:text-zinc-900 transition-colors"
                         id="empty-cart-cta"
                       >
-                        Find popular gifts
+                        Quick explore products
                       </button>
                     </div>
                   ) : (
                     cart.map((item, idx) => (
                       <div
                         key={item.product_id}
-                        className="flex gap-2.5 bg-[#FAF9F6] border border-black/5 rounded-xl p-3 relative items-center justify-between"
+                        className="flex gap-3 bg-[#FAF9F6] border border-zinc-200/40 rounded-xl p-3.5 relative items-center justify-between shadow-3xs"
                         id={`cart-item-${idx}`}
                       >
-                        <div className="flex gap-2.5 items-center">
+                        <div className="flex gap-3 items-center">
                           <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-white shrink-0 border border-black/5">
                             <Image
                               src={item.imageUrl || `https://picsum.photos/seed/${item.product_id}/300/300`}
@@ -854,26 +885,26 @@ export default function Home() {
                             />
                           </div>
                           <div>
-                            <h5 className="serif font-bold text-[11px] text-[#1A1A1A] leading-tight line-clamp-1">{item.name}</h5>
-                            <span className="sans text-[10px] text-[#F27D26] font-extrabold block mt-0.5">{formatPrice(item.price)}</span>
-                            <span className="text-[8px] font-mono text-gray-400 block break-all">Code: {item.product_id}</span>
+                            <h5 className="serif font-bold text-[11px] text-zinc-900 leading-tight line-clamp-1">{item.name}</h5>
+                            <span className="sans text-[10.5px] text-[#F27D26] font-extrabold block mt-0.5">{formatPrice(item.price)}</span>
+                            <span className="text-[8px] font-mono text-zinc-400 block mt-0.5 break-all">ID: {item.product_id}</span>
                           </div>
                         </div>
 
                         {/* Quantity controls */}
                         <div className="flex flex-col items-end gap-1.5 shrink-0 ml-1">
-                          <div className="flex items-center space-x-1.5 bg-white border border-black/10 px-1 py-0.5 rounded-lg text-xs" id={`qty-ctrl-${item.product_id}`}>
+                          <div className="flex items-center space-x-1.5 bg-white border border-zinc-200 px-1.5 py-0.5 rounded-lg text-xs" id={`qty-ctrl-${item.product_id}`}>
                             <button
                               onClick={() => handleUpdateQuantity(item.product_id, -1)}
-                              className="hover:text-[#F27D26]"
+                              className="hover:text-[#F27D26] cursor-pointer"
                               id={`qty-minus-${item.product_id}`}
                             >
                               <Minus className="w-3 h-3" />
                             </button>
-                            <span className="font-mono font-bold font-xs px-1 text-gray-800">{item.quantity}</span>
+                            <span className="font-mono font-bold text-xs px-1 text-zinc-800">{item.quantity}</span>
                             <button
                               onClick={() => handleUpdateQuantity(item.product_id, 1)}
-                              className="hover:text-[#F27D26]"
+                              className="hover:text-[#F27D26] cursor-pointer"
                               id={`qty-plus-${item.product_id}`}
                             >
                               <Plus className="w-3 h-3" />
@@ -881,8 +912,8 @@ export default function Home() {
                           </div>
                           <button
                             onClick={() => handleRemoveItem(item.product_id)}
-                            className="text-gray-400 hover:text-red-500 transition-colors p-0.5"
-                            title="Remove unit"
+                            className="text-zinc-400 hover:text-red-500 transition-colors p-0.5 cursor-pointer"
+                            title="Remove unit item"
                             id={`delete-btn-${item.product_id}`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -894,14 +925,14 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Footer pricing totals of Cart */}
-              <div className="p-4 border-t border-black/10 bg-[#FAF9F6]" id="cart-drawer-footer">
-                <div className="flex justify-between items-center text-[10px] sans uppercase tracking-wider font-bold text-gray-400 mb-1.5">
-                  <span>Selected unique items:</span>
-                  <span className="font-mono font-bold text-gray-800">{cart.length} count</span>
+              {/* Drawer footer details */}
+              <div className="p-4 border-t border-zinc-200/40 bg-[#FAF9F6]" id="cart-drawer-footer">
+                <div className="flex justify-between items-center text-[9px] sans uppercase tracking-widest font-bold text-zinc-400 mb-1">
+                  <span>Selected unique categories</span>
+                  <span className="font-mono font-bold text-zinc-800">{cart.length} unique</span>
                 </div>
-                <div className="flex justify-between items-center text-xs sans uppercase tracking-wider font-bold text-gray-900 mb-4">
-                  <span>Calculated Subtotal:</span>
+                <div className="flex justify-between items-center text-xs sans uppercase tracking-wider font-bold text-zinc-950 mb-4.5">
+                  <span>Calculated total amount</span>
                   <span className="serif text-base font-extrabold text-[#F27D26]" id="cart-calc-subtotal">{formatPrice(calculateSubtotal())}</span>
                 </div>
 
@@ -914,12 +945,12 @@ export default function Home() {
                       const m: Message = {
                         id: `cart-clear-${Date.now()}`,
                         role: "assistant",
-                        content: "🧹 Cart has been cleared fully. Subtotal is now **LKR 0**.",
+                        content: "🧹 Cart has been cleared fully. Calculated total is now **LKR 0**.",
                         timestamp: new Date(),
                       };
                       setMessages((p) => [...p, m]);
                     }}
-                    className="py-2.5 border border-black/10 hover:border-[#1A1A1A] hover:bg-black/5 text-[9px] sans uppercase font-bold tracking-wider rounded-xl transition cursor-pointer bg-white"
+                    className="py-2.5 border border-zinc-200 hover:border-zinc-900 hover:bg-zinc-100 text-[9px] sans uppercase font-bold tracking-widest rounded-xl transition cursor-pointer bg-white disabled:bg-zinc-100 disabled:text-zinc-400 disabled:border-zinc-200"
                     id="cart-clear-all-btn"
                   >
                     Clear All
@@ -930,10 +961,10 @@ export default function Home() {
                       setCartOpen(false);
                       handleSendMessage("I want to check out my cart and place an order please.");
                     }}
-                    className="py-2.5 bg-black hover:bg-zinc-800 disabled:bg-gray-100 disabled:text-gray-400 text-white rounded-xl text-[9px] sans uppercase font-extrabold tracking-wider text-center transition-all cursor-pointer whitespace-nowrap"
+                    className="py-2.5 bg-zinc-950 hover:bg-[#F27D26] disabled:bg-zinc-100 disabled:text-zinc-400 text-[#FAF9F6] rounded-xl text-[9px] sans uppercase font-extrabold tracking-widest text-center transition-all cursor-pointer whitespace-nowrap"
                     id="cart-checkout-cta"
                   >
-                    Go Checkout
+                    Fulfill checkout
                   </button>
                 </div>
               </div>
@@ -942,11 +973,11 @@ export default function Home() {
         </AnimatePresence>
       </div>
 
-      {/* Persistent global footer */}
-      <footer className="bg-white border-t border-black/5 py-5 px-6 text-center select-none" id="global-page-footer">
-        <p className="max-w-7xl mx-auto flex flex-col md:flex-row md:justify-between sans text-[9px] uppercase font-bold opacity-30 gap-1.5 md:gap-0 tracking-wider">
-          <span>📅 Kapruka Agent Challenge Submission 2026. Solo Build Entry.</span>
-          <span>👩‍💻 Built by DeepMind with Gemini 3.5 & Model Context Protocol.</span>
+      {/* Persistence global block footer */}
+      <footer className="bg-white border-t border-zinc-200/40 py-5.5 px-6 text-center select-none" id="global-page-footer">
+        <p className="max-w-7xl mx-auto flex flex-col md:flex-row md:justify-between sans text-[9.5px] uppercase font-bold text-zinc-400 gap-1.5 md:gap-0 tracking-wider">
+          <span>📅 Kapruka Agent Challenge Submission 2026</span>
+          <span>👩‍💻 Powered by Gemini & Model Context Protocol SSE Streams</span>
         </p>
       </footer>
     </div>
