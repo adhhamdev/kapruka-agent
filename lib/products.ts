@@ -1,3 +1,5 @@
+import { KAPRUKA_BASE_URL } from '@/constants/urls';
+
 export interface KaprukaProduct {
   productId?: string;
   name?: string;
@@ -10,8 +12,6 @@ export interface KaprukaProduct {
   description?: string;
 }
 
-const KAPRUKA_BASE = 'https://www.kapruka.com';
-
 /** Resolve a Kapruka product page URL from API fields or sensible fallbacks. */
 export function getKaprukaProductUrl(product: KaprukaProduct): string {
   const direct = product.url ?? product.productUrl ?? product.link;
@@ -20,12 +20,12 @@ export function getKaprukaProductUrl(product: KaprukaProduct): string {
   }
 
   if (product.productId) {
-    return `${KAPRUKA_BASE}/find_online?q=${encodeURIComponent(product.productId)}`;
+    return `${KAPRUKA_BASE_URL}/find_online?q=${encodeURIComponent(product.productId)}`;
   }
 
   if (product.name) {
-    return `${KAPRUKA_BASE}/find_online?q=${encodeURIComponent(product.name)}`;
+    return `${KAPRUKA_BASE_URL}/find_online?q=${encodeURIComponent(product.name)}`;
   }
 
-  return KAPRUKA_BASE;
+  return KAPRUKA_BASE_URL;
 }

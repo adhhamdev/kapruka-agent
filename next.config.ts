@@ -1,36 +1,52 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
+
+const securityHeaders = [
+  { key: 'X-DNS-Prefetch-Control', value: 'on' },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(self), geolocation=()',
+  },
+];
 
 const nextConfig: NextConfig = {
-  // Allow access to remote image placeholder.
+  poweredByHeader: false,
+  reactStrictMode: true,
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'picsum.photos',
-        port: '',
-        pathname: '/**', // This allows any path under the hostname
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'kapruka.com',
-        port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'www.kapruka.com',
-        port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'partnercentral.kapruka.com',
-        port: '',
         pathname: '/**',
       },
     ],
   },
-  transpilePackages: ['motion']
+  transpilePackages: ['motion'],
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: securityHeaders,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

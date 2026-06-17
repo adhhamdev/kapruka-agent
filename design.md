@@ -6,7 +6,7 @@ A locked design system for the Kapruka AI shopping assistant. Every page reads t
 modern-minimal (retail app · warm Sri Lankan e-commerce)
 
 ## Macrostructure family
-- App pages: **Workbench** — three-column chat console (Discover · Ayla · Basket)
+- App pages: **Workbench** — three-column chat console (Discover · Agent · Basket)
 
 ## Theme
 - `--color-primary`   oklch(31% 0.14 285) — Congress Blue #422B73

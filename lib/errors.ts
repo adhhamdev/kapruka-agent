@@ -5,9 +5,9 @@
 
 export const ERROR_MESSAGES = {
   NETWORK:
-    "We couldn't reach Ayla right now. Please check your connection and try again.",
+    "We couldn't reach Agent right now. Please check your connection and try again.",
   TIMEOUT:
-    'Ayla is taking longer than usual. Please wait a moment and try again.',
+    'Agent is taking longer than usual. Please wait a moment and try again.',
   SERVICE_UNAVAILABLE:
     'Our shopping assistant is temporarily unavailable. Please try again in a few minutes.',
   INVALID_REQUEST:

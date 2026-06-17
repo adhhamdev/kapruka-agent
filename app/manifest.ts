@@ -1,13 +1,15 @@
 import type { MetadataRoute } from 'next';
-
-const BRAND_PRIMARY = '#422B73';
+import {
+  APP_TITLE,
+  BRAND_PRIMARY,
+  PWA_DESCRIPTION,
+} from '@/constants/brand';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Kapruka Agent — Ayla',
+    name: APP_TITLE,
     short_name: 'Kapruka',
-    description:
-      'AI shopping concierge for Kapruka. Search gifts, manage your basket, and checkout.',
+    description: PWA_DESCRIPTION,
     start_url: '/',
     scope: '/',
     display: 'standalone',
