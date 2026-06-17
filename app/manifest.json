@@ -1,13 +1,14 @@
 {
   "name": "Kapruka Agent",
   "short_name": "Kapruka",
-  "description": "AI shopping concierge for Kapruka",
+  "description": "AI shopping concierge for Kapruka. Search gifts, manage your basket, and checkout.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#422B73",
   "theme_color": "#422B73",
+  "categories": ["shopping", "lifestyle"],
   "icons": [
     {
       "src": "/icon.png",
