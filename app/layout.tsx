@@ -1,31 +1,63 @@
-import type {Metadata} from 'next';
-import { Inter, Libre_Baskerville } from 'next/font/google';
-import './globals.css'; // Global styles
+import type { Metadata, Viewport } from 'next';
+import { DM_Sans } from 'next/font/google';
+import './globals.css';
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
 });
 
-const libreBaskerville = Libre_Baskerville({
-  weight: ['400', '700'],
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
-  variable: '--font-serif',
-});
+const BRAND_PRIMARY = '#422B73';
 
 export const metadata: Metadata = {
-  title: 'Ayla — Kapruka AI Shopping Agent',
-  description: "Sri Lanka's most innovative AI shopping companion for the Kapruka Agent Challenge 2026.",
+  title: 'Kapruka Agent — Ayla',
+  description:
+    'Your AI shopping concierge for Kapruka. Search gifts, cakes, flowers and more across Sri Lanka.',
+  applicationName: 'Kapruka Agent',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Kapruka',
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', sizes: '1024x1024', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-icon.png', sizes: '1024x1024', type: 'image/png' }],
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
-export default function RootLayout({children}: {children: React.ReactNode}) {
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: BRAND_PRIMARY },
+    { media: '(prefers-color-scheme: dark)', color: BRAND_PRIMARY },
+  ],
+  colorScheme: 'light',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={`${inter.variable} ${libreBaskerville.variable}`}>
-      <body className="antialiased text-[#1A1A1A] bg-[#FAF9F6] selection:bg-[#F27D26]/10 selection:text-[#F27D26]" suppressHydrationWarning>
+    <html lang='en' className={dmSans.variable}>
+      <body
+        className='antialiased bg-[color:var(--color-paper)] text-[color:var(--color-ink)] selection:bg-[color:var(--color-accent)]/25 selection:text-[color:var(--color-ink)] overflow-hidden'
+        suppressHydrationWarning>
         {children}
       </body>
     </html>
   );
 }
-

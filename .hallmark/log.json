@@ -3,8 +3,10 @@
     "date": "2026-06-17",
     "macrostructure": "Workbench",
     "theme": "custom",
-    "theme_axes": "light / grotesk-sans / warm",
+    "theme_axes": "light / grotesk-sans / warm-purple",
+    "vibe": "Kapruka Congress Blue retail",
     "enrichment": "none",
-    "brief": "Kapruka Ayla · non-technical user-friendly redesign"
+    "brief": "Kapruka Agent · brand redesign #422B73",
+    "scope": "app"
   }
 ]

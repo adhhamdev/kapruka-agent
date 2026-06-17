@@ -1,73 +1,112 @@
-@import "tailwindcss";
-@import "../tokens.css";
+/* Hallmark · genre: modern-minimal · macrostructure: Workbench · design-system: design.md · designed-as-app
+ * theme: custom (Kapruka · Congress Blue #422B73 · accent #FACE15 · DM Sans)
+ * audience: Sri Lankan shoppers · use: AI gift shopping · tone: warm retail
+ */
+@import 'tailwindcss';
+@import '../tokens.css';
 
 @theme {
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans:
+    var(--font-sans), 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  --color-paper: var(--color-paper);
-  --color-paper-2: var(--color-paper-2);
-  --color-surface: var(--color-surface);
-  --color-ink: var(--color-ink);
-  --color-ink-2: var(--color-ink-2);
-  --color-ink-3: var(--color-ink-3);
-  --color-rule: var(--color-rule);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
   --color-accent: var(--color-accent);
   --color-accent-hover: var(--color-accent-hover);
-  --color-accent-light: var(--color-accent-light);
-  --color-focus: var(--color-focus);
-  --color-success: var(--color-success);
-  --color-error: var(--color-error);
+  --color-bg-base: var(--color-paper);
+  --color-bg-surface: var(--color-paper-2);
+  --color-text-primary: var(--color-ink);
+  --color-text-secondary: var(--color-ink-2);
+  --color-text-tertiary: var(--color-ink-3);
+  --color-border-subtle: var(--color-rule);
+  --color-border-default: var(--color-rule-strong);
 }
 
-html,
-body {
-  overflow-x: clip;
+@layer base {
+  :root {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  html {
+    overflow-x: clip;
+    scroll-behavior: smooth;
+  }
+
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+    overflow-x: clip;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
 
-body {
+@utility sans {
   font-family: var(--font-body);
-  font-size: var(--text-base);
-  line-height: 1.55;
-  color: var(--color-ink);
-  background-color: var(--color-paper);
 }
 
-@utility surface-card {
-  background-color: var(--color-surface);
+@utility glass-card {
+  background-color: var(--color-paper-2);
   border: 1px solid var(--color-rule);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 1px 3px oklch(22% 0.01 50 / 0.04);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+@utility ios-glass {
+  background: oklch(100% 0 0 / 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--color-rule);
 }
 
 @utility chat-bubble-user {
-  background-color: var(--color-ink);
-  color: var(--color-surface);
-  border-radius: 1.25rem 1.25rem 0.25rem 1.25rem;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-radius: var(--radius-lg) var(--radius-lg) 4px var(--radius-lg);
 }
 
 @utility chat-bubble-assistant {
-  background-color: var(--color-surface);
+  background-color: var(--color-paper-2);
   color: var(--color-ink);
-  border: 1px solid var(--color-rule);
-  border-radius: 1.25rem 1.25rem 1.25rem 0.25rem;
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;
+  box-shadow: var(--shadow-sm);
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: oklch(80% 0.01 55 / 0.5);
-  border-radius: var(--radius-full);
+@utility chat-bubble-error {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  border: 1px solid oklch(80% 0.08 25);
+  border-radius: var(--radius-lg);
 }
 
-@keyframes fade-in {
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -75,37 +114,77 @@ body {
   }
 }
 
-.animate-fade-in {
-  animation: fade-in var(--dur-normal) var(--ease-out) forwards;
+@keyframes tab-crossfade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes status-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.92);
+  }
 }
 
 @keyframes typing-pulse {
   0%,
   100% {
+    transform: translateY(0);
     opacity: 0.35;
   }
   50% {
+    transform: translateY(-3px);
     opacity: 1;
   }
 }
 
+.animate-fade-in {
+  animation: fade-in-up var(--dur-long) var(--ease-out) forwards;
+}
+
+.animate-tab-in {
+  animation: tab-crossfade var(--dur-medium) var(--ease-out) forwards;
+}
+
+.animate-status-pulse {
+  animation: status-pulse 2s var(--ease-in-out) infinite;
+}
+
 .animate-typing-1 {
-  animation: typing-pulse 1s infinite var(--ease-out);
+  animation: typing-pulse 1s infinite ease-in-out;
 }
 .animate-typing-2 {
-  animation: typing-pulse 1s infinite var(--ease-out);
+  animation: typing-pulse 1s infinite ease-in-out;
   animation-delay: 0.15s;
 }
 .animate-typing-3 {
-  animation: typing-pulse 1s infinite var(--ease-out);
+  animation: typing-pulse 1s infinite ease-in-out;
   animation-delay: 0.3s;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-fade-in,
-  .animate-typing-1,
-  .animate-typing-2,
-  .animate-typing-3 {
-    animation: none;
-  }
+/* Focus ring — instant, no animation */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Smooth transitions on interactive elements */
+button,
+a,
+input {
+  transition:
+    background-color var(--dur-short) var(--ease-out),
+    border-color var(--dur-short) var(--ease-out),
+    color var(--dur-short) var(--ease-out),
+    transform var(--dur-short) var(--ease-out),
+    box-shadow var(--dur-short) var(--ease-out);
 }

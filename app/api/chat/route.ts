@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI, Type } from "@google/genai";
+import { AppError, ERROR_MESSAGES } from "@/lib/errors";
 import {
   searchProducts,
   getProduct,
@@ -331,10 +332,26 @@ const TOOL_DECLARATIONS = [
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, cart = [] } = await req.json();
+    if (!process.env.GEMINI_API_KEY) {
+      console.error("[api/chat] GEMINI_API_KEY is not configured");
+      throw new AppError("SERVICE_UNAVAILABLE", 503, "Missing GEMINI_API_KEY");
+    }
+
+    let body: { messages?: unknown; cart?: unknown };
+    try {
+      body = await req.json();
+    } catch {
+      throw new AppError("INVALID_REQUEST", 400, "Invalid JSON body");
+    }
+
+    const { messages, cart = [] } = body;
 
     if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json({ error: "Missing or invalid messages." }, { status: 400 });
+      throw new AppError("INVALID_REQUEST", 400, "Missing or invalid messages");
+    }
+
+    if (!Array.isArray(cart)) {
+      throw new AppError("INVALID_REQUEST", 400, "Invalid cart payload");
     }
 
     // Prepare contents array for Gemini
@@ -365,7 +382,8 @@ export async function POST(req: NextRequest) {
 
     const widgets: any[] = [];
     let updatedCart = [...cart];
-    let finalResponseText = "Sorry, I encountered an issue while responding.";
+    let finalResponseText =
+      "I'm having a little trouble right now. Could you try asking again?";
 
     // Agentic loop: Resolving tools matches up to 8 turns maximum
     for (let loop = 0; loop < 8; loop++) {
@@ -473,9 +491,14 @@ export async function POST(req: NextRequest) {
           } else {
             toolResult = { error: "Unknown custom tool called" };
           }
-        } catch (err: any) {
-          console.error(`[Error executing tool ${name}]:`, err);
-          toolResult = { error: err?.message || "Failed execution" };
+        } catch (err: unknown) {
+          const internal =
+            err instanceof Error ? err.message : "Tool execution failed";
+          console.error(`[Error executing tool ${name}]:`, internal);
+          toolResult = {
+            error:
+              "A shopping action could not be completed. Please try again.",
+          };
         }
 
         toolParts.push({
@@ -499,11 +522,20 @@ export async function POST(req: NextRequest) {
       widgets,
       cart: updatedCart,
     });
-  } catch (error: any) {
-    console.error("[POST api/chat Error]:", error);
+  } catch (error: unknown) {
+    if (error instanceof AppError) {
+      if (error.internalMessage) {
+        console.error(`[api/chat] ${error.code}:`, error.internalMessage);
+      }
+      return NextResponse.json(error.toJSON(), { status: error.statusCode });
+    }
+
+    const internal =
+      error instanceof Error ? error.message : "Unknown server error";
+    console.error("[POST api/chat Error]:", internal);
     return NextResponse.json(
-      { error: "Internal Server Exception: " + (error?.message || error) },
-      { status: 500 }
+      { error: ERROR_MESSAGES.GENERIC, code: "GENERIC" },
+      { status: 500 },
     );
   }
 }
