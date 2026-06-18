@@ -1,11 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { runAgentLoop } from '@/lib/agent/agent-loop';
-import { validateAttachmentPayload } from '@/lib/attachment-validation';
+import { NextRequest } from 'next/server';
+import { createAgentUIStreamResponse } from 'ai';
+import { createKaprukaAgent } from '@/lib/agents/kapruka-agent';
 import type { CartItem } from '@/lib/cart-storage';
 import { AppError, ERROR_MESSAGES } from '@/lib/errors';
-import type { ChatHistoryEntry } from '@/types/chat';
+import { validateUiMessageAttachments } from '@/lib/validate-ui-attachments';
+import type { KaprukaAgentUIMessage } from '@/types/agent-ui-message';
 
 export const runtime = 'nodejs';
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,35 +33,39 @@ export async function POST(req: NextRequest) {
       throw new AppError('INVALID_REQUEST', 400, 'Invalid cart payload');
     }
 
-    for (const entry of messages as ChatHistoryEntry[]) {
-      const validation = validateAttachmentPayload(entry.attachments);
-      if (!validation.ok) {
-        throw new AppError('INVALID_REQUEST', 400, validation.message);
-      }
+    const attachmentValidation = validateUiMessageAttachments(
+      messages as KaprukaAgentUIMessage[],
+    );
+    if (!attachmentValidation.ok) {
+      throw new AppError('INVALID_REQUEST', 400, attachmentValidation.message);
     }
 
-    const result = await runAgentLoop(
-      messages as ChatHistoryEntry[],
-      cart as CartItem[],
-    );
+    const cartRef = { current: cart as CartItem[] };
+    const agent = createKaprukaAgent(cartRef);
 
-    return NextResponse.json({
-      text: result.text,
-      widgets: result.widgets,
-      cart: result.cart,
+    return createAgentUIStreamResponse({
+      agent,
+      uiMessages: messages,
+      options: { cart: cartRef.current },
+      messageMetadata: ({ part }) => {
+        if (part.type === 'finish') {
+          return { cart: cartRef.current };
+        }
+        return undefined;
+      },
     });
   } catch (error: unknown) {
     if (error instanceof AppError) {
       if (error.internalMessage) {
         console.error(`[api/chat] ${error.code}:`, error.internalMessage);
       }
-      return NextResponse.json(error.toJSON(), { status: error.statusCode });
+      return Response.json(error.toJSON(), { status: error.statusCode });
     }
 
     const internal =
       error instanceof Error ? error.message : 'Unknown server error';
     console.error('[POST api/chat Error]:', internal);
-    return NextResponse.json(
+    return Response.json(
       { error: ERROR_MESSAGES.GENERIC, code: 'GENERIC' },
       { status: 500 },
     );

@@ -59,7 +59,7 @@ export function MarkdownContent({
 
   return (
     <Streamdown
-      mode='static'
+      mode={isAnimating ? 'streaming' : 'static'}
       isAnimating={isAnimating}
       controls={false}
       lineNumbers={false}

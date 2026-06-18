@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronRight, ExternalLink, Loader2, Plus } from 'lucide-react';
+import { ChevronRight, ExternalLink, Info, Loader2, Plus } from 'lucide-react';
 import { ProductImage } from '@/components/ui/ProductImage';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { formatPrice } from '@/lib/format';
@@ -17,6 +17,7 @@ interface ProductCarouselProps {
   hasMore?: boolean;
   onLoadMore?: () => void | Promise<void>;
   onAddToCart: (product: KaprukaProduct) => void;
+  onViewProductDetail?: (product: KaprukaProduct) => void;
 }
 
 export function ProductCarousel({
@@ -24,6 +25,7 @@ export function ProductCarousel({
   hasMore = false,
   onLoadMore,
   onAddToCart,
+  onViewProductDetail,
 }: ProductCarouselProps) {
   const reducedMotion = useReducedMotion();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -154,6 +156,15 @@ export function ProductCarousel({
                   <p className='font-semibold text-[11px] text-[color:var(--color-text-primary)] tabular-nums'>
                     {formatPrice(prod.price ?? 0)}
                   </p>
+                  {prod.productId && onViewProductDetail ? (
+                    <button
+                      type='button'
+                      onClick={() => onViewProductDetail(prod)}
+                      className='mt-1 w-full inline-flex items-center justify-center gap-1 py-1.5 rounded-[8px] border border-[color:var(--color-rule-strong)] bg-[color:var(--color-paper)] text-[10px] sm:text-[11px] font-medium text-[color:var(--color-primary)] hover:border-[color:var(--color-primary)]/40 hover:bg-[color:var(--color-paper-3)] transition-[border-color,background-color,transform] active:scale-[0.98] touch-manipulation'>
+                      <Info className='w-3 h-3 shrink-0' aria-hidden='true' />
+                      Details
+                    </button>
+                  ) : null}
                 </div>
               </motion.article>
             );

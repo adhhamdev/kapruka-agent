@@ -1,4 +1,4 @@
-import type { KaprukaProduct } from '@/lib/products';
+import type { KaprukaProduct, KaprukaProductDetail } from '@/lib/products';
 
 export interface CarouselPagination {
   q: string;
@@ -36,15 +36,21 @@ export interface OrderStatusData {
   logs?: OrderStatusLog[];
 }
 
+export interface KaprukaCategory {
+  name: string;
+  url: string;
+}
+
 export type Widget =
   | {
       type: 'carousel';
       data: KaprukaProduct[];
       pagination?: CarouselPagination;
     }
-  | { type: 'detail'; data: KaprukaProduct }
+  | { type: 'detail'; data: KaprukaProductDetail }
   | { type: 'delivery_quote'; data: DeliveryQuoteData }
   | { type: 'checkout_form'; data: CheckoutFormData }
-  | { type: 'order_status'; data: OrderStatusData };
+  | { type: 'order_status'; data: OrderStatusData }
+  | { type: 'categories_list'; data: KaprukaCategory[] };
 
 export type WidgetType = Widget['type'];

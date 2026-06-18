@@ -1,5 +1,10 @@
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { createMCPClient, type MCPClient } from '@ai-sdk/mcp';
+import { generateId } from 'ai';
+import { z } from 'zod';
+
+export const KAPRUKA_MCP_URL = 'https://mcp.kapruka.com/mcp';
+export const KAPRUKA_USER_AGENT =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36';
 
 export interface KaprukaToolResponse {
   content: Array<{
@@ -10,6 +15,22 @@ export interface KaprukaToolResponse {
   isError?: boolean;
 }
 
+async function createKaprukaClient(): Promise<MCPClient> {
+  return createMCPClient({
+    clientName: 'kapruka-agent-challenge',
+    version: '1.0.0',
+    transport: {
+      type: 'http',
+      url: KAPRUKA_MCP_URL,
+      headers: { 'User-Agent': KAPRUKA_USER_AGENT },
+    },
+  });
+}
+
+/**
+ * Kapruka MCP expects tool arguments wrapped as `{ params: { ... } }`.
+ * We invoke the MCP adapter with that shape so the server receives the correct payload.
+ */
 export async function callKaprukaTool(
   toolName: string,
   args: Record<string, unknown>,
@@ -19,32 +40,28 @@ export async function callKaprukaTool(
     JSON.stringify(args),
   );
 
-  const transport = new StreamableHTTPClientTransport(
-    new URL('https://mcp.kapruka.com/mcp'),
-    {
-      requestInit: {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        },
-      },
-    },
-  );
-
-  const client = new Client({
-    name: 'kapruka-agent-challenge',
-    version: '1.0.0',
-  });
+  const client = await createKaprukaClient();
 
   try {
-    await client.connect(transport);
-
-    const response = await client.callTool({
-      name: toolName,
-      arguments: {
-        params: args,
+    const tools = await client.tools({
+      schemas: {
+        [toolName]: {
+          inputSchema: z.object({
+            params: z.record(z.string(), z.unknown()),
+          }),
+        },
       },
     });
+
+    const mcpTool = tools[toolName];
+    if (!mcpTool?.execute) {
+      throw new Error(`MCP tool ${toolName} not found`);
+    }
+
+    const response = await mcpTool.execute(
+      { params: args },
+      { messages: [], toolCallId: generateId() },
+    );
 
     console.log(`[Kapruka MCP] Successful response from ${toolName}`);
     return response as KaprukaToolResponse;
@@ -63,7 +80,7 @@ export async function callKaprukaTool(
     };
   } finally {
     try {
-      await transport.close();
+      await client.close();
     } catch (closeErr) {
       console.warn('[Kapruka MCP] Warning closing transport:', closeErr);
     }

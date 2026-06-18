@@ -49,8 +49,13 @@ export default function Home() {
     appendMessage({
       id: createMessageId('local-add'),
       role: 'assistant',
-      content: `Added **${product.name}** to your basket.`,
-      timestamp: new Date(),
+      parts: [
+        {
+          type: 'text',
+          text: `Added **${product.name}** to your basket.`,
+        },
+      ],
+      metadata: { createdAt: Date.now() },
     });
   };
 
@@ -68,7 +73,22 @@ export default function Home() {
 
   const handleCheckout = () => {
     setActiveTab('chat');
-    sendMessage('Please check out my cart.');
+    sendMessage(
+      'I want to checkout. Ask me for recipient, delivery, and sender details before creating the order.',
+    );
+  };
+
+  const handleBrowseCategory = (categoryName: string) => {
+    setActiveTab('chat');
+    sendMessage(`Show me products in the ${categoryName} category.`);
+  };
+
+  const handleViewProductDetail = (product: KaprukaProduct) => {
+    if (!product.productId) return;
+    setActiveTab('chat');
+    sendMessage(
+      `Show full product details for ${product.name ?? 'this product'} (product_id: ${product.productId}).`,
+    );
   };
 
   const handleDiscoverPrompt = (prompt: string) => {
@@ -97,6 +117,8 @@ export default function Home() {
           onInputChange={setInputText}
           onSendMessage={sendFromComposer}
           onAddToCart={handleAddToCart}
+          onBrowseCategory={handleBrowseCategory}
+          onViewProductDetail={handleViewProductDetail}
           onStartNewChat={startNewChat}
           onLoadMoreCarousel={loadMoreCarouselProducts}
         />

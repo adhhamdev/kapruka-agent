@@ -1,15 +1,16 @@
 import { WELCOME_MESSAGE } from '@/constants/prompts';
 import { createMessageId } from '@/lib/message-ids';
-import type { Message } from '@/types/chat';
+import type { KaprukaAgentUIMessage } from '@/types/agent-ui-message';
+import type { Widget } from '@/types/widgets';
 
 export const CHAT_HISTORY_STORAGE_KEY = 'kapruka_agent_chat_history';
 export const MAX_PERSISTED_MESSAGES = 80;
 
-interface StoredMessage {
+interface LegacyStoredMessage {
   id: string;
-  role: Message['role'];
+  role: 'user' | 'assistant';
   content: string;
-  widgets?: Message['widgets'];
+  widgets?: Widget[];
   attachments?: Array<{
     name: string;
     mimeType: string;
@@ -19,47 +20,135 @@ interface StoredMessage {
   isError?: boolean;
 }
 
-function createWelcomeMessage(): Message {
+function createWelcomeMessage(): KaprukaAgentUIMessage {
   return {
     id: 'welcome',
     role: 'assistant',
-    content: WELCOME_MESSAGE,
-    timestamp: new Date(0),
+    parts: [{ type: 'text', text: WELCOME_MESSAGE }],
+    metadata: { createdAt: 0 },
   };
 }
 
-function serializeMessages(messages: Message[]): StoredMessage[] {
-  return messages.slice(-MAX_PERSISTED_MESSAGES).map((message) => ({
-    id: message.id,
-    role: message.role,
-    content: message.content,
-    widgets: message.widgets,
-    attachments: message.attachments?.map(({ name, mimeType, kind }) => ({
-      name,
-      mimeType,
-      kind,
-    })),
-    timestamp: message.timestamp.toISOString(),
-    isError: message.isError,
-  }));
+function isLegacyFormat(parsed: unknown): parsed is LegacyStoredMessage[] {
+  if (!Array.isArray(parsed) || parsed.length === 0) return false;
+  const first = parsed[0] as Record<string, unknown>;
+  return typeof first.content === 'string' && !Array.isArray(first.parts);
 }
 
-function deserializeMessages(stored: StoredMessage[]): Message[] {
-  return stored.map((message) => ({
-    id: message.id,
-    role: message.role,
-    content: message.content,
-    widgets: message.widgets,
-    attachments: message.attachments?.map((attachment) => ({
-      ...attachment,
-      data: '',
-    })),
-    timestamp: new Date(message.timestamp),
-    isError: message.isError,
-  }));
+function legacyWidgetToToolPart(widget: Widget) {
+  switch (widget.type) {
+    case 'carousel':
+      return {
+        type: 'tool-show_products_carousel' as const,
+        toolCallId: createMessageId('legacy-tool'),
+        state: 'output-available' as const,
+        input: { products: widget.data, pagination: widget.pagination },
+        output: widget,
+      };
+    case 'detail':
+      return {
+        type: 'tool-show_product_detail' as const,
+        toolCallId: createMessageId('legacy-tool'),
+        state: 'output-available' as const,
+        input: { product_id: widget.data.productId ?? '' },
+        output: widget,
+      };
+    case 'delivery_quote':
+      return {
+        type: 'tool-show_delivery_quote' as const,
+        toolCallId: createMessageId('legacy-tool'),
+        state: 'output-available' as const,
+        input: widget.data,
+        output: widget,
+      };
+    case 'checkout_form':
+      return {
+        type: 'tool-show_checkout_form' as const,
+        toolCallId: createMessageId('legacy-tool'),
+        state: 'output-available' as const,
+        input: widget.data,
+        output: widget,
+      };
+    case 'order_status':
+      return {
+        type: 'tool-show_order_status' as const,
+        toolCallId: createMessageId('legacy-tool'),
+        state: 'output-available' as const,
+        input: widget.data,
+        output: widget,
+      };
+    case 'categories_list':
+      return {
+        type: 'tool-show_categories_list' as const,
+        toolCallId: createMessageId('legacy-tool'),
+        state: 'output-available' as const,
+        input: {},
+        output: widget,
+      };
+  }
 }
 
-function ensureUniqueMessageIds(messages: Message[]): Message[] {
+function migrateLegacyMessages(stored: LegacyStoredMessage[]): KaprukaAgentUIMessage[] {
+  return stored.map((message) => {
+    const parts: KaprukaAgentUIMessage['parts'] = [];
+
+    if (message.content.trim()) {
+      parts.push({ type: 'text', text: message.content });
+    }
+
+    for (const attachment of message.attachments ?? []) {
+      parts.push({
+        type: 'file',
+        mediaType: attachment.mimeType,
+        url: '',
+        filename: attachment.name,
+      });
+    }
+
+    for (const widget of message.widgets ?? []) {
+      parts.push(
+        legacyWidgetToToolPart(widget) as KaprukaAgentUIMessage['parts'][number],
+      );
+    }
+
+    if (parts.length === 0) {
+      parts.push({ type: 'text', text: '(empty message)' });
+    }
+
+    return {
+      id: message.id,
+      role: message.role,
+      parts,
+      metadata: {
+        createdAt: new Date(message.timestamp).getTime(),
+        isError: message.isError,
+      },
+    };
+  });
+}
+
+function stripFileBinary(message: KaprukaAgentUIMessage): KaprukaAgentUIMessage {
+  return {
+    ...message,
+    parts: message.parts.map((part) => {
+      if (part.type !== 'file') return part;
+      return {
+        ...part,
+        url: part.url.startsWith('data:') ? '' : part.url,
+      };
+    }),
+  };
+}
+
+function serializeMessages(messages: KaprukaAgentUIMessage[]): KaprukaAgentUIMessage[] {
+  return messages
+    .slice(-MAX_PERSISTED_MESSAGES)
+    .map(stripFileBinary);
+}
+
+function ensureUniqueMessageIds(
+  messages: KaprukaAgentUIMessage[],
+): KaprukaAgentUIMessage[] {
   const seen = new Set<string>();
   return messages.map((message) => {
     if (!seen.has(message.id)) {
@@ -72,23 +161,29 @@ function ensureUniqueMessageIds(messages: Message[]): Message[] {
   });
 }
 
-export function loadChatHistory(): Message[] {
+export function loadChatHistory(): KaprukaAgentUIMessage[] {
   if (typeof window === 'undefined') return [createWelcomeMessage()];
 
   try {
     const raw = localStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
     if (!raw) return [createWelcomeMessage()];
-    const parsed = JSON.parse(raw) as StoredMessage[];
+
+    const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed) || parsed.length === 0) {
       return [createWelcomeMessage()];
     }
-    return ensureUniqueMessageIds(deserializeMessages(parsed));
+
+    if (isLegacyFormat(parsed)) {
+      return ensureUniqueMessageIds(migrateLegacyMessages(parsed));
+    }
+
+    return ensureUniqueMessageIds(parsed as KaprukaAgentUIMessage[]);
   } catch {
     return [createWelcomeMessage()];
   }
 }
 
-export function saveChatHistory(messages: Message[]) {
+export function saveChatHistory(messages: KaprukaAgentUIMessage[]) {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(

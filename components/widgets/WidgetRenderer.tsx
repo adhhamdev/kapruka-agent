@@ -1,3 +1,4 @@
+import { CategoryListCard } from '@/components/widgets/CategoryListCard';
 import { CheckoutFormCard } from '@/components/widgets/CheckoutFormCard';
 import { DeliveryQuoteCard } from '@/components/widgets/DeliveryQuoteCard';
 import { OrderStatusCard } from '@/components/widgets/OrderStatusCard';
@@ -13,6 +14,8 @@ interface WidgetRendererProps {
   messageId: string;
   cart: CartItem[];
   onAddToCart: (product: KaprukaProduct) => void;
+  onBrowseCategory?: (categoryName: string) => void;
+  onViewProductDetail?: (product: KaprukaProduct) => void;
   onLoadMore?: () => void;
 }
 
@@ -20,6 +23,8 @@ export function WidgetRenderer({
   widget,
   cart,
   onAddToCart,
+  onBrowseCategory,
+  onViewProductDetail,
   onLoadMore,
 }: WidgetRendererProps) {
   switch (widget.type) {
@@ -31,6 +36,7 @@ export function WidgetRenderer({
           hasMore={Boolean(widget.pagination?.nextCursor)}
           onLoadMore={onLoadMore}
           onAddToCart={onAddToCart}
+          onViewProductDetail={onViewProductDetail}
         />
       );
     case 'detail':
@@ -43,6 +49,13 @@ export function WidgetRenderer({
       return <CheckoutFormCard checkout={widget.data} cart={cart} />;
     case 'order_status':
       return <OrderStatusCard order={widget.data} />;
+    case 'categories_list':
+      return (
+        <CategoryListCard
+          categories={widget.data}
+          onBrowseCategory={onBrowseCategory}
+        />
+      );
     default:
       return null;
   }
