@@ -204,7 +204,7 @@ Untrusted URL patterns filtered in `lib/kapruka-product-image.ts`; missing image
 | Variable | Scope | Description |
 |----------|-------|-------------|
 | `GEMINI_API_KEY` | Server | Required for `/api/chat` |
-| `NEXT_PUBLIC_APP_URL` | Client + metadata | Canonical URL for OG, sitemap, robots |
+| `NEXT_PUBLIC_APP_URL` | Client + metadata | Canonical app URL — `https://agent-kapruka.vercel.app` |
 
 ---
 

@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://agent.kapruka.com/sitemap.xml
+Sitemap: https://agent-kapruka.vercel.app/sitemap.xml

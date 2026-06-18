@@ -58,11 +58,12 @@ modern-minimal (retail app · warm Sri Lankan e-commerce)
 ## Brand assets
 
 - Agent avatar: `/kapruka-avatar.png` — chat bubbles, header, PWA icons, welcome hero
-- Logo square: `/logo-square.jpeg` — header wordmark (links to kapruka.com)
+- Logo square / wordmark: `/logo-square.jpeg` — header + OG social preview
 - Logo wide: `/logo-wide.jpeg`
 - App icon: `app/icon.png` (from avatar)
 - Apple icon: `app/apple-icon.png`
 - Favicon: `app/favicon.ico` (16 / 32 / 48 from `icon.png`)
+- Social preview: `/og-image.png` (1200×630 — Kapruka wordmark + agent avatar)
 
 All “Kapruka” text and logo taps link to **https://www.kapruka.com** (`KaprukaLink` / `KaprukaText`).
 

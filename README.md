@@ -4,6 +4,8 @@
 
 Kapruka Agent is a conversational web assistant that helps you find gifts, cakes, flowers, electronics, and more from Kapruka’s live catalog. Ask in plain English, Sinhala, Tamil, or Tanglish; browse rich product cards in chat; manage your basket; check delivery anywhere in Sri Lanka; and checkout with a real Kapruka payment link.
 
+Production: **[https://agent-kapruka.vercel.app](https://agent-kapruka.vercel.app)**
+
 Built for the **Kapruka Agent Challenge 2026**.
 
 ---
@@ -98,7 +100,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `GEMINI_API_KEY` | Yes | Server-side Gemini API key |
-| `NEXT_PUBLIC_APP_URL` | Production | Public URL for OG image, sitemap, manifest |
+| `NEXT_PUBLIC_APP_URL` | Production | Public URL for OG, sitemap, social previews — `https://agent-kapruka.vercel.app` |
 
 ### Scripts
 
@@ -177,7 +179,7 @@ types/                  Chat, widgets, cart, attachments
 | Product images broken | CDN host must be in `next.config.ts` `images.remotePatterns` |
 | Basket or chat lost on refresh | Ensure localStorage is not blocked (private mode, strict settings) |
 | Duplicate message keys / stale favicon | Hard refresh; use **New chat** to reset history |
-| Social preview wrong URL | Set `NEXT_PUBLIC_APP_URL` to production domain |
+| Social preview wrong URL | Set `NEXT_PUBLIC_APP_URL` to `https://agent-kapruka.vercel.app` and redeploy |
 
 ---
 

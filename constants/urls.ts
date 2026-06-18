@@ -1,6 +1,7 @@
-/** Canonical production URL used in static sitemap.xml and robots.txt. */
-export const CANONICAL_SITE_URL = 'https://agent.kapruka.com';
+/** Canonical production URL for this agent app (OG, sitemap, robots). */
+export const CANONICAL_SITE_URL = 'https://agent-kapruka.vercel.app';
 
+/** Main Kapruka shop — product pages and brand links. */
 export const KAPRUKA_BASE_URL = 'https://www.kapruka.com';
 
 export const DEFAULT_DELIVERY_COST_LABEL = 'LKR 450';

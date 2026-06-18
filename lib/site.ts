@@ -5,13 +5,21 @@ import {
   APP_TITLE,
   ASSISTANT_NAME,
   BRAND_PRIMARY,
+  OG_IMAGE_ALT,
+  OG_IMAGE_HEIGHT,
+  OG_IMAGE_PATH,
+  OG_IMAGE_WIDTH,
   PWA_DESCRIPTION,
 } from '@/constants/brand';
+import { CANONICAL_SITE_URL } from '@/constants/urls';
 
 /** Canonical site URL for metadata, sitemap, and OG tags. */
 export function getSiteUrl(): string {
   const candidates = [
     process.env.NEXT_PUBLIC_APP_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : undefined,
     process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
   ];
 
@@ -27,8 +35,20 @@ export function getSiteUrl(): string {
     }
   }
 
-  return 'http://localhost:3000';
+  return process.env.NODE_ENV === 'production'
+    ? CANONICAL_SITE_URL
+    : 'http://localhost:3000';
 }
+
+const socialImages = [
+  {
+    url: OG_IMAGE_PATH,
+    width: OG_IMAGE_WIDTH,
+    height: OG_IMAGE_HEIGHT,
+    alt: OG_IMAGE_ALT,
+    type: 'image/png',
+  },
+] as const;
 
 export function createSiteMetadata(): Metadata {
   const siteUrl = getSiteUrl();
@@ -54,6 +74,9 @@ export function createSiteMetadata(): Metadata {
     creator: 'Kapruka',
     publisher: 'Kapruka',
     category: 'shopping',
+    alternates: {
+      canonical: siteUrl,
+    },
     openGraph: {
       type: 'website',
       locale: 'en_LK',
@@ -61,11 +84,13 @@ export function createSiteMetadata(): Metadata {
       siteName: APP_NAME,
       title: APP_TITLE,
       description: APP_DESCRIPTION,
+      images: [...socialImages],
     },
     twitter: {
       card: 'summary_large_image',
       title: APP_TITLE,
       description: APP_DESCRIPTION,
+      images: [OG_IMAGE_PATH],
     },
     appleWebApp: {
       capable: true,
