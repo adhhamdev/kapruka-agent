@@ -6,7 +6,7 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F8F6FC",
+  "background_color": "#FFFFFF",
   "theme_color": "#422B73",
   "categories": ["shopping", "lifestyle"],
   "icons": [
