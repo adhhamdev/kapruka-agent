@@ -2,7 +2,9 @@
 
 **Meet Agent — your AI shopping concierge for Kapruka.**
 
-Kapruka Agent is a friendly web assistant that helps you find gifts, cakes, flowers, and more from Kapruka’s live catalog. Ask questions in plain English (or Sinhala/Tanglish), browse products, manage your basket, check delivery to any Sri Lankan city, and checkout — all in one place.
+Kapruka Agent is a conversational web assistant that helps you find gifts, cakes, flowers, electronics, and more from Kapruka’s live catalog. Ask in plain English, Sinhala, Tamil, or Tanglish; browse rich product cards in chat; manage your basket; check delivery anywhere in Sri Lanka; and checkout with a real Kapruka payment link.
+
+Built for the **Kapruka Agent Challenge 2026**.
 
 ---
 
@@ -10,135 +12,159 @@ Kapruka Agent is a friendly web assistant that helps you find gifts, cakes, flow
 
 | Feature | Description |
 |---------|-------------|
-| **Search & discover** | Find products by keyword, category, or occasion |
-| **Product details** | View prices, images, and availability on rich cards |
-| **Delivery quotes** | Check whether an item can reach a city and on what date |
-| **Shopping basket** | Add, remove, and adjust quantities — saved in your browser |
-| **Guest checkout** | Get a secure Kapruka payment link when you are ready to buy |
-| **Order tracking** | Ask Agent to look up an existing order |
+| **Search & discover** | Keyword search, categories, quick prompts on the Discover tab |
+| **Product carousel** | Horizontal scrollable cards in chat with **Load more** pagination |
+| **Product details** | Single-product cards with price, image, and add-to-basket |
+| **Delivery quotes** | Check availability, date, and cost for Sri Lankan cities |
+| **Shopping basket** | Add, remove, adjust quantities, or **clear basket** — persisted locally |
+| **Guest checkout** | Secure Kapruka pay link via live MCP `create_order` |
+| **Order tracking** | Look up orders by confirmation email order number |
+| **Chat history** | Conversation restored on refresh (up to 80 messages) |
+| **New chat** | Start fresh with the pencil button (top-right of chat) |
+| **Voice input** | Dictate messages via browser speech recognition |
+| **Attachments** | Send images or documents (PDF, Word, txt) with strict validation |
+| **Markdown replies** | Agent responses render headings, lists, bold, and links |
+| **Scroll to latest** | Floating chevron when you scroll up in a long conversation |
+
+**Languages:** English (default), Sinhala, Tamil, Tanglish — Agent mirrors the language you write in.
+
+**Currency:** All prices shown in **LKR**.
 
 ---
 
-## Using the App (No Setup Required)
+## Using the App
 
-If someone has already deployed the app for you, simply open the link in your browser.
-
-1. **Chat with Agent** — Type what you are looking for (e.g. *“Show me birthday cakes for Colombo”*).
-2. **Browse results** — Product cards appear in the chat. Tap **+** to add items to your basket.
-3. **Check your basket** — On mobile, use the **Basket** tab at the bottom. On desktop, use the panel on the right.
-4. **Checkout** — Tap **Checkout** in the basket and follow Agent’s prompts to complete payment on Kapruka.
+1. **Chat with Agent** — Type or dictate what you want (e.g. *“Show me birthday cakes for Colombo”*).
+2. **Browse results** — Product carousels and detail cards appear inline. Tap **+** to add to basket.
+3. **Load more** — On search carousels, tap **Load more products** for the next page.
+4. **Check your basket** — Mobile: **Basket** tab. Desktop: right panel.
+5. **Checkout** — Tap **Checkout** in the basket; Agent collects delivery details and returns a pay link.
 
 **Tips**
 
-- Use the **Search** tab for quick prompts like “Fresh Flowers” or “Track Order”.
-- Your basket is saved locally in your browser — it persists if you refresh the page.
-- Agent defaults to English and adapts to the language you write in (English, Sinhala, Tamil, or Tanglish).
+- **Search** tab — quick prompts (flowers, cakes, track order, etc.).
+- **New chat** (pencil icon) — clears history and resets to the welcome message.
+- Basket and chat history survive refresh (browser `localStorage`).
+- Kapruka logo and brand links open [kapruka.com](https://www.kapruka.com).
 
 ---
 
-## Running Locally (Developers)
+## Technology Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Framework** | [Next.js 15](https://nextjs.org/) (App Router, Route Handlers) |
+| **UI** | [React 19](https://react.dev/), [TypeScript 5.9](https://www.typescriptlang.org/) |
+| **Styling** | [Tailwind CSS 4](https://tailwindcss.com/), CSS variables (`tokens.css`) |
+| **AI** | [Google Gemini](https://ai.google.dev/) via `@google/genai` — tool-calling agent loop |
+| **Catalog & checkout** | [Kapruka MCP](https://mcp.kapruka.com/mcp) via `@modelcontextprotocol/sdk` (Streamable HTTP) |
+| **Markdown** | [Streamdown](https://streamdown.ai/) — streaming-safe MD in chat bubbles |
+| **Motion** | [Motion](https://motion.dev/) — message, cart, and widget animations |
+| **Icons** | [Lucide React](https://lucide.dev/) |
+| **Images** | `next/image` with remote patterns for Kapruka CDN + Shopify CDN |
+| **Fonts** | DM Sans (`next/font`) |
+| **Client persistence** | `localStorage` — basket + chat history |
+| **Voice** | Web Speech API (browser) |
+| **Runtime** | Node.js 20+ (API routes); deployable to Vercel |
+
+---
+
+## Running Locally
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 20 or later
+- [Node.js](https://nodejs.org/) 20+ or [Bun](https://bun.sh/)
 - A [Google Gemini API key](https://aistudio.google.com/apikey)
+- Network access to `mcp.kapruka.com`
 
 ### Quick start
 
 ```bash
-# 1. Install dependencies
-npm install
+# Install dependencies
+npm install   # or: bun install
 
-# 2. Copy environment template and add your API key
+# Environment
 cp .env.example .env.local
+# Set GEMINI_API_KEY in .env.local
 
-# 3. Edit .env.local — set GEMINI_API_KEY at minimum
-
-# 4. Start the development server
-npm run dev
+# Dev server
+npm run dev   # or: bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000).
 
 ### Environment variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `GEMINI_API_KEY` | Yes | Powers Agent via Google Gemini |
-| `NEXT_PUBLIC_APP_URL` | Production | Public URL for social previews & sitemap (e.g. `https://agent.kapruka.com`) |
-
-See [`.env.example`](.env.example) for a full template.
+| `GEMINI_API_KEY` | Yes | Server-side Gemini API key |
+| `NEXT_PUBLIC_APP_URL` | Production | Public URL for OG image, sitemap, manifest |
 
 ### Scripts
 
 | Command | Purpose |
 |---------|---------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run build` | Create an optimized production build |
-| `npm run start` | Serve the production build |
-| `npm run lint` | Run ESLint |
+| `npm run dev` | Development server with hot reload |
+| `npm run build` | Production build |
+| `npm run start` | Serve production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript (`tsc --noEmit`) |
 | `npm run clean` | Clear Next.js cache |
 
 ---
 
-## Deploying to Production
-
-Kapruka Agent is built with [Next.js 15](https://nextjs.org/) and deploys cleanly to [Vercel](https://vercel.com/) or any Node.js host.
-
-### Vercel (recommended)
-
-1. Push this repository to GitHub.
-2. Import the project in Vercel.
-3. Add environment variables:
-   - `GEMINI_API_KEY` — your Gemini API key
-   - `NEXT_PUBLIC_APP_URL` — your production domain (e.g. `https://agent.kapruka.com`)
-4. Deploy. Vercel runs `npm run build` automatically.
-
-### Self-hosted
-
-```bash
-npm run build
-npm run start
-```
-
-Set `GEMINI_API_KEY` and `NEXT_PUBLIC_APP_URL` in your host’s environment panel.
-
----
-
-## How It Works (Overview)
+## Architecture
 
 ```
-You  →  Chat UI  →  /api/chat  →  Gemini AI  →  Kapruka MCP (live catalog)
-                      ↕
-                 Local basket (browser storage)
+Browser
+  ├── Discover / Chat / Basket (single page, tabbed on mobile)
+  ├── localStorage: basket, chat history
+  └── POST /api/chat ──► Gemini agent loop
+                              ├── Virtual UI tools (carousel, cart actions, …)
+                              └── Kapruka MCP (search, delivery, checkout, track)
+  └── POST /api/products/search ──► carousel "Load more" pagination
 ```
 
-- **Frontend** — React single-page app with three panels: Discover, Chat, and Basket.
-- **AI layer** — Google Gemini orchestrates tool calls to search products, check delivery, and manage the cart.
-- **Kapruka MCP** — Connects to Kapruka’s live retail API for real product data, prices, and checkout links.
+- **Agent loop** (`lib/agent/agent-loop.ts`) — multi-turn Gemini with function calling; merges cart context each request.
+- **MCP client** (`lib/kapruka-mcp.ts`) — seven live Kapruka tools over Streamable HTTP.
+- **Widgets** — structured UI payloads (carousel, detail, delivery quote, checkout form, order status) rendered client-side.
+
+See **[SPEC.md](./SPEC.md)** for API contracts, MCP tool mapping, and storage keys.  
+See **[design.md](./design.md)** for visual system and interaction patterns.
 
 ---
 
 ## Project Structure
 
 ```
-app/                  Next.js routes (page, API, metadata, OG image)
-components/           UI — chat, cart, discover, widgets, layout
-constants/            Brand, prompts, agent config
-hooks/                React hooks (use-chat)
-lib/                  Agent logic, cart, formatting, Kapruka MCP client
-types/                Shared TypeScript types
-public/               Static assets (logo, icons)
+app/                    Next.js App Router (page, API routes, metadata, PWA icons)
+  api/chat/             Main agent endpoint
+  api/products/search/  Carousel pagination endpoint
+components/
+  chat/                 Messages, composer, markdown, scroll affordances
+  cart/                 Basket panel and line items
+  discover/             Search sidebar and quick prompts
+  widgets/              Product carousel, detail, checkout, delivery, order status
+  layout/               Header, mobile tab bar
+constants/              Brand, agent config, attachment limits
+hooks/                  use-chat, attachments, speech, reduced motion
+lib/
+  agent/                Gemini client, tools, system prompt, executor
+  cart/                 Mutations and totals
+  kapruka-mcp.ts        MCP transport and typed tool wrappers
+public/                 Logos, avatar, static assets
+types/                  Chat, widgets, cart, attachments
 ```
 
 ---
 
 ## Privacy & Security
 
-- Product searches go through Kapruka’s official MCP service.
-- Your basket is stored in **local browser storage** — not on a server unless you checkout.
-- API keys (`GEMINI_API_KEY`) are **server-side only** and never exposed to the browser.
-- The chat API route validates requests and returns user-friendly error messages.
+- Product data and checkout flow go through Kapruka’s official MCP service.
+- Basket and chat history stay in **browser localStorage** — not on our server.
+- `GEMINI_API_KEY` is **server-only**; never sent to the client.
+- Attachments validated client-side (MIME allowlist, size limits) and again in `/api/chat`.
+- Security headers: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`.
 
 ---
 
@@ -146,10 +172,12 @@ public/               Static assets (logo, icons)
 
 | Problem | What to try |
 |---------|-------------|
-| “Shopping assistant is temporarily unavailable” | Check that `GEMINI_API_KEY` is set and valid |
-| Products not loading | Verify network access to `mcp.kapruka.com` |
-| Basket empty after refresh | Ensure browser local storage is not blocked |
-| Social preview wrong URL | Set `NEXT_PUBLIC_APP_URL` to your production domain |
+| “Shopping assistant is temporarily unavailable” | Verify `GEMINI_API_KEY` is set and valid |
+| Products not loading | Check network access to `mcp.kapruka.com` |
+| Product images broken | CDN host must be in `next.config.ts` `images.remotePatterns` |
+| Basket or chat lost on refresh | Ensure localStorage is not blocked (private mode, strict settings) |
+| Duplicate message keys / stale favicon | Hard refresh; use **New chat** to reset history |
+| Social preview wrong URL | Set `NEXT_PUBLIC_APP_URL` to production domain |
 
 ---
 
@@ -157,4 +185,4 @@ public/               Static assets (logo, icons)
 
 Private — Kapruka Agent Challenge 2026.
 
-Built for **Kapruka** · Sri Lanka’s premier online gift & delivery platform.
+Built for **[Kapruka](https://www.kapruka.com)** · Sri Lanka’s premier online gift & delivery platform.

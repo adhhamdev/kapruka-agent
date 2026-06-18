@@ -1,6 +1,16 @@
 {
   "name": "Agent - Kapruka Shopping Agent",
-  "description": "Sri Lanka's premier conversational e-commerce agent for the Kapruka Agent Challenge. Browse, search, query delivery cities, and create real guest checkouts in Sinhala, Tanglish, and English.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "description": "Sri Lanka's premier conversational e-commerce agent for the Kapruka Agent Challenge 2026. Search live catalog, paginated product carousels, delivery quotes, guest checkout, order tracking, voice input, and chat history — in English, Sinhala, Tamil, and Tanglish.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"],
+  "technologies": [
+    "Next.js 15",
+    "React 19",
+    "TypeScript",
+    "Tailwind CSS 4",
+    "Google Gemini",
+    "Kapruka MCP",
+    "Streamdown",
+    "Motion"
+  ]
 }
