@@ -6,8 +6,10 @@ export const WIDGET_ONLY_FALLBACK = 'Here is what I found for you.';
 
 export const MAX_ATTACHMENTS = 5;
 export const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024;
+export const MAX_TOTAL_ATTACHMENT_BYTES = 12 * 1024 * 1024;
 
-export const ACCEPTED_ATTACHMENT_TYPES = [
+/** Strict allowlist — images and documents only. */
+export const ACCEPTED_ATTACHMENT_MIMES = [
   'image/jpeg',
   'image/png',
   'image/webp',
@@ -16,4 +18,9 @@ export const ACCEPTED_ATTACHMENT_TYPES = [
   'text/plain',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-].join(',');
+] as const;
+
+export const ACCEPTED_ATTACHMENT_TYPES = ACCEPTED_ATTACHMENT_MIMES.join(',');
+
+export const ATTACHMENT_HINT =
+  'Up to 5 files · images or PDF/Word/txt · 5 MB each';

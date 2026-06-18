@@ -1,4 +1,5 @@
 import type { CartItem } from '@/lib/cart-storage';
+import { DEFAULT_CURRENCY } from '@/constants/currency';
 import {
   addProductToCart,
   clearCart,
@@ -12,18 +13,43 @@ import {
   listDeliveryCities,
   searchProducts,
   trackOrder,
+  type CreateOrderParams,
+  type KaprukaToolResponse,
 } from '@/lib/kapruka-mcp';
 import {
   enrichKaprukaProduct,
   enrichKaprukaProducts,
   resolveKaprukaProductImageUrl,
 } from '@/lib/kapruka-product-image';
+import { parseKaprukaSearchResponse } from '@/lib/kapruka-search';
+import type { CarouselPagination } from '@/types/widgets';
 import type { Widget } from '@/types/widgets';
 
 export interface ToolExecutionResult {
   toolResult: Record<string, unknown>;
   widgets: Widget[];
   cart: CartItem[];
+}
+
+function mcpResult(response: KaprukaToolResponse): Record<string, unknown> {
+  return response as unknown as Record<string, unknown>;
+}
+
+function parsePagination(args: Record<string, unknown>): CarouselPagination | undefined {
+  const raw = args.pagination as Record<string, unknown> | undefined;
+  if (!raw?.q || typeof raw.q !== 'string') return undefined;
+
+  return {
+    q: raw.q,
+    category: raw.category as string | undefined,
+    min_price: raw.min_price as number | undefined,
+    max_price: raw.max_price as number | undefined,
+    sort: raw.sort as string | undefined,
+    nextCursor:
+      (raw.next_cursor as string | null | undefined) ??
+      (raw.nextCursor as string | null | undefined) ??
+      null,
+  };
 }
 
 export async function executeToolCall(
@@ -38,59 +64,82 @@ export async function executeToolCall(
 
   switch (name) {
     case 'kapruka_search_products': {
-      const { q, category, min_price, max_price, in_stock_only, sort } = args;
-      toolResult = (await searchProducts(
-        q as string,
-        category as string | undefined,
-        min_price as number | undefined,
-        max_price as number | undefined,
-        in_stock_only as boolean | undefined,
-        sort as string | undefined,
-      )) as Record<string, unknown>;
+      const response = await searchProducts({
+        q: args.q as string,
+        category: args.category as string | undefined,
+        min_price: args.min_price as number | undefined,
+        max_price: args.max_price as number | undefined,
+        in_stock_only: (args.in_stock_only as boolean | undefined) ?? true,
+        sort: args.sort as string | undefined,
+        limit: (args.limit as number | undefined) ?? 10,
+        cursor: args.cursor as string | undefined,
+        currency: DEFAULT_CURRENCY,
+        include_stubs: args.include_stubs as boolean | undefined,
+        response_format: 'json',
+      });
+      const parsed = parseKaprukaSearchResponse(response);
+      toolResult = {
+        ...parsed,
+        result_count: parsed.products.length,
+        message:
+          parsed.products.length > 0
+            ? `Found ${parsed.products.length} product(s).`
+            : 'No products matched.',
+      };
       break;
     }
     case 'kapruka_get_product':
-      toolResult = (await getProduct(args.product_id as string)) as Record<
-        string,
-        unknown
-      >;
+      toolResult = mcpResult(
+        await getProduct(args.product_id as string, {
+          currency: DEFAULT_CURRENCY,
+        }),
+      );
       break;
     case 'kapruka_list_categories':
-      toolResult = (await listCategories(
-        (args.depth as number) || 1,
-      )) as Record<string, unknown>;
+      toolResult = mcpResult(
+        await listCategories((args.depth as number) || 1),
+      );
       break;
     case 'kapruka_list_delivery_cities':
-      toolResult = (await listDeliveryCities(
-        args.query as string,
-      )) as Record<string, unknown>;
+      toolResult = mcpResult(
+        await listDeliveryCities(
+          args.query as string | undefined,
+          (args.limit as number) || 25,
+        ),
+      );
       break;
     case 'kapruka_check_delivery':
-      toolResult = (await checkDelivery(
-        args.city as string,
-        args.delivery_date as string,
-        args.product_id as string,
-      )) as Record<string, unknown>;
+      toolResult = mcpResult(
+        await checkDelivery(
+          args.city as string,
+          args.delivery_date as string | undefined,
+          args.product_id as string | undefined,
+        ),
+      );
       break;
     case 'kapruka_create_order':
-      toolResult = (await createOrder(args as Parameters<typeof createOrder>[0])) as Record<
-        string,
-        unknown
-      >;
+      toolResult = mcpResult(
+        await createOrder({
+          ...(args as unknown as CreateOrderParams),
+          currency: DEFAULT_CURRENCY,
+        }),
+      );
       break;
     case 'kapruka_track_order':
-      toolResult = (await trackOrder(
-        args.order_number as string,
-      )) as Record<string, unknown>;
+      toolResult = mcpResult(
+        await trackOrder(args.order_number as string),
+      );
       break;
     case 'show_products_carousel': {
       const products = await enrichKaprukaProducts(
         (args.products as Widget extends { type: 'carousel' } ? Widget['data'] : never) ??
           [],
       );
+      const pagination = parsePagination(args);
       widgets.push({
         type: 'carousel',
         data: products,
+        pagination,
       });
       toolResult = {
         status: 'success',

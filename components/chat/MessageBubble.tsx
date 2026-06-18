@@ -22,12 +22,14 @@ interface MessageBubbleProps {
   message: Message;
   cart: CartItem[];
   onAddToCart: (product: KaprukaProduct) => void;
+  onLoadMoreCarousel: (messageId: string, widgetIndex: number) => void;
 }
 
 export function MessageBubble({
   message,
   cart,
   onAddToCart,
+  onLoadMoreCarousel,
 }: MessageBubbleProps) {
   const reducedMotion = useReducedMotion();
   const hasAttachments =
@@ -166,8 +168,15 @@ export function MessageBubble({
               <AnimatedWidget key={`${message.id}-widget-${idx}`} index={idx}>
                 <WidgetRenderer
                   widget={widget}
+                  widgetIndex={idx}
+                  messageId={message.id}
                   cart={cart}
                   onAddToCart={onAddToCart}
+                  onLoadMore={
+                    widget.type === 'carousel' && widget.pagination?.nextCursor
+                      ? () => onLoadMoreCarousel(message.id, idx)
+                      : undefined
+                  }
                 />
               </AnimatedWidget>
             ))}

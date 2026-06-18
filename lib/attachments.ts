@@ -1,13 +1,11 @@
 import {
-  ACCEPTED_ATTACHMENT_TYPES,
+  ACCEPTED_ATTACHMENT_MIMES,
   MAX_ATTACHMENT_BYTES,
   MAX_ATTACHMENTS,
 } from '@/constants/languages';
 import type { AttachmentKind, ChatAttachment } from '@/types/attachments';
 
-const ACCEPTED_SET = new Set(
-  ACCEPTED_ATTACHMENT_TYPES.split(',').map((t) => t.trim()),
-);
+const ALLOWED_MIMES = new Set<string>(ACCEPTED_ATTACHMENT_MIMES);
 
 export function isVideoFile(file: File): boolean {
   return file.type.startsWith('video/');
@@ -15,9 +13,8 @@ export function isVideoFile(file: File): boolean {
 
 export function isAcceptedFile(file: File): boolean {
   if (isVideoFile(file)) return false;
-  if (ACCEPTED_SET.has(file.type)) return true;
-  if (file.type.startsWith('image/')) return true;
-  return false;
+  const mime = file.type || '';
+  return ALLOWED_MIMES.has(mime);
 }
 
 function attachmentKind(mimeType: string): AttachmentKind {
@@ -29,14 +26,16 @@ export async function fileToAttachment(file: File): Promise<ChatAttachment> {
     throw new Error('Video files are not supported.');
   }
   if (!isAcceptedFile(file)) {
-    throw new Error('This file type is not supported.');
+    throw new Error(
+      'Only images and documents (PDF, Word, plain text) are supported.',
+    );
   }
   if (file.size > MAX_ATTACHMENT_BYTES) {
     throw new Error('File must be 5 MB or smaller.');
   }
 
   const data = await readFileAsBase64(file);
-  const mimeType = file.type || 'application/octet-stream';
+  const mimeType = file.type;
   const kind = attachmentKind(mimeType);
 
   return {

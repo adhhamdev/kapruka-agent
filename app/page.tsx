@@ -10,6 +10,7 @@ import { DEFAULT_SPEECH_CODE } from '@/constants/languages';
 import { useChat } from '@/hooks/use-chat';
 import {
   addProductToCart,
+  clearCart,
   removeFromCart,
   updateCartQuantity,
 } from '@/lib/cart/mutations';
@@ -29,6 +30,8 @@ export default function Home() {
     sendMessage,
     sendFromComposer,
     appendMessage,
+    startNewChat,
+    loadMoreCarouselProducts,
   } = useChat({ cart, setCart });
 
   const handleAddToCart = (product: KaprukaProduct) => {
@@ -46,8 +49,8 @@ export default function Home() {
     appendMessage({
       id: createMessageId('local-add'),
       role: 'assistant',
-      content: `🛒 Added **${product.name}** to your cart.`,
-      timestamp: new Date(0),
+      content: `Added **${product.name}** to your basket.`,
+      timestamp: new Date(),
     });
   };
 
@@ -57,6 +60,10 @@ export default function Home() {
 
   const handleRemoveItem = (productId: string) => {
     setCart((prev) => removeFromCart(prev, productId));
+  };
+
+  const handleClearCart = () => {
+    setCart(clearCart());
   };
 
   const handleCheckout = () => {
@@ -90,6 +97,8 @@ export default function Home() {
           onInputChange={setInputText}
           onSendMessage={sendFromComposer}
           onAddToCart={handleAddToCart}
+          onStartNewChat={startNewChat}
+          onLoadMoreCarousel={loadMoreCarouselProducts}
         />
 
         <CartPanel
@@ -97,6 +106,7 @@ export default function Home() {
           cart={cart}
           onUpdateQuantity={handleUpdateQuantity}
           onRemoveItem={handleRemoveItem}
+          onClearCart={handleClearCart}
           onCheckout={handleCheckout}
         />
       </div>

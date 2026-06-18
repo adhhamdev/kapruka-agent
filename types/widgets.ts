@@ -1,5 +1,14 @@
 import type { KaprukaProduct } from '@/lib/products';
 
+export interface CarouselPagination {
+  q: string;
+  category?: string;
+  min_price?: number;
+  max_price?: number;
+  sort?: string;
+  nextCursor?: string | null;
+}
+
 export interface DeliveryQuoteData {
   city: string;
   deliveryDate: string;
@@ -28,7 +37,11 @@ export interface OrderStatusData {
 }
 
 export type Widget =
-  | { type: 'carousel'; data: KaprukaProduct[] }
+  | {
+      type: 'carousel';
+      data: KaprukaProduct[];
+      pagination?: CarouselPagination;
+    }
   | { type: 'detail'; data: KaprukaProduct }
   | { type: 'delivery_quote'; data: DeliveryQuoteData }
   | { type: 'checkout_form'; data: CheckoutFormData }

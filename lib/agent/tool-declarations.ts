@@ -33,7 +33,19 @@ export const TOOL_DECLARATIONS = [
         sort: {
           type: Type.STRING,
           description:
-            "Sort code ('price_asc', 'price_desc', 'best_seller', 'newest')",
+            "Sort: relevance (default), price_asc, price_desc, newest, bestseller",
+        },
+        limit: {
+          type: Type.INTEGER,
+          description: 'Results per page (1–50, default 10)',
+        },
+        cursor: {
+          type: Type.STRING,
+          description: 'Pagination cursor from a previous search next_cursor',
+        },
+        include_stubs: {
+          type: Type.BOOLEAN,
+          description: 'Include category landing stubs (default false)',
         },
       },
       required: ['q'],
@@ -62,7 +74,7 @@ export const TOOL_DECLARATIONS = [
       properties: {
         depth: {
           type: Type.INTEGER,
-          description: 'Hierarchy depth (default 1)',
+          description: 'Hierarchy depth 1 or 2 (default 1)',
         },
       },
       required: [],
@@ -78,10 +90,14 @@ export const TOOL_DECLARATIONS = [
         query: {
           type: Type.STRING,
           description:
-            'City or postal area name prefix (e.g. Kandy, Colombo, Galle, Jaffna)',
+            'City prefix filter (e.g. Kandy, Colombo). Omit for alphabetical sample.',
+        },
+        limit: {
+          type: Type.INTEGER,
+          description: 'Max cities to return (1–50, default 25)',
         },
       },
-      required: ['query'],
+      required: [],
     },
   },
   {
@@ -97,14 +113,14 @@ export const TOOL_DECLARATIONS = [
         },
         delivery_date: {
           type: Type.STRING,
-          description: 'Delivery date YYYY-MM-DD',
+          description: 'Delivery date YYYY-MM-DD. Omit to check today.',
         },
         product_id: {
           type: Type.STRING,
-          description: 'The product ID you plan to ship',
+          description: 'Optional product ID for perishable freshness warnings',
         },
       },
-      required: ['city', 'delivery_date', 'product_id'],
+      required: ['city'],
     },
   },
   {
@@ -116,70 +132,72 @@ export const TOOL_DECLARATIONS = [
       properties: {
         cart: {
           type: Type.ARRAY,
-          description: 'Items in the cart to purchase',
+          description: 'Items in the cart to purchase (1–30)',
           items: {
             type: Type.OBJECT,
             properties: {
               product_id: { type: Type.STRING, description: 'Product ID' },
-              quantity: { type: Type.NUMBER, description: 'Quantity to order' },
+              quantity: { type: Type.NUMBER, description: 'Quantity (1–99)' },
+              icing_text: {
+                type: Type.STRING,
+                description: 'Cake icing message (ignored for non-cakes)',
+              },
             },
-            required: ['product_id', 'quantity'],
+            required: ['product_id'],
           },
         },
         recipient: {
           type: Type.OBJECT,
-          description: 'The person in Sri Lanka receiving the goods',
+          description: 'Person receiving the gift in Sri Lanka',
           properties: {
             name: { type: Type.STRING, description: 'Recipient full name' },
-            address: {
-              type: Type.STRING,
-              description: 'Full physical delivery street address',
-            },
             phone: {
               type: Type.STRING,
-              description: 'Local Sri Lankan phone number (e.g. 0771234567)',
-            },
-            email: {
-              type: Type.STRING,
-              description: 'Optional recipient email address',
+              description: 'Recipient phone (077… or +94…)',
             },
           },
-          required: ['name', 'address', 'phone'],
+          required: ['name', 'phone'],
         },
         delivery: {
           type: Type.OBJECT,
-          description: 'Delivery scheduling details',
+          description: 'Delivery address and schedule',
           properties: {
+            address: {
+              type: Type.STRING,
+              description: 'Street delivery address',
+            },
             city: {
               type: Type.STRING,
-              description: 'Canonical delivery city Name',
+              description: 'Canonical Kapruka delivery city',
             },
             date: { type: Type.STRING, description: 'Delivery date YYYY-MM-DD' },
+            location_type: {
+              type: Type.STRING,
+              description: 'house, apartment, office, or other',
+            },
+            instructions: {
+              type: Type.STRING,
+              description: 'Optional delivery instructions',
+            },
           },
-          required: ['city', 'date'],
+          required: ['address', 'city', 'date'],
         },
         sender: {
           type: Type.OBJECT,
-          description: 'The sender (buyer) contact details',
+          description: 'Gift sender name on the card',
           properties: {
-            name: { type: Type.STRING, description: 'Sender or buyer name' },
-            phone: {
-              type: Type.STRING,
-              description:
-                'Sender phone number with country prefix if external',
-            },
-            email: {
-              type: Type.STRING,
-              description: 'Sender email address for invoice delivery',
+            name: { type: Type.STRING, description: 'Sender name' },
+            anonymous: {
+              type: Type.BOOLEAN,
+              description: 'Show Anonymous on gift card',
             },
           },
-          required: ['name', 'phone', 'email'],
+          required: ['name'],
         },
         gift_message: {
           type: Type.STRING,
           description: 'Optional message printed on Kapruka gift card',
         },
-        currency: { type: Type.STRING, description: "Currency default 'LKR'" },
       },
       required: ['cart', 'recipient', 'delivery', 'sender'],
     },
@@ -187,13 +205,13 @@ export const TOOL_DECLARATIONS = [
   {
     name: 'kapruka_track_order',
     description:
-      'Track status, recipient, dispatch progress, and delivery logs for a given Kapruka order reference.',
+      'Track status after payment. Use the order number from the customer confirmation email — NOT the pre-payment checkout ref.',
     parameters: {
       type: Type.OBJECT,
       properties: {
         order_number: {
           type: Type.STRING,
-          description: 'The purchase order or invoice reference',
+          description: 'Kapruka order number from confirmation email',
         },
       },
       required: ['order_number'],
@@ -202,7 +220,7 @@ export const TOOL_DECLARATIONS = [
   {
     name: 'show_products_carousel',
     description:
-      'Client-side widget visualization for a list of matching search products.',
+      'Client-side widget visualization for a list of matching search products. Always pass pagination when results came from search.',
     parameters: {
       type: Type.OBJECT,
       properties: {
@@ -224,6 +242,23 @@ export const TOOL_DECLARATIONS = [
             },
             required: ['productId', 'name', 'price'],
           },
+        },
+        pagination: {
+          type: Type.OBJECT,
+          description:
+            'Search context for Load more — pass q, filters, next_cursor from search',
+          properties: {
+            q: { type: Type.STRING },
+            category: { type: Type.STRING },
+            min_price: { type: Type.NUMBER },
+            max_price: { type: Type.NUMBER },
+            sort: { type: Type.STRING },
+            next_cursor: {
+              type: Type.STRING,
+              description: 'next_cursor from kapruka_search_products JSON',
+            },
+          },
+          required: ['q'],
         },
       },
       required: ['products'],

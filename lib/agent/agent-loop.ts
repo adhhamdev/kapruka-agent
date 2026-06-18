@@ -26,7 +26,7 @@ export async function runAgentLoop(
   messages: ChatHistoryEntry[],
   initialCart: CartItem[],
 ): Promise<AgentRunResult> {
-  const contents: any[] = messages.map((m) => ({
+  const contents: Array<Record<string, unknown>> = messages.map((m) => ({
     role: m.role === 'assistant' ? 'model' : m.role,
     parts: buildMessageParts(m),
   }));
@@ -58,7 +58,7 @@ export async function runAgentLoop(
     const rootMessage = candidate?.content;
     if (!rootMessage) break;
 
-    contents.push(rootMessage);
+    contents.push(rootMessage as unknown as Record<string, unknown>);
 
     const functionCalls = response.functionCalls;
     if (!functionCalls || functionCalls.length === 0) {
@@ -70,7 +70,7 @@ export async function runAgentLoop(
       `[Agent Turn ${loop}] Executing ${functionCalls.length} tool calls in parallel.`,
     );
 
-    const toolParts: any[] = [];
+    const toolParts: Array<Record<string, unknown>> = [];
 
     for (const call of functionCalls) {
       const { name, args, id } = call as {

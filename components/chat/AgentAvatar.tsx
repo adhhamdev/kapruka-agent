@@ -40,7 +40,7 @@ export function AgentAvatar({
         alt={APP_NAME}
         fill
         sizes={IMAGE_SIZES[size]}
-        className='object-contain'
+        className='object-contain drop-shadow-lg'
         priority={size === 'xl'}
       />
     </div>

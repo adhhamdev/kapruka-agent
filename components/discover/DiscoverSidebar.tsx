@@ -1,7 +1,6 @@
 import { Search } from 'lucide-react';
 import { AgentAvatar } from '@/components/chat/AgentAvatar';
 import { KaprukaText } from '@/components/brand/KaprukaLink';
-import { DiscoverBrandHeader } from '@/components/discover/DiscoverBrandHeader';
 import { QuickPrompts } from '@/components/discover/QuickPrompts';
 import { AGENT_GREETING, APP_NAME } from '@/constants/brand';
 
@@ -25,8 +24,6 @@ export function DiscoverSidebar({
       `}
       id='left-sidebar'
       aria-label='Discover products'>
-      <DiscoverBrandHeader />
-
       <div className='flex-1 min-h-0 overflow-y-auto overscroll-y-contain px-5 py-6 pb-28 lg:pb-6'>
         <div className='flex flex-col items-center text-center pt-2 pb-6 lg:pt-2 lg:pb-8 border-b border-[color:var(--color-border-subtle)] mb-6'>
           <AgentAvatar size='xl' className='mb-4' />

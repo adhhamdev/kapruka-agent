@@ -9,20 +9,29 @@ import type { Widget } from '@/types/widgets';
 
 interface WidgetRendererProps {
   widget: Widget;
+  widgetIndex: number;
+  messageId: string;
   cart: CartItem[];
   onAddToCart: (product: KaprukaProduct) => void;
+  onLoadMore?: () => void;
 }
 
 export function WidgetRenderer({
   widget,
   cart,
   onAddToCart,
+  onLoadMore,
 }: WidgetRendererProps) {
   switch (widget.type) {
     case 'carousel':
       if (!Array.isArray(widget.data)) return null;
       return (
-        <ProductCarousel products={widget.data} onAddToCart={onAddToCart} />
+        <ProductCarousel
+          products={widget.data}
+          hasMore={Boolean(widget.pagination?.nextCursor)}
+          onLoadMore={onLoadMore}
+          onAddToCart={onAddToCart}
+        />
       );
     case 'detail':
       return (

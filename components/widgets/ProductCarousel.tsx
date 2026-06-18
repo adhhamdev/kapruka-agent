@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronRight, ExternalLink, Plus } from 'lucide-react';
+import { ChevronRight, ExternalLink, Loader2, Plus } from 'lucide-react';
 import { ProductImage } from '@/components/ui/ProductImage';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { formatPrice } from '@/lib/format';
@@ -14,14 +14,22 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 
 interface ProductCarouselProps {
   products: KaprukaProduct[];
+  hasMore?: boolean;
+  onLoadMore?: () => void | Promise<void>;
   onAddToCart: (product: KaprukaProduct) => void;
 }
 
-export function ProductCarousel({ products, onAddToCart }: ProductCarouselProps) {
+export function ProductCarousel({
+  products,
+  hasMore = false,
+  onLoadMore,
+  onAddToCart,
+}: ProductCarouselProps) {
   const reducedMotion = useReducedMotion();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const updateScrollHint = useCallback(() => {
     const el = scrollRef.current;
@@ -152,6 +160,24 @@ export function ProductCarousel({ products, onAddToCart }: ProductCarouselProps)
           })}
         </div>
       </div>
+
+      {hasMore && onLoadMore && (
+        <div className='mt-2 flex justify-center'>
+          <button
+            type='button'
+            disabled={loadingMore}
+            onClick={() => {
+              setLoadingMore(true);
+              void Promise.resolve(onLoadMore()).finally(() => setLoadingMore(false));
+            }}
+            className='inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] border border-[color:var(--color-rule-strong)] bg-[color:var(--color-paper)] px-3 py-1.5 text-[12px] font-medium text-[color:var(--color-primary)] hover:border-[color:var(--color-primary)]/40 transition-[border-color,transform] active:scale-[0.98] disabled:opacity-60 touch-manipulation'>
+            {loadingMore ? (
+              <Loader2 className='w-3.5 h-3.5 animate-spin' aria-hidden='true' />
+            ) : null}
+            Load more products
+          </button>
+        </div>
+      )}
 
       {products.length > 2 && (
         <div

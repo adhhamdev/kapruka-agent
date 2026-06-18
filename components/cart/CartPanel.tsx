@@ -19,6 +19,7 @@ interface CartPanelProps {
   cart: CartItem[];
   onUpdateQuantity: (productId: string, delta: number) => void;
   onRemoveItem: (productId: string) => void;
+  onClearCart: () => void;
   onCheckout: () => void;
 }
 
@@ -27,6 +28,7 @@ export function CartPanel({
   cart,
   onUpdateQuantity,
   onRemoveItem,
+  onClearCart,
   onCheckout,
 }: CartPanelProps) {
   const reducedMotion = useReducedMotion();
@@ -117,13 +119,23 @@ export function CartPanel({
               {formatPrice(total)}
             </motion.span>
           </div>
-          <button
-            type='button'
-            disabled={cart.length === 0}
-            onClick={onCheckout}
-            className='w-full py-3.5 bg-[color:var(--color-primary)] disabled:bg-[color:var(--color-rule)] disabled:text-[color:var(--color-ink-3)] text-white rounded-[var(--radius-md)] font-semibold text-[16px] transition-[background-color,transform] active:scale-[0.98] hover:bg-[color:var(--color-primary-hover)] touch-manipulation'>
-            Checkout
-          </button>
+          <div className='flex flex-col gap-2'>
+            <button
+              type='button'
+              disabled={cart.length === 0}
+              onClick={onCheckout}
+              className='w-full py-3.5 bg-[color:var(--color-primary)] disabled:bg-[color:var(--color-rule)] disabled:text-[color:var(--color-ink-3)] text-white rounded-[var(--radius-md)] font-semibold text-[16px] transition-[background-color,transform] active:scale-[0.98] hover:bg-[color:var(--color-primary-hover)] touch-manipulation'>
+              Checkout
+            </button>
+            {cart.length > 0 && (
+              <button
+                type='button'
+                onClick={onClearCart}
+                className='w-full py-2 text-[13px] font-medium text-[color:var(--color-ink-3)] hover:text-[color:var(--color-error)] transition-colors touch-manipulation'>
+                Clear basket
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </aside>

@@ -1,14 +1,21 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { attachmentImageDataUrl } from '@/lib/attachments';
+import {
+  clearChatHistoryStorage,
+  createWelcomeMessage,
+  loadChatHistory,
+  saveChatHistory,
+} from '@/lib/chat-history-storage';
 import { WIDGET_ONLY_FALLBACK } from '@/constants/languages';
-import { WELCOME_MESSAGE } from '@/constants/prompts';
 import type { CartItem } from '@/lib/cart-storage';
 import { ERROR_MESSAGES, parseApiError } from '@/lib/errors';
 import { createMessageId } from '@/lib/message-ids';
 import type { ChatAttachment } from '@/types/attachments';
 import type { ActiveTab, Message } from '@/types/chat';
+import type { KaprukaProduct } from '@/lib/products';
+import type { CarouselPagination } from '@/types/widgets';
 
 interface UseChatOptions {
   cart: CartItem[];
@@ -25,25 +32,19 @@ function toAttachmentPayload(attachments: ChatAttachment[]) {
 }
 
 export function useChat({ cart, setCart }: UseChatOptions) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [hasInitialized, setHasInitialized] = useState(false);
+  const [messages, setMessages] = useState<Message[]>(() => loadChatHistory());
   const [inputText, setInputText] = useState('');
   const [isPending, setIsPending] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>('chat');
+  const skipPersistRef = useRef(false);
 
   useEffect(() => {
-    if (!hasInitialized) {
-      setMessages([
-        {
-          id: 'welcome',
-          role: 'assistant',
-          content: WELCOME_MESSAGE,
-          timestamp: new Date(0),
-        },
-      ]);
-      setHasInitialized(true);
+    if (skipPersistRef.current) {
+      skipPersistRef.current = false;
+      return;
     }
-  }, [hasInitialized]);
+    saveChatHistory(messages);
+  }, [messages]);
 
   const sendMessage = useCallback(
     async (
@@ -74,7 +75,7 @@ export function useChat({ cart, setCart }: UseChatOptions) {
           Object.keys(attachmentPreviews).length > 0
             ? attachmentPreviews
             : undefined,
-        timestamp: new Date(0),
+        timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, userMessage]);
@@ -129,7 +130,7 @@ export function useChat({ cart, setCart }: UseChatOptions) {
             role: 'assistant',
             content: responseText || WIDGET_ONLY_FALLBACK,
             widgets: data.widgets,
-            timestamp: new Date(0),
+            timestamp: new Date(),
           },
         ]);
       } catch (error: unknown) {
@@ -144,7 +145,7 @@ export function useChat({ cart, setCart }: UseChatOptions) {
             role: 'assistant',
             content: friendly,
             isError: true,
-            timestamp: new Date(0),
+            timestamp: new Date(),
           },
         ]);
       } finally {
@@ -165,6 +166,73 @@ export function useChat({ cart, setCart }: UseChatOptions) {
     setMessages((prev) => [...prev, message]);
   }, []);
 
+  const startNewChat = useCallback(() => {
+    skipPersistRef.current = true;
+    clearChatHistoryStorage();
+    setMessages([createWelcomeMessage()]);
+    setInputText('');
+    setActiveTab('chat');
+  }, []);
+
+  const loadMoreCarouselProducts = useCallback(
+    async (messageId: string, widgetIndex: number) => {
+      const message = messages.find((m) => m.id === messageId);
+      const widget = message?.widgets?.[widgetIndex];
+      if (!widget || widget.type !== 'carousel' || !widget.pagination?.nextCursor) {
+        return;
+      }
+
+      const pagination = widget.pagination;
+      const response = await fetch('/api/products/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          q: pagination.q,
+          category: pagination.category,
+          min_price: pagination.min_price,
+          max_price: pagination.max_price,
+          sort: pagination.sort,
+          cursor: pagination.nextCursor,
+          limit: 10,
+        }),
+      });
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+      const newProducts = (data.products ?? []) as KaprukaProduct[];
+      const nextCursor = (data.nextCursor as string | null) ?? null;
+
+      setMessages((prev) =>
+        prev.map((entry) => {
+          if (entry.id !== messageId || !entry.widgets) return entry;
+          const nextWidgets = entry.widgets.map((item, index) => {
+            if (index !== widgetIndex || item.type !== 'carousel') return item;
+            const existingIds = new Set(
+              item.data.map((product) => product.productId).filter(Boolean),
+            );
+            const merged = [
+              ...item.data,
+              ...newProducts.filter(
+                (product) => product.productId && !existingIds.has(product.productId),
+              ),
+            ];
+            return {
+              ...item,
+              data: merged,
+              pagination: {
+                ...pagination,
+                nextCursor,
+              } satisfies CarouselPagination,
+            };
+          });
+          return { ...entry, widgets: nextWidgets };
+        }),
+      );
+    },
+    [messages],
+  );
+
   return {
     messages,
     inputText,
@@ -175,5 +243,7 @@ export function useChat({ cart, setCart }: UseChatOptions) {
     sendMessage,
     sendFromComposer,
     appendMessage,
+    startNewChat,
+    loadMoreCarouselProducts,
   };
 }

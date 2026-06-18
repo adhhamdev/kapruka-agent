@@ -9,7 +9,7 @@ import {
   Square,
 } from 'lucide-react';
 import { AttachmentPreview } from '@/components/chat/AttachmentPreview';
-import { ACCEPTED_ATTACHMENT_TYPES } from '@/constants/languages';
+import { ACCEPTED_ATTACHMENT_TYPES, ATTACHMENT_HINT, MAX_ATTACHMENTS } from '@/constants/languages';
 import { useAttachments } from '@/hooks/use-attachments';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
 import type { ChatAttachment } from '@/types/attachments';
@@ -88,6 +88,8 @@ export function ChatComposer({
     !isListening &&
     (value.trim().length > 0 || attachments.length > 0);
 
+  const atAttachmentLimit = attachments.length >= MAX_ATTACHMENTS;
+
   const inputDisabled =
     disabled || isPending || isListening || isRequestingPermission;
 
@@ -131,6 +133,12 @@ export function ChatComposer({
               (voiceState === 'unsupported'
                 ? 'Voice input is not supported in this browser.'
                 : null)}
+          </p>
+        )}
+
+        {!attachmentError && attachments.length > 0 && (
+          <p className='text-[11px] text-[color:var(--color-ink-3)] px-1'>
+            {attachments.length}/{MAX_ATTACHMENTS} files · {ATTACHMENT_HINT}
           </p>
         )}
 
@@ -182,9 +190,13 @@ export function ChatComposer({
             <div className='flex shrink-0 items-center'>
               <button
                 type='button'
-                disabled={disabled || isPending || isListening}
+                disabled={disabled || isPending || isListening || atAttachmentLimit}
                 onClick={() => fileInputRef.current?.click()}
-                aria-label='Attach image or file'
+                aria-label={
+                  atAttachmentLimit
+                    ? `Maximum ${MAX_ATTACHMENTS} attachments reached`
+                    : 'Attach image or document'
+                }
                 className={`${inlineIconButtonClass} text-[color:var(--color-ink-2)] hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-paper-3)]`}>
                 <Paperclip className='w-[18px] h-[18px]' aria-hidden='true' />
               </button>

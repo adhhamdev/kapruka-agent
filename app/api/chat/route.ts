@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runAgentLoop } from '@/lib/agent/agent-loop';
+import { validateAttachmentPayload } from '@/lib/attachment-validation';
 import type { CartItem } from '@/lib/cart-storage';
 import { AppError, ERROR_MESSAGES } from '@/lib/errors';
 import type { ChatHistoryEntry } from '@/types/chat';
@@ -28,6 +29,13 @@ export async function POST(req: NextRequest) {
 
     if (!Array.isArray(cart)) {
       throw new AppError('INVALID_REQUEST', 400, 'Invalid cart payload');
+    }
+
+    for (const entry of messages as ChatHistoryEntry[]) {
+      const validation = validateAttachmentPayload(entry.attachments);
+      if (!validation.ok) {
+        throw new AppError('INVALID_REQUEST', 400, validation.message);
+      }
     }
 
     const result = await runAgentLoop(

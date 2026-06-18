@@ -28,12 +28,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'www.kapruka.com',
+        hostname: '**.kapruka.com',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'partnercentral.kapruka.com',
+        hostname: 'cdn.shopify.com',
         pathname: '/**',
       },
     ],

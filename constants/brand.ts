@@ -7,7 +7,7 @@ export const ASSISTANT_NAME = 'Kapruka Agent';
 /** Kapruka Agent avatar — chat, discover, favicon, PWA */
 export const AGENT_AVATAR_SRC = '/kapruka-avatar.png';
 
-/** Kapruka wordmark — discover mobile header, desktop app bar */
+/** Kapruka wordmark — app header (mobile + desktop) */
 export const KAPRUKA_LOGO_SRC = '/logo-square.jpeg';
 
 export const APP_DESCRIPTION =
