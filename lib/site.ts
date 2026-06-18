@@ -70,7 +70,12 @@ export function createSiteMetadata(): Metadata {
     appleWebApp: {
       capable: true,
       statusBarStyle: 'black-translucent',
-      title: 'Kapruka',
+      title: APP_NAME,
+    },
+    icons: {
+      icon: [{ url: '/kapruka-avatar.png', type: 'image/png' }],
+      apple: [{ url: '/kapruka-avatar.png', type: 'image/png' }],
+      shortcut: [{ url: '/kapruka-avatar.png', type: 'image/png' }],
     },
     formatDetection: {
       telephone: false,

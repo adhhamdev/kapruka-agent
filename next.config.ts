@@ -38,7 +38,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  transpilePackages: ['motion'],
+  transpilePackages: ['motion', 'streamdown'],
   async headers() {
     return [
       {

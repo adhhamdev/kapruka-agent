@@ -19,26 +19,43 @@ export function MessageList({
   onAddToCart,
 }: MessageListProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const prevLengthRef = useRef(messages.length);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+    const isNewMessage = messages.length > prevLengthRef.current;
+    prevLengthRef.current = messages.length;
+
+    chatEndRef.current?.scrollIntoView({
+      behavior: prefersReducedMotion || !isNewMessage ? 'auto' : 'smooth',
+      block: 'end',
+    });
   }, [messages, isPending]);
 
   return (
     <div
-      className='flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-[90px] scrollbar-hide'
-      id='messages-container'>
-      {messages.map((msg) => (
-        <MessageBubble
-          key={msg.id}
-          message={msg}
-          cart={cart}
-          onAddToCart={onAddToCart}
-        />
-      ))}
+      ref={containerRef}
+      className='chat-messages flex-1 min-h-0 min-w-0 w-full overflow-y-auto overflow-x-clip overscroll-y-contain scrollbar-hide touch-manipulation'
+      id='messages-container'
+      role='log'
+      aria-live='polite'
+      aria-relevant='additions'>
+      <div className='mx-auto w-full max-w-3xl min-w-0 px-3 sm:px-4 md:px-6 py-4 md:py-6 space-y-4 sm:space-y-6'>
+        {messages.map((msg) => (
+          <MessageBubble
+            key={msg.id}
+            message={msg}
+            cart={cart}
+            onAddToCart={onAddToCart}
+          />
+        ))}
 
-      {isPending && <TypingIndicator />}
-      <div ref={chatEndRef} />
+        {isPending && <TypingIndicator />}
+        <div ref={chatEndRef} className='h-2 shrink-0' aria-hidden='true' />
+      </div>
     </div>
   );
 }

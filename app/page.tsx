@@ -5,6 +5,7 @@ import { ChatPanel } from '@/components/chat/ChatPanel';
 import { DiscoverSidebar } from '@/components/discover/DiscoverSidebar';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { MobileTabBar } from '@/components/layout/MobileTabBar';
+import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
 import { DEFAULT_SPEECH_CODE } from '@/constants/languages';
 import { useChat } from '@/hooks/use-chat';
 import {
@@ -73,7 +74,7 @@ export default function Home() {
       id='app-root'>
       <AppHeader />
 
-      <div className='flex-1 flex flex-row overflow-hidden relative'>
+      <div className='flex-1 flex flex-row overflow-hidden relative min-h-0 min-w-0'>
         <DiscoverSidebar
           isActive={activeTab === 'discover'}
           onSendMessage={handleDiscoverPrompt}
@@ -105,6 +106,8 @@ export default function Home() {
         cart={cart}
         onTabChange={setActiveTab}
       />
+
+      <WelcomeModal />
     </div>
   );
 }

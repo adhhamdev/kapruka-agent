@@ -11,7 +11,7 @@ interface CheckoutFormCardProps {
 
 export function CheckoutFormCard({ checkout, cart }: CheckoutFormCardProps) {
   return (
-    <div className='bg-[color:var(--color-primary)] text-white rounded-[var(--radius-xl)] p-5 shadow-[var(--shadow-elevated)] max-w-xs relative overflow-hidden'>
+    <div className='bg-[color:var(--color-primary)] text-white rounded-[var(--radius-xl)] p-5 shadow-[var(--shadow-elevated)] w-full max-w-full sm:max-w-xs relative overflow-hidden min-w-0'>
       <h4 className='font-semibold text-[15px] flex items-center gap-2 mb-4'>
         <CreditCard className='w-4 h-4 opacity-80' /> Order Summary
       </h4>
@@ -35,7 +35,7 @@ export function CheckoutFormCard({ checkout, cart }: CheckoutFormCardProps) {
         href={checkout.checkoutUrl}
         target='_blank'
         rel='noopener noreferrer'
-        className='w-full py-3 bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-hover)] text-[color:var(--color-accent-ink)] rounded-[var(--radius-md)] font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98]'>
+        className='w-full py-3 bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-hover)] text-[color:var(--color-accent-ink)] rounded-[var(--radius-md)] font-semibold text-[15px] flex items-center justify-center gap-2 transition-[background-color,transform] active:scale-[0.98]'>
         Secure Checkout
       </a>
     </div>

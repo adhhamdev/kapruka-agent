@@ -1,6 +1,10 @@
-export const WELCOME_MESSAGE = `Hello. I'm your Kapruka shopping assistant.
+export const WELCOME_MESSAGE = `Hi! I'm **Kapruka Agent** — your shopping concierge for gifts, flowers, cakes, and delivery across Sri Lanka.
 
-I can search our catalog, check delivery options, manage your basket, and help you checkout.
+**I can help you with:**
+- Search our catalog
+- Check delivery dates and costs
+- Manage your basket
+- Checkout securely
 
 What would you like to find today?`;
 

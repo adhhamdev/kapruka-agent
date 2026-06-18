@@ -1,67 +1,75 @@
+'use client';
+
+import { KaprukaLink } from '@/components/brand/KaprukaLink';
+import { embedKaprukaLinks } from '@/lib/markdown/embed-kapruka-links';
 import type { ChatRole } from '@/types/chat';
+import { useMemo } from 'react';
+import { Streamdown, type Components } from 'streamdown';
 
 interface MarkdownContentProps {
   text: string;
   role?: ChatRole;
+  isAnimating?: boolean;
 }
 
-export function MarkdownContent({ text, role = 'assistant' }: MarkdownContentProps) {
-  if (!text) return null;
+function isTrustedKaprukaHost(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return host === 'kapruka.com' || host.endsWith('.kapruka.com');
+  } catch {
+    return false;
+  }
+}
 
+export function MarkdownContent({
+  text,
+  role = 'assistant',
+  isAnimating = false,
+}: MarkdownContentProps) {
   const isUser = role === 'user';
-  const textClass = isUser
-    ? 'text-white'
-    : 'text-[color:var(--color-ink-2)]';
-  const strongClass = isUser
-    ? 'font-semibold text-white'
-    : 'font-semibold text-[color:var(--color-ink)]';
+  const linkVariant = isUser ? 'on-dark' : 'default';
 
-  const lines = text.split('\n');
+  const markdown = useMemo(() => embedKaprukaLinks(text), [text]);
+
+  const components = useMemo<Components>(
+    () => ({
+      a: ({ href, children }) => {
+        if (href && isTrustedKaprukaHost(href)) {
+          return <KaprukaLink variant={linkVariant}>{children}</KaprukaLink>;
+        }
+        return (
+          <a
+            href={href}
+            target='_blank'
+            rel='noopener noreferrer'
+            className={
+              isUser
+                ? 'text-white underline decoration-white/50 underline-offset-2 hover:decoration-white'
+                : 'text-[color:var(--color-primary)] underline decoration-[color:var(--color-primary)]/40 underline-offset-2 hover:decoration-[color:var(--color-primary)]'
+            }>
+            {children}
+          </a>
+        );
+      },
+    }),
+    [isUser, linkVariant],
+  );
+
+  if (!text.trim()) return null;
 
   return (
-    <>
-      {lines.map((line, idx) => {
-        let content: React.ReactNode = line;
-        const bulletMatch = line.match(/^[\*\-]\s+(.*)$/);
-        const isBullet = !!bulletMatch;
-        const rawText = isBullet ? bulletMatch![1] : line;
-
-        const parts = rawText.split(/\*\*([^*]+)\*\*/g);
-        if (parts.length > 1) {
-          content = parts.map((part, pIdx) => {
-            if (pIdx % 2 === 1) {
-              return (
-                <strong key={pIdx} className={strongClass}>
-                  {part}
-                </strong>
-              );
-            }
-            return part;
-          });
-        }
-
-        if (isBullet) {
-          return (
-            <li
-              key={idx}
-              className={`ml-4 list-disc text-[15px] ${textClass} leading-relaxed mb-1.5`}>
-              {content}
-            </li>
-          );
-        }
-
-        if (line.trim() === '') {
-          return <div key={idx} className='h-2' />;
-        }
-
-        return (
-          <p
-            key={idx}
-            className={`text-[15px] ${textClass} leading-relaxed mb-1.5`}>
-            {content}
-          </p>
-        );
-      })}
-    </>
+    <Streamdown
+      mode='static'
+      isAnimating={isAnimating}
+      controls={false}
+      lineNumbers={false}
+      linkSafety={{
+        enabled: true,
+        onLinkCheck: (url) => isTrustedKaprukaHost(url),
+      }}
+      className={`chat-markdown ${isUser ? 'chat-markdown--user' : 'chat-markdown--assistant'}`}
+      components={components}>
+      {markdown}
+    </Streamdown>
   );
 }

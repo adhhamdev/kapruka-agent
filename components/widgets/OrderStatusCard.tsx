@@ -7,7 +7,7 @@ interface OrderStatusCardProps {
 
 export function OrderStatusCard({ order }: OrderStatusCardProps) {
   return (
-    <div className='bg-white border border-[color:var(--color-border-default)] rounded-[var(--radius-xl)] p-4 max-w-sm shadow-sm'>
+    <div className='bg-white border border-[color:var(--color-border-default)] rounded-[var(--radius-xl)] p-4 w-full max-w-full sm:max-w-sm shadow-sm min-w-0'>
       <div className='flex items-center gap-3 mb-4'>
         <div className='w-10 h-10 bg-[color:var(--color-bg-base)] rounded-full flex items-center justify-center shrink-0 border border-[color:var(--color-border-subtle)]'>
           <Package className='w-5 h-5 text-[color:var(--color-primary)]' />

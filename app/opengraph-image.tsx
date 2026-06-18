@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { APP_DESCRIPTION, ASSISTANT_NAME } from '@/constants/brand';
+import { APP_DESCRIPTION, APP_NAME } from '@/constants/brand';
 
 export const alt = 'Kapruka Agent — AI shopping concierge for Kapruka';
 export const size = { width: 1200, height: 630 };
@@ -29,7 +29,7 @@ export default function OpenGraphImage() {
             lineHeight: 1.1,
             letterSpacing: '-0.03em',
           }}>
-          Meet {ASSISTANT_NAME} — Kapruka Agent
+          Meet {APP_NAME}
         </div>
         <div
           style={{

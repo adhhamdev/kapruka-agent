@@ -31,9 +31,10 @@ export function ChatPanel({
   return (
     <main
       className={`
-        ${isActive ? 'flex flex-col animate-fade-in' : 'hidden'} 
-        lg:flex flex-1 flex-col h-full relative bg-[color:var(--color-bg-surface)]
-        pb-30
+        ${isActive ? 'flex animate-fade-in' : 'hidden'}
+        lg:flex flex-1 flex-col min-w-0 min-h-0 h-full relative
+        bg-[color:var(--color-bg-surface)]
+        pb-[calc(66px+env(safe-area-inset-bottom))]
       `}
       id='chat-surface'>
       <MessageList

@@ -1,5 +1,7 @@
 'use client';
 
+import { AGENT_AVATAR_SRC, APP_NAME } from '@/constants/brand';
+
 export default function GlobalError({
   reset,
 }: {
@@ -25,8 +27,22 @@ export default function GlobalError({
             padding: '1.5rem',
             textAlign: 'center',
           }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={AGENT_AVATAR_SRC}
+            alt={APP_NAME}
+            width={64}
+            height={64}
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: '9999px',
+              marginBottom: '1.5rem',
+              boxShadow: '0 1px 3px rgba(66, 43, 115, 0.15)',
+            }}
+          />
           <h1 style={{ fontSize: '1.25rem', fontWeight: 600 }}>
-            Kapruka Agent is unavailable
+            {APP_NAME} is unavailable
           </h1>
           <p
             style={{

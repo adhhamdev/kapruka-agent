@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { AGENT_AVATAR_SRC, APP_NAME } from '@/constants/brand';
 
 export default function Error({
   reset,
@@ -10,13 +11,15 @@ export default function Error({
 }) {
   return (
     <div className='flex min-h-[100dvh] flex-col items-center justify-center bg-[color:var(--color-paper)] px-6 text-center'>
-      <Image
-        src='/logo-square.jpeg'
-        alt='Kapruka'
-        width={56}
-        height={56}
-        className='mb-6 rounded-xl object-contain'
-      />
+      <div className='relative w-16 h-16 mb-6 rounded-full overflow-hidden bg-transparent ring-4 ring-[color:var(--color-primary)]/10 shadow-[var(--shadow-sm)]'>
+        <Image
+          src={AGENT_AVATAR_SRC}
+          alt={APP_NAME}
+          fill
+          sizes='64px'
+          className='object-contain'
+        />
+      </div>
       <h1 className='text-[color:var(--color-ink)] text-xl font-semibold tracking-tight'>
         Something went wrong
       </h1>

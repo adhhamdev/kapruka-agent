@@ -1,8 +1,13 @@
+'use client';
+
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { ProductImage } from '@/components/ui/ProductImage';
+import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { formatPrice } from '@/lib/format';
+import { EASE_OUT } from '@/lib/motion/presets';
 import { getKaprukaProductUrl } from '@/lib/products';
 import type { CartItem } from '@/lib/cart-storage';
+import { motion } from 'motion/react';
 
 interface CartItemRowProps {
   item: CartItem;
@@ -15,6 +20,7 @@ export function CartItemRow({
   onUpdateQuantity,
   onRemove,
 }: CartItemRowProps) {
+  const reducedMotion = useReducedMotion();
   const itemUrl = getKaprukaProductUrl({
     productId: item.product_id,
     name: item.name,
@@ -61,11 +67,15 @@ export function CartItemRow({
               className='text-[color:var(--color-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] rounded-full p-0.5'>
               <Minus className='w-3.5 h-3.5' aria-hidden='true' />
             </button>
-            <span
+            <motion.span
+              key={item.quantity}
+              initial={reducedMotion ? false : { scale: 0.75, opacity: 0.5 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.16, ease: EASE_OUT }}
               className='font-semibold text-[13px] w-4 text-center text-[color:var(--color-text-primary)] tabular-nums'
               aria-live='polite'>
               {item.quantity}
-            </span>
+            </motion.span>
             <button
               type='button'
               onClick={() => onUpdateQuantity(item.product_id, 1)}
