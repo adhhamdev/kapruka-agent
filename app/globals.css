@@ -151,6 +151,39 @@
   backdrop-filter: blur(20px);
 }
 
+.chat-composer-field {
+  border: 1px solid var(--color-rule-strong);
+  transition:
+    border-color var(--dur-short) var(--ease-out),
+    box-shadow var(--dur-short) var(--ease-out),
+    background-color var(--dur-short) var(--ease-out);
+}
+
+.chat-composer-field:focus-within {
+  background-color: var(--color-paper-2);
+  box-shadow:
+    0 0 3px 2px var(--color-primary);
+}
+
+.chat-composer-field.is-listening {
+  border-color: var(--color-primary);
+  background-color: var(--color-paper-2);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-primary) 26%, transparent);
+}
+
+.chat-composer-input {
+  caret-color: var(--color-primary);
+}
+
+.chat-composer-input::selection {
+  background-color: var(--color-primary-light);
+  color: var(--color-ink);
+}
+
+.chat-composer-input:focus {
+  outline: none;
+}
+
 .welcome-modal::backdrop {
   background: oklch(18% 0.04 285 / 0.45);
 }
@@ -409,4 +442,20 @@ input {
     color var(--dur-short) var(--ease-out),
     transform var(--dur-short) var(--ease-out),
     box-shadow var(--dur-short) var(--ease-out);
+}
+
+button:not(:disabled),
+input[type='button']:not(:disabled),
+input[type='submit']:not(:disabled),
+input[type='reset']:not(:disabled),
+[role='button']:not([aria-disabled='true']) {
+  cursor: pointer;
+}
+
+button:disabled,
+input[type='button']:disabled,
+input[type='submit']:disabled,
+input[type='reset']:disabled,
+[role='button'][aria-disabled='true'] {
+  cursor: not-allowed;
 }

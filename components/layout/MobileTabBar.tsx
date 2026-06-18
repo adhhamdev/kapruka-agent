@@ -80,7 +80,7 @@ export function MobileTabBar({
 
   return (
     <nav
-      className='lg:hidden fixed bottom-0 left-0 right-0 z-50 overscroll-contain pointer-events-none'
+      className='md:hidden fixed bottom-0 left-0 right-0 z-50 overscroll-contain pointer-events-none'
       aria-label='Main navigation'>
       <div className='relative h-[calc(64px+env(safe-area-inset-bottom))] bg-[color:var(--color-paper-2)]/95 backdrop-blur-xl border-t border-[color:var(--color-rule)] px-4 sm:px-6 pb-[env(safe-area-inset-bottom)] flex items-end justify-around pointer-events-auto'>
         <SideTabButton

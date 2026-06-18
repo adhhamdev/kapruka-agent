@@ -27,8 +27,8 @@ interface ChatComposerProps {
 const iconButtonClass =
   'rounded-full flex items-center justify-center transition-[background-color,transform,color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none touch-manipulation';
 
-const inlineIconButtonClass = `${iconButtonClass} w-9 h-9 min-w-9 min-h-9 shrink-0`;
-const sendButtonClass = `${iconButtonClass} w-9 h-9 min-w-9 min-h-9 shrink-0`;
+const composerControlClass = `${iconButtonClass} w-11 h-11 min-w-11 min-h-11 shrink-0`;
+const composerIconClass = 'w-5 h-5';
 
 function voiceAriaLabel(
   state: VoiceState,
@@ -170,7 +170,7 @@ export function ChatComposer({
             e.preventDefault();
             handleSubmit();
           }}
-          className='flex items-end gap-2 min-w-0 w-full'
+          className='flex items-center gap-2 min-w-0 w-full'
           aria-busy={isPending || isProcessing || isRequestingPermission}>
           <input
             ref={fileInputRef}
@@ -186,7 +186,10 @@ export function ChatComposer({
             }}
           />
 
-          <div className='flex-1 min-w-0 flex items-end gap-1.5 bg-[color:var(--color-paper)] border border-[color:var(--color-rule-strong)] rounded-[var(--radius-pill)] focus-within:ring-2 focus-within:ring-[color:var(--color-primary)]/15 focus-within:border-[color:var(--color-primary)]/30 transition-[border-color,box-shadow] pl-1 pr-1.5 py-1.5 shadow-[var(--shadow-sm)]'>
+          <div
+            className={`chat-composer-field flex-1 min-w-0 flex items-center gap-1.5 min-h-[56px] bg-[color:var(--color-paper)] rounded-[var(--radius-pill)] pl-1.5 pr-1.5 py-1 shadow-[var(--shadow-sm)] ${
+              isListening ? 'is-listening' : ''
+            }`}>
             <div className='flex shrink-0 items-center'>
               <button
                 type='button'
@@ -197,8 +200,8 @@ export function ChatComposer({
                     ? `Maximum ${MAX_ATTACHMENTS} attachments reached`
                     : 'Attach image or document'
                 }
-                className={`${inlineIconButtonClass} text-[color:var(--color-ink-2)] hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-paper-3)]`}>
-                <Paperclip className='w-[18px] h-[18px]' aria-hidden='true' />
+                className={`${composerControlClass} text-[color:var(--color-ink-2)] hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-paper-3)]`}>
+                <Paperclip className={composerIconClass} aria-hidden='true' />
               </button>
 
               <button
@@ -207,7 +210,7 @@ export function ChatComposer({
                 onClick={handleVoiceClick}
                 aria-label={voiceAriaLabel(voiceState, isRequestingPermission)}
                 aria-pressed={isListening}
-                className={`${inlineIconButtonClass} ${
+                className={`${composerControlClass} ${
                   isListening
                     ? 'bg-red-500 text-white hover:bg-red-600 animate-status-pulse'
                     : isProcessing || isRequestingPermission
@@ -215,11 +218,11 @@ export function ChatComposer({
                       : 'text-[color:var(--color-ink-2)] hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-paper-3)]'
                 }`}>
                 {isProcessing || isRequestingPermission ? (
-                  <Loader2 className='w-[18px] h-[18px] animate-spin' aria-hidden='true' />
+                  <Loader2 className={`${composerIconClass} animate-spin`} aria-hidden='true' />
                 ) : isListening ? (
-                  <Square className='w-3.5 h-3.5 fill-current' aria-hidden='true' />
+                  <Square className='w-4 h-4 fill-current' aria-hidden='true' />
                 ) : (
-                  <Mic className='w-[18px] h-[18px]' aria-hidden='true' />
+                  <Mic className={composerIconClass} aria-hidden='true' />
                 )}
               </button>
             </div>
@@ -239,22 +242,22 @@ export function ChatComposer({
               onChange={(e) => onChange(e.target.value)}
               disabled={inputDisabled}
               placeholder={isListening ? 'Listening…' : 'Ask Kapruka Agent…'}
-              className='flex-1 min-w-0 w-0 basis-0 bg-transparent text-[16px] focus:outline-none min-h-[36px] px-1 placeholder-[color:var(--color-text-tertiary)]'
+              className='chat-composer-input flex-1 min-w-0 w-0 basis-0 bg-transparent text-[16px] leading-normal text-[color:var(--color-ink)] min-h-[44px] py-2.5 px-1 placeholder-[color:var(--color-text-tertiary)] placeholder:transition-colors focus:placeholder-[color:var(--color-ink-3)]'
             />
 
             <button
               type='submit'
               disabled={!canSend}
               aria-label={isPending ? 'Sending message…' : 'Send message'}
-              className={`${sendButtonClass} ${
+              className={`${composerControlClass} ${
                 canSend
                   ? 'bg-[color:var(--color-primary)] text-white hover:bg-[color:var(--color-primary-hover)] shadow-sm'
                   : 'bg-[color:var(--color-paper-3)] text-[color:var(--color-ink-3)]'
               } active:scale-[0.96] disabled:pointer-events-none`}>
               {isPending ? (
-                <Loader2 className='w-[18px] h-[18px] animate-spin' aria-hidden='true' />
+                <Loader2 className={`${composerIconClass} animate-spin`} aria-hidden='true' />
               ) : (
-                <ArrowUp className='w-[18px] h-[18px]' aria-hidden='true' />
+                <ArrowUp className={composerIconClass} aria-hidden='true' />
               )}
             </button>
           </div>

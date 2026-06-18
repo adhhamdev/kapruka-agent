@@ -1,8 +1,8 @@
 # Kapruka Agent
 
-**Meet Agent — your AI shopping concierge for Kapruka.**
+**Meet Agent — your AI shopping assistant for Kapruka.**
 
-Kapruka Agent is a conversational web assistant that helps you find gifts, cakes, flowers, electronics, and more from Kapruka’s live catalog. Ask in plain English, Sinhala, Tamil, or Tanglish; browse rich product cards in chat; manage your basket; check delivery anywhere in Sri Lanka; and checkout with a real Kapruka payment link.
+Kapruka Agent is a conversational assistant for Kapruka's full catalog — groceries, fashion, electronics, pharmacy, gifts, and much more. Ask in plain English, Sinhala, Tamil, or Tanglish; browse categories and product cards in chat; manage your basket; check delivery; checkout with a real Kapruka payment link; and track orders.
 
 Production: **[https://agent-kapruka.vercel.app](https://agent-kapruka.vercel.app)**
 
@@ -36,7 +36,7 @@ Built for the **Kapruka Agent Challenge 2026**.
 
 ## Using the App
 
-1. **Chat with Agent** — Type or dictate what you want (e.g. *“Show me birthday cakes for Colombo”*).
+1. **Chat with Agent** — Type or dictate what you want (e.g. *“Show me laptops under 200000”* or *“Browse grocery categories”*).
 2. **Browse results** — Product carousels and detail cards appear inline. Tap **+** to add to basket.
 3. **Load more** — On search carousels, tap **Load more products** for the next page.
 4. **Check your basket** — Mobile: **Basket** tab. Desktop: right panel.
@@ -44,7 +44,7 @@ Built for the **Kapruka Agent Challenge 2026**.
 
 **Tips**
 
-- **Search** tab — quick prompts (flowers, cakes, track order, etc.).
+- **Discover** tab — quick prompts (browse categories, track order, etc.).
 - **New chat** (pencil icon) — clears history and resets to the welcome message.
 - Basket and chat history survive refresh (browser `localStorage`).
 - Kapruka logo and brand links open [kapruka.com](https://www.kapruka.com).
@@ -187,4 +187,4 @@ types/                  Chat, widgets, cart, attachments
 
 Private — Kapruka Agent Challenge 2026.
 
-Built for **[Kapruka](https://www.kapruka.com)** · Sri Lanka’s premier online gift & delivery platform.
+Built for **[Kapruka](https://www.kapruka.com)** · Sri Lanka's all-in-one online store.

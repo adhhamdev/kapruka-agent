@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { CartPanel } from '@/components/cart/CartPanel';
 import { ChatPanel } from '@/components/chat/ChatPanel';
 import { DiscoverSidebar } from '@/components/discover/DiscoverSidebar';
@@ -17,9 +18,12 @@ import {
 import { useCartStorage } from '@/lib/cart-storage';
 import { createMessageId } from '@/lib/message-ids';
 import type { KaprukaProduct } from '@/lib/products';
+import type { ActiveTab } from '@/types/chat';
 
 export default function Home() {
   const { cart, setCart } = useCartStorage();
+  const [discoverOpen, setDiscoverOpen] = useState(true);
+  const [cartOpen, setCartOpen] = useState(false);
   const {
     messages,
     inputText,
@@ -92,7 +96,18 @@ export default function Home() {
   };
 
   const handleDiscoverPrompt = (prompt: string) => {
+    setActiveTab('chat');
     sendMessage(prompt);
+  };
+
+  const handleMobileTabChange = (tab: ActiveTab) => {
+    setActiveTab(tab);
+    if (tab === 'discover') {
+      setDiscoverOpen(true);
+    }
+    if (tab === 'cart') {
+      setCartOpen(true);
+    }
   };
 
   return (
@@ -104,11 +119,15 @@ export default function Home() {
       <div className='flex-1 flex flex-row overflow-hidden relative min-h-0 min-w-0'>
         <DiscoverSidebar
           isActive={activeTab === 'discover'}
+          isOpen={discoverOpen}
+          onClose={() => setDiscoverOpen(false)}
           onSendMessage={handleDiscoverPrompt}
         />
 
         <ChatPanel
           isActive={activeTab === 'chat'}
+          discoverOpen={discoverOpen}
+          cartOpen={cartOpen}
           messages={messages}
           isPending={isPending}
           inputText={inputText}
@@ -121,10 +140,14 @@ export default function Home() {
           onViewProductDetail={handleViewProductDetail}
           onStartNewChat={startNewChat}
           onLoadMoreCarousel={loadMoreCarouselProducts}
+          onToggleDiscover={() => setDiscoverOpen((open) => !open)}
+          onToggleCart={() => setCartOpen((open) => !open)}
         />
 
         <CartPanel
           isActive={activeTab === 'cart'}
+          isOpen={cartOpen}
+          onClose={() => setCartOpen(false)}
           cart={cart}
           onUpdateQuantity={handleUpdateQuantity}
           onRemoveItem={handleRemoveItem}
@@ -136,7 +159,7 @@ export default function Home() {
       <MobileTabBar
         activeTab={activeTab}
         cart={cart}
-        onTabChange={setActiveTab}
+        onTabChange={handleMobileTabChange}
       />
 
       <WelcomeModal />
