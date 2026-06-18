@@ -16,6 +16,11 @@ export interface QuickStarter {
 
 export const QUICK_STARTERS: QuickStarter[] = [
   {
+    label: 'Browse Categories',
+    iconName: 'sparkles',
+    prompt: 'Show me all Kapruka shopping categories.',
+  },
+  {
     label: 'Fresh Flowers',
     iconName: 'sparkles',
     prompt: 'Show me fresh flower bouquets available for delivery',

@@ -18,6 +18,8 @@ interface ChatPanelProps {
   onInputChange: (value: string) => void;
   onSendMessage: (text: string, attachments: ChatAttachment[]) => void;
   onAddToCart: (product: KaprukaProduct) => void;
+  onBrowseCategory?: (categoryName: string) => void;
+  onViewProductDetail?: (product: KaprukaProduct) => void;
   onStartNewChat: () => void;
   onLoadMoreCarousel: (messageId: string, widgetIndex: number) => void;
 }
@@ -32,6 +34,8 @@ export function ChatPanel({
   onInputChange,
   onSendMessage,
   onAddToCart,
+  onBrowseCategory,
+  onViewProductDetail,
   onStartNewChat,
   onLoadMoreCarousel,
 }: ChatPanelProps) {
@@ -60,6 +64,8 @@ export function ChatPanel({
         isPending={isPending}
         cart={cart}
         onAddToCart={onAddToCart}
+        onBrowseCategory={onBrowseCategory}
+        onViewProductDetail={onViewProductDetail}
         onLoadMoreCarousel={onLoadMoreCarousel}
       />
       <ChatComposer

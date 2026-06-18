@@ -11,13 +11,14 @@
     "clean": "next clean"
     },
   "dependencies": {
-    "@google/genai": "^2.4.0",
+    "@ai-sdk/google": "^3.0.83",
+    "@ai-sdk/mcp": "^1.0.52",
+    "@ai-sdk/react": "^3.0.210",
     "@hookform/resolvers": "^5.2.1",
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "ai": "^6.0.208",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "eventsource": "^4.1.0",
     "lucide-react": "^0.553.0",
     "motion": "^12.23.24",
     "next": "^15.4.9",
@@ -25,9 +26,11 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "streamdown": "^2.5.0",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@ai-sdk/devtools": "^0.0.20",
     "@eslint/eslintrc": "^3.3.5",
     "@tailwindcss/postcss": "4.1.11",
     "@tailwindcss/typography": "^0.5.19",

@@ -16,6 +16,8 @@ interface MessageListProps {
   isPending: boolean;
   cart: CartItem[];
   onAddToCart: (product: KaprukaProduct) => void;
+  onBrowseCategory?: (categoryName: string) => void;
+  onViewProductDetail?: (product: KaprukaProduct) => void;
   onLoadMoreCarousel: (messageId: string, widgetIndex: number) => void;
 }
 
@@ -24,6 +26,8 @@ export function MessageList({
   isPending,
   cart,
   onAddToCart,
+  onBrowseCategory,
+  onViewProductDetail,
   onLoadMoreCarousel,
 }: MessageListProps) {
   const reducedMotion = useReducedMotion();
@@ -112,12 +116,19 @@ export function MessageList({
         <div
           ref={contentRef}
           className='mx-auto w-full max-w-3xl min-w-0 px-3 sm:px-4 md:px-6 py-4 md:py-6 space-y-4 sm:space-y-6'>
-          {messages.map((msg) => (
+          {messages.map((msg, index) => (
             <MessageBubble
               key={msg.id}
               message={msg}
               cart={cart}
+              isStreaming={
+                isPending &&
+                index === messages.length - 1 &&
+                msg.role === 'assistant'
+              }
               onAddToCart={onAddToCart}
+              onBrowseCategory={onBrowseCategory}
+              onViewProductDetail={onViewProductDetail}
               onLoadMoreCarousel={onLoadMoreCarousel}
             />
           ))}
