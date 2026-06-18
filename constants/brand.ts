@@ -13,15 +13,15 @@ export const KAPRUKA_LOGO_SRC = '/logo-square.jpeg';
 /** Open Graph / social preview image (1200×630, includes Kapruka wordmark + agent avatar) */
 export const OG_IMAGE_PATH = '/og-image.png';
 export const OG_IMAGE_ALT =
-  'Kapruka Agent — AI shopping concierge for Kapruka';
+  'Kapruka Agent — your AI for Sri Lanka\u2019s all-in-one store';
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
 
 export const APP_DESCRIPTION =
-  'Your AI shopping concierge for Kapruka. Search gifts, cakes, flowers and more across Sri Lanka.';
+  'Your AI shopping assistant for Kapruka. Discover, compare, and checkout across Sri Lanka\u2019s complete store.';
 
 export const PWA_DESCRIPTION =
-  'AI shopping concierge for Kapruka. Search gifts, manage your basket, and checkout.';
+  'AI shopping assistant for Kapruka. Search products, manage your basket, and checkout.';
 
 export const AGENT_GREETING =
-  "Hi, I'm Kapruka Agent — your shopping concierge for gifts, flowers, cakes, and delivery across Sri Lanka.";
+  "Hi, I'm Kapruka Agent — your AI shopping assistant for Kapruka. Ask me to find products, check delivery, or help you checkout.";
