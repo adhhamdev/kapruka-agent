@@ -78,7 +78,7 @@ export function ChatComposer({
   } = useSpeechRecognition({
     languageCode: speechLanguageCode,
     onResult: (transcript) => {
-      onChange(transcript);
+      onChange(transcript.trim());
     },
   });
 

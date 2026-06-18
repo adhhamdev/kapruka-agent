@@ -60,7 +60,7 @@ function getSpeechRecognitionCtor():
 
 function collectTranscript(event: SpeechRecognitionEventLike): string {
   const parts: string[] = [];
-  for (let i = event.resultIndex; i < event.results.length; i++) {
+  for (let i = 0; i < event.results.length; i++) {
     const result = event.results[i];
     const text = result?.[0]?.transcript ?? '';
     if (text) parts.push(text);
@@ -186,12 +186,19 @@ export function useSpeechRecognition({
     }
 
     setMicPermission('granted');
-    micStreamRef.current = access.stream ?? null;
+    // Release the permission probe stream — SpeechRecognition opens its own capture.
+    releaseMicStream(access.stream ?? null);
+    micStreamRef.current = null;
 
     try {
       recognition.lang = languageCodeRef.current;
       setVoiceState('listening');
-      recognition.start();
+      try {
+        recognition.start();
+      } catch {
+        recognition.abort();
+        recognition.start();
+      }
     } catch {
       releaseMicStream(micStreamRef.current);
       micStreamRef.current = null;

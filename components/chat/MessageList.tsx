@@ -29,6 +29,7 @@ export function MessageList({
   const reducedMotion = useReducedMotion();
   const chatEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const prevLengthRef = useRef(messages.length);
   const isNearBottomRef = useRef(true);
   const [showScrollDown, setShowScrollDown] = useState(false);
@@ -43,12 +44,20 @@ export function MessageList({
     setShowScrollDown(!nearBottom);
   }, []);
 
-  const scrollToBottom = useCallback(() => {
-    chatEndRef.current?.scrollIntoView({
-      behavior: reducedMotion ? 'auto' : 'smooth',
-      block: 'end',
-    });
-  }, [reducedMotion]);
+  const scrollToBottom = useCallback(
+    (behavior: ScrollBehavior = 'auto') => {
+      const el = containerRef.current;
+      if (!el) return;
+
+      const scroll = () => {
+        el.scrollTo({ top: el.scrollHeight, behavior });
+      };
+
+      scroll();
+      requestAnimationFrame(scroll);
+    },
+    [],
+  );
 
   useEffect(() => {
     const el = containerRef.current;
@@ -59,21 +68,37 @@ export function MessageList({
   }, [updateScrollHint]);
 
   useEffect(() => {
-    updateScrollHint();
-  }, [messages, isPending, updateScrollHint]);
+    const content = contentRef.current;
+    const container = containerRef.current;
+    if (!content || !container) return;
+
+    const observer = new ResizeObserver(() => {
+      if (isNearBottomRef.current) {
+        container.scrollTop = container.scrollHeight;
+        updateScrollHint();
+      }
+    });
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, [updateScrollHint]);
 
   useEffect(() => {
     const isNewMessage = messages.length > prevLengthRef.current;
+    const lastMessage = messages[messages.length - 1];
+    const userJustSent = isNewMessage && lastMessage?.role === 'user';
     prevLengthRef.current = messages.length;
 
-    if (!isNearBottomRef.current) return;
+    if (userJustSent) {
+      isNearBottomRef.current = true;
+      setShowScrollDown(false);
+    }
 
-    chatEndRef.current?.scrollIntoView({
-      behavior:
-        reducedMotion || !isNewMessage ? 'auto' : 'smooth',
-      block: 'end',
-    });
-  }, [messages, isPending, reducedMotion]);
+    if (userJustSent || isNearBottomRef.current) {
+      const behavior: ScrollBehavior =
+        reducedMotion || !isNewMessage ? 'auto' : 'smooth';
+      scrollToBottom(behavior);
+    }
+  }, [messages, isPending, reducedMotion, scrollToBottom]);
 
   return (
     <div className='relative flex-1 min-h-0 min-w-0 flex flex-col'>
@@ -84,7 +109,9 @@ export function MessageList({
         role='log'
         aria-live='polite'
         aria-relevant='additions'>
-        <div className='mx-auto w-full max-w-3xl min-w-0 px-3 sm:px-4 md:px-6 py-4 md:py-6 space-y-4 sm:space-y-6'>
+        <div
+          ref={contentRef}
+          className='mx-auto w-full max-w-3xl min-w-0 px-3 sm:px-4 md:px-6 py-4 md:py-6 space-y-4 sm:space-y-6'>
           {messages.map((msg) => (
             <MessageBubble
               key={msg.id}
@@ -102,7 +129,7 @@ export function MessageList({
 
       <button
         type='button'
-        onClick={scrollToBottom}
+        onClick={() => scrollToBottom(reducedMotion ? 'auto' : 'smooth')}
         aria-label='Scroll to latest messages'
         className={`absolute bottom-4 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center w-10 h-10 rounded-full border border-[color:var(--color-rule-strong)] bg-[color:var(--color-paper)] text-[color:var(--color-primary)] shadow-[var(--shadow-md)] hover:bg-[color:var(--color-paper-3)] hover:border-[color:var(--color-primary)]/30 transition-[opacity,transform,background-color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] active:scale-95 touch-manipulation ${
           showScrollDown
