@@ -8,13 +8,13 @@ export interface WelcomeFeature {
 }
 
 export const WELCOME_INTRO =
-  'Your AI shopping concierge for Kapruka — search, compare, deliver, and checkout without leaving the conversation.';
+  'Your AI shopping assistant for Kapruka — explore the full catalog, compare products, arrange delivery, and checkout without leaving the conversation.';
 
 export const WELCOME_CAPABILITIES: WelcomeFeature[] = [
   {
-    title: 'Search the catalog',
+    title: 'Explore & search',
     description:
-      'Find gifts, flowers, cakes, toys, and more across Kapruka with natural language.',
+      "Browse categories and search Kapruka's full catalog — groceries, fashion, electronics, pharmacy, and more — in natural language.",
   },
   {
     title: 'Check delivery',
@@ -40,8 +40,8 @@ export const WELCOME_CAPABILITIES: WelcomeFeature[] = [
 export const WELCOME_YOU_CAN: string[] = [
   'Ask in English, Sinhala, Tamil, or Tanglish',
   'Use voice input or attach images in chat',
-  'Browse quick prompts on the Search tab',
-  'Switch between Agent, Search, and Basket anytime',
+  'Browse quick prompts on the Discover tab',
+  'Switch between Chat, Discover, and Basket anytime',
 ];
 
 export const WELCOME_MODAL_TITLE = `Welcome to ${APP_NAME}`;

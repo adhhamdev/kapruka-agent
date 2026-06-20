@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronRight, ExternalLink, Info, Loader2, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, Info, Loader2, Plus } from 'lucide-react';
 import { ProductImage } from '@/components/ui/ProductImage';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { formatPrice } from '@/lib/format';
@@ -29,6 +29,7 @@ export function ProductCarousel({
 }: ProductCarouselProps) {
   const reducedMotion = useReducedMotion();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -36,6 +37,7 @@ export function ProductCarousel({
   const updateScrollHint = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 8);
     setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 8);
 
     const cards = el.querySelectorAll<HTMLElement>('[data-carousel-card]');
@@ -66,6 +68,17 @@ export function ProductCarousel({
     };
   }, [products, updateScrollHint]);
 
+  const scrollCarousel = useCallback((direction: 'left' | 'right') => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const card = el.querySelector<HTMLElement>('[data-carousel-card]');
+    const step = card ? card.offsetWidth + 8 : el.clientWidth * 0.8;
+    el.scrollBy({
+      left: direction === 'left' ? -step : step,
+      behavior: 'smooth',
+    });
+  }, []);
+
   if (products.length === 0) return null;
 
   return (
@@ -76,15 +89,53 @@ export function ProductCarousel({
         </p>
         {canScrollRight && products.length > 2 && (
           <span
-            className='text-[10px] text-[color:var(--color-ink-3)] inline-flex items-center gap-0.5 shrink-0 sm:hidden'
+            className='text-[10px] text-[color:var(--color-ink-3)] inline-flex items-center gap-0.5 shrink-0 lg:hidden'
             aria-hidden='true'>
             Swipe
             <ChevronRight className='w-3 h-3' />
           </span>
         )}
+        {products.length > 1 && (canScrollLeft || canScrollRight) ? (
+          <div className='hidden lg:flex items-center gap-1 shrink-0'>
+            <button
+              type='button'
+              onClick={() => scrollCarousel('left')}
+              disabled={!canScrollLeft}
+              aria-label='Scroll products left'
+              className='w-7 h-7 rounded-full border border-[color:var(--color-rule-strong)] bg-[color:var(--color-paper)] text-[color:var(--color-ink-2)] flex items-center justify-center hover:border-[color:var(--color-primary)]/40 hover:text-[color:var(--color-primary)] disabled:opacity-35 disabled:pointer-events-none transition-[border-color,color,opacity]'>
+              <ChevronLeft className='w-4 h-4' aria-hidden='true' />
+            </button>
+            <button
+              type='button'
+              onClick={() => scrollCarousel('right')}
+              disabled={!canScrollRight}
+              aria-label='Scroll products right'
+              className='w-7 h-7 rounded-full border border-[color:var(--color-rule-strong)] bg-[color:var(--color-paper)] text-[color:var(--color-ink-2)] flex items-center justify-center hover:border-[color:var(--color-primary)]/40 hover:text-[color:var(--color-primary)] disabled:opacity-35 disabled:pointer-events-none transition-[border-color,color,opacity]'>
+              <ChevronRight className='w-4 h-4' aria-hidden='true' />
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className='relative min-w-0 max-w-full overflow-hidden'>
+        {canScrollLeft ? (
+          <button
+            type='button'
+            onClick={() => scrollCarousel('left')}
+            aria-label='Scroll products left'
+            className='lg:hidden absolute left-0 top-1/2 -translate-y-1/2 z-[2] w-8 h-8 rounded-full border border-[color:var(--color-rule-strong)] bg-white/95 shadow-sm text-[color:var(--color-ink)] flex items-center justify-center hover:bg-white active:scale-95 transition-[transform,background-color]'>
+            <ChevronLeft className='w-4 h-4' aria-hidden='true' />
+          </button>
+        ) : null}
+        {canScrollRight ? (
+          <button
+            type='button'
+            onClick={() => scrollCarousel('right')}
+            aria-label='Scroll products right'
+            className='lg:hidden absolute right-0 top-1/2 -translate-y-1/2 z-[2] w-8 h-8 rounded-full border border-[color:var(--color-rule-strong)] bg-white/95 shadow-sm text-[color:var(--color-ink)] flex items-center justify-center hover:bg-white active:scale-95 transition-[transform,background-color]'>
+            <ChevronRight className='w-4 h-4' aria-hidden='true' />
+          </button>
+        ) : null}
         {canScrollRight && (
           <div
             className='product-carousel-fade-right pointer-events-none absolute inset-y-0 right-0 w-8 z-[1] sm:w-6'

@@ -28,6 +28,7 @@ import {
 import {
   parseKaprukaCategoriesResponse,
 } from '@/lib/kapruka-categories';
+import { findMcpCategoryName } from '@/lib/kapruka-category-search';
 import {
   parseCreateOrderResponse,
   toCheckoutFormData,
@@ -45,44 +46,18 @@ export const cartItemSchema = z.object({
   productUrl: z.string().optional(),
 });
 
-const kaprukaProductSchema = z.object({
-  productId: z.string(),
-  name: z.string(),
-  price: z.number(),
-  imageUrl: z.string().optional(),
-  url: z.string().optional(),
-  productUrl: z.string().optional(),
-  inStock: z.boolean().optional(),
-  description: z.string().optional(),
-});
-
-const carouselPaginationSchema = z.object({
-  q: z.string(),
-  category: z.string().optional(),
-  min_price: z.number().optional(),
-  max_price: z.number().optional(),
-  sort: z.string().optional(),
-  next_cursor: z.string().nullable().optional(),
-  nextCursor: z.string().nullable().optional(),
-});
+interface SearchSession {
+  q: string;
+  category?: string;
+  min_price?: number;
+  max_price?: number;
+  sort?: string;
+  products: KaprukaProduct[];
+  nextCursor: string | null;
+}
 
 function mcpResult(response: KaprukaToolResponse): Record<string, unknown> {
   return response as unknown as Record<string, unknown>;
-}
-
-function parsePagination(
-  pagination: z.infer<typeof carouselPaginationSchema> | undefined,
-): CarouselPagination | undefined {
-  if (!pagination?.q) return undefined;
-
-  return {
-    q: pagination.q,
-    category: pagination.category,
-    min_price: pagination.min_price,
-    max_price: pagination.max_price,
-    sort: pagination.sort,
-    nextCursor: pagination.next_cursor ?? pagination.nextCursor ?? null,
-  };
 }
 
 export type WidgetToolOutput = Widget;
@@ -92,6 +67,9 @@ export function createKaprukaTools(cartRef: { current: CartItem[] }) {
     current: null,
   };
   const categoriesSessionRef: { current: KaprukaCategory[] | null } = {
+    current: null,
+  };
+  const searchSessionRef: { current: SearchSession | null } = {
     current: null,
   };
   const productDetailCacheRef: { current: Map<string, KaprukaProductDetail> } =
@@ -119,6 +97,21 @@ export function createKaprukaTools(cartRef: { current: CartItem[] }) {
     return parsed.product;
   }
 
+  async function ensureCategoriesLoaded(): Promise<KaprukaCategory[]> {
+    if (categoriesSessionRef.current?.length) {
+      return categoriesSessionRef.current;
+    }
+
+    const response = await listCategories(1, 'json');
+    const parsed = parseKaprukaCategoriesResponse(response);
+    if (!parsed.ok) {
+      throw new Error(parsed.error);
+    }
+
+    categoriesSessionRef.current = parsed.categories;
+    return parsed.categories;
+  }
+
   return {
     kapruka_search_products: tool({
       description:
@@ -135,20 +128,53 @@ export function createKaprukaTools(cartRef: { current: CartItem[] }) {
         include_stubs: z.boolean().optional(),
       }),
       execute: async (args) => {
+        let category = args.category;
+
+        if (category?.trim()) {
+          const categories = await ensureCategoriesLoaded();
+          const canonical = findMcpCategoryName(categories, category);
+          if (!canonical) {
+            searchSessionRef.current = null;
+            return {
+              success: false,
+              error: `Unknown category "${category}". Call kapruka_list_categories and use an exact MCP category name.`,
+              valid_categories: categories.map((item) => item.name),
+            };
+          }
+          category = canonical;
+        }
+
         const response = await searchProducts({
           ...args,
+          category,
           in_stock_only: args.in_stock_only ?? true,
           limit: args.limit ?? 10,
           currency: DEFAULT_CURRENCY,
           response_format: 'json',
         });
         const parsed = parseKaprukaSearchResponse(response);
+
+        if (parsed.products.length > 0) {
+          searchSessionRef.current = {
+            q: args.q,
+            category,
+            min_price: args.min_price,
+            max_price: args.max_price,
+            sort: args.sort,
+            products: parsed.products,
+            nextCursor: parsed.nextCursor,
+          };
+        } else {
+          searchSessionRef.current = null;
+        }
+
         return {
           ...parsed,
+          next_cursor: parsed.nextCursor,
           result_count: parsed.products.length,
           message:
             parsed.products.length > 0
-              ? `Found ${parsed.products.length} product(s).`
+              ? `Found ${parsed.products.length} product(s). Call show_products_carousel (no arguments) to display them.`
               : 'No products matched.',
         };
       },
@@ -304,17 +330,30 @@ export function createKaprukaTools(cartRef: { current: CartItem[] }) {
 
     show_products_carousel: tool({
       description:
-        'Client-side widget visualization for a list of matching search products. Always pass pagination when results came from search.',
-      inputSchema: z.object({
-        products: z.array(kaprukaProductSchema),
-        pagination: carouselPaginationSchema.optional(),
-      }),
-      execute: async ({ products, pagination }): Promise<WidgetToolOutput> => {
-        const enriched = await enrichKaprukaProducts(products as KaprukaProduct[]);
+        'Display product carousel from the last kapruka_search_products call. Call with no arguments — server supplies all results and pagination.',
+      inputSchema: z.object({}),
+      execute: async (): Promise<WidgetToolOutput> => {
+        const session = searchSessionRef.current;
+        if (!session?.products.length) {
+          throw new Error(
+            'No search results. Call kapruka_search_products first.',
+          );
+        }
+
+        const enriched = await enrichKaprukaProducts(session.products);
+        const pagination: CarouselPagination = {
+          q: session.q,
+          category: session.category,
+          min_price: session.min_price,
+          max_price: session.max_price,
+          sort: session.sort,
+          nextCursor: session.nextCursor,
+        };
+
         return {
           type: 'carousel',
           data: enriched,
-          pagination: parsePagination(pagination),
+          pagination,
         };
       },
     }),
@@ -352,11 +391,12 @@ export function createKaprukaTools(cartRef: { current: CartItem[] }) {
 
     show_categories_list: tool({
       description:
-        'Display Kapruka categories with browse links after kapruka_list_categories succeeds. Call with no arguments.',
+        'Display Kapruka categories with browse links. Call ONLY after kapruka_list_categories succeeds. Never pass category data — MCP session only.',
       inputSchema: z.object({}),
       execute: async (): Promise<WidgetToolOutput> => {
-        const categories = categoriesSessionRef.current;
-        if (!categories?.length) {
+        const categories =
+          categoriesSessionRef.current ?? (await ensureCategoriesLoaded());
+        if (!categories.length) {
           throw new Error(
             'No categories loaded. Call kapruka_list_categories first.',
           );

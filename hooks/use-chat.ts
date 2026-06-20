@@ -3,6 +3,7 @@
 import { useChat as useAiChat } from '@ai-sdk/react';
 import { DefaultChatTransport, type FileUIPart } from 'ai';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { mergeCartAfterAgentResponse } from '@/lib/cart/merge';
 import { attachmentImageDataUrl } from '@/lib/attachments';
 import {
   clearChatHistoryStorage,
@@ -40,18 +41,22 @@ export function useChat({ cart, setCart }: UseChatOptions) {
   const [activeTab, setActiveTab] = useState<ActiveTab>('chat');
   const skipPersistRef = useRef(false);
   const cartRef = useRef(cart);
+  const cartAtRequestStartRef = useRef<CartItem[]>([]);
   cartRef.current = cart;
 
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
         api: '/api/chat',
-        prepareSendMessagesRequest: ({ messages }) => ({
-          body: {
-            messages,
-            cart: cartRef.current,
-          },
-        }),
+        prepareSendMessagesRequest: ({ messages }) => {
+          cartAtRequestStartRef.current = [...cartRef.current];
+          return {
+            body: {
+              messages,
+              cart: cartRef.current,
+            },
+          };
+        },
       }),
     [],
   );
@@ -67,9 +72,16 @@ export function useChat({ cart, setCart }: UseChatOptions) {
     messages: loadChatHistory(),
     transport,
     onFinish: ({ message }) => {
-      if (message.metadata?.cart) {
-        setCart(message.metadata.cart);
-      }
+      const serverCart = message.metadata?.cart;
+      if (!serverCart) return;
+
+      setCart((currentCart) =>
+        mergeCartAfterAgentResponse(
+          cartAtRequestStartRef.current,
+          currentCart,
+          serverCart,
+        ),
+      );
     },
     onError: () => {
       /* surfaced via error state below */

@@ -15,7 +15,8 @@ export default function NotFound() {
       </h1>
       <p className='mt-2 max-w-sm text-[15px] text-[color:var(--color-ink-2)] leading-relaxed text-pretty'>
         <KaprukaText>{APP_NAME}</KaprukaText> couldn&apos;t find that page. Head
-        back home to search gifts, manage your basket, or continue chatting.
+        back home to explore the catalog, manage your basket, or continue
+        chatting.
       </p>
       <Link
         href='/'
