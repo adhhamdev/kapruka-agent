@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "clean": "next clean"
-  },
+    },
   "dependencies": {
     "@ai-sdk/google": "^3.0.83",
     "@ai-sdk/mcp": "^1.0.52",

@@ -5,10 +5,7 @@ import {
   APP_TITLE,
   ASSISTANT_NAME,
   BRAND_PRIMARY,
-  OG_IMAGE_ALT,
-  OG_IMAGE_HEIGHT,
   OG_IMAGE_PATH,
-  OG_IMAGE_WIDTH,
   PWA_DESCRIPTION,
 } from '@/constants/brand';
 import { CANONICAL_SITE_URL } from '@/constants/urls';
@@ -39,16 +36,6 @@ export function getSiteUrl(): string {
     ? CANONICAL_SITE_URL
     : 'http://localhost:3000';
 }
-
-const socialImages = [
-  {
-    url: OG_IMAGE_PATH,
-    width: OG_IMAGE_WIDTH,
-    height: OG_IMAGE_HEIGHT,
-    alt: OG_IMAGE_ALT,
-    type: 'image/png',
-  },
-] as const;
 
 export function createSiteMetadata(): Metadata {
   const siteUrl = getSiteUrl();
@@ -84,13 +71,12 @@ export function createSiteMetadata(): Metadata {
       siteName: APP_NAME,
       title: APP_TITLE,
       description: APP_DESCRIPTION,
-      images: [...socialImages],
+      images: [OG_IMAGE_PATH],
     },
     twitter: {
       card: 'summary_large_image',
       title: APP_TITLE,
       description: APP_DESCRIPTION,
-      images: [OG_IMAGE_PATH],
     },
     appleWebApp: {
       capable: true,
