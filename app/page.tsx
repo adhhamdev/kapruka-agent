@@ -114,7 +114,7 @@ export default function Home() {
     <div
       className='flex flex-col h-[100dvh] bg-[color:var(--color-bg-base)] sans antialiased overflow-hidden'
       id='app-root'>
-      <AppHeader />
+      <AppHeader onStartNewChat={startNewChat} isChatPending={isPending} />
 
       <div className='flex-1 flex flex-row overflow-hidden relative min-h-0 min-w-0'>
         <DiscoverSidebar
@@ -138,7 +138,6 @@ export default function Home() {
           onAddToCart={handleAddToCart}
           onBrowseCategory={handleBrowseCategory}
           onViewProductDetail={handleViewProductDetail}
-          onStartNewChat={startNewChat}
           onLoadMoreCarousel={loadMoreCarouselProducts}
           onToggleDiscover={() => setDiscoverOpen((open) => !open)}
           onToggleCart={() => setCartOpen((open) => !open)}
