@@ -45,3 +45,8 @@ export const WELCOME_YOU_CAN: string[] = [
 ];
 
 export const WELCOME_MODAL_TITLE = `Welcome to ${APP_NAME}`;
+
+export const WELCOME_ILLUSTRATION_SRC = '/discover-illustration.png';
+
+export const WELCOME_ILLUSTRATION_ALT =
+  'Kapruka Agent on mobile: AI chat for gifts, product cards, basket, checkout, and delivery.';

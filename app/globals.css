@@ -188,6 +188,11 @@
   background: oklch(18% 0.04 285 / 0.45);
 }
 
+.welcome-modal:focus,
+.welcome-modal:focus-visible {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .welcome-modal,
   .welcome-modal::backdrop {
