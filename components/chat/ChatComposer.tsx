@@ -117,8 +117,8 @@ export function ChatComposer({
   };
 
   return (
-    <div className='chat-composer shrink-0 mt-auto w-full z-20 min-w-0 border-t border-[color:var(--color-rule)]/80 bg-[color:var(--color-paper-2)]/94 backdrop-blur-xl px-3 pt-2.5 pb-5 max-lg:pb-6 lg:pb-3 lg:border-t lg:shadow-none shadow-[0_-8px_24px_oklch(0%_0_0/0.04)]'>
-      <div className='mx-auto w-full max-w-3xl flex flex-col gap-2 min-w-0'>
+    <div className='chat-composer absolute inset-x-0 bottom-0 z-20 min-w-0 px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-none'>
+      <div className='mx-auto w-full max-w-3xl flex flex-col gap-2 min-w-0 pointer-events-auto'>
         <AttachmentPreview
           attachments={attachments}
           onRemove={removeAttachment}
@@ -188,7 +188,7 @@ export function ChatComposer({
           />
 
           <div
-            className={`chat-composer-field flex-1 min-w-0 flex items-center gap-1.5 min-h-[56px] bg-[color:var(--color-paper)] rounded-[var(--radius-pill)] pl-1.5 pr-1.5 py-1 shadow-[var(--shadow-sm)] ${
+            className={`chat-composer-field flex-1 min-w-0 flex items-center gap-1.5 min-h-[56px] bg-[color:var(--color-paper-2)] rounded-[var(--radius-pill)] pl-1.5 pr-1.5 py-1 shadow-[var(--shadow-elevated)] ${
               isListening ? 'is-listening' : ''
             }`}>
             <div className='flex shrink-0 items-center'>

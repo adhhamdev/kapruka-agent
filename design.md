@@ -8,9 +8,10 @@ modern-minimal (retail app · warm Sri Lankan e-commerce)
 
 ## Macrostructure family
 
-- App pages: **Workbench** — three-column chat console (Discover · Agent · Basket)
-- Mobile: single active panel + bottom tab bar (Search · Agent · Basket); Agent tab is elevated center FAB
-- **Primary header** (Congress Blue bar): Kapruka wordmark + Agent avatar + “Agent.” — visible on **all** breakpoints and tabs
+- App pages: **Workbench** — chat surface with header actions and optional basket sidebar
+- Desktop: chat center + basket right panel (384px)
+- Mobile: full-width chat; basket as overlay/sidebar toggled from header
+- **Primary header** (Congress Blue bar): Kapruka wordmark + Agent avatar + “Agent.” — **New chat**, **Basket** (badge), **Saved info** (person icon)
 
 ## Theme
 
@@ -44,7 +45,8 @@ modern-minimal (retail app · warm Sri Lankan e-commerce)
 - Silent success in chat (no toasts for add-to-cart)
 - Button active: `scale(0.97–0.98)`
 - Tab switch: crossfade 200ms
-- **New chat**: pencil icon button, top-right of chat toolbar (36×36, bordered)
+- **New chat**: refresh icon button in header (36×36, bordered on dark bar)
+- **Saved info**: person icon button in header — opens modal panel
 - **Scroll to latest**: floating circular chevron, centered above composer; fades when at bottom
 - Composer: pill-shaped input bar; attach, mic, send as circular icon buttons
 
@@ -71,12 +73,22 @@ All “Kapruka” text and logo taps link to **https://www.kapruka.com** (`Kapru
 
 | Region | Desktop | Mobile |
 |--------|---------|--------|
-| Header | Full width, logo + Agent | Same — unified primary bar |
-| Discover | Left sidebar (320px) | Full-screen tab |
-| Chat | Center flex | Full-screen tab + composer + tab bar inset |
-| Basket | Right sidebar (384px) | Full-screen tab |
+| Header | Full width — logo, Agent, new chat, basket, saved info | Same |
+| Chat | Center flex | Full-width + composer |
+| Basket | Right sidebar (384px), toggled | Overlay/sidebar from header |
+| Saved info | Modal dialog (centered / bottom sheet) | Same |
 
-Safe areas: header `pt-[env(safe-area-inset-top)]`; mobile tab bar `pb-[env(safe-area-inset-bottom)]`.
+Safe areas: header `pt-[env(safe-area-inset-top)]`; modal footers `pb-[max(1rem,env(safe-area-inset-bottom))]`.
+
+## Onboarding & saved info
+
+| Surface | Pattern |
+|---------|---------|
+| Welcome modal | First visit; illustration hero, capability cards, “What you can do” list, memory privacy note, **Get Started** CTA |
+| Saved info panel | Same modal shell as welcome; grouped lists with per-item **Remove**; **Clear everything about me** with confirm step |
+| Remember delivery chip | Inline on checkout card — yellow **Yes, save it** + ghost **Not now**; success/error states below pay button |
+
+Empty saved-info state directs users to **Yes, save it** after checkout or to tell Agent to remember details in chat.
 
 ## Chat widgets (in-message UI)
 
@@ -85,7 +97,7 @@ Safe areas: header `pt-[env(safe-area-inset-top)]`; mobile tab bar `pb-[env(safe
 | Product carousel | Horizontal snap scroll; price in LKR; **Load more** pill when paginated |
 | Product detail | Portrait thumb + CTA row (Add to Basket / View Product) |
 | Delivery quote | Truck icon card — city, date, cost |
-| Checkout form | Congress Blue summary card + yellow Secure Checkout link |
+| Checkout form | Congress Blue summary card + yellow Secure Checkout link + optional remember-delivery chip |
 | Order status | Timeline / status badge |
 
 Product images: `ProductImage` wrapper → `next/image`, placeholder on error.

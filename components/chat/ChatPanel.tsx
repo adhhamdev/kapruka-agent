@@ -44,7 +44,7 @@ export function ChatPanel({
 
   return (
     <main
-      className='bg-[color:var(--color-bg-surface)] min-w-0 min-h-0 h-full relative flex flex-1 w-full flex-col'
+      className='bg-[color:var(--color-bg-surface)] min-w-0 min-h-0 h-full relative flex flex-1 w-full flex-col overflow-hidden'
       id='chat-surface'>
       <MessageList
         messages={messages}

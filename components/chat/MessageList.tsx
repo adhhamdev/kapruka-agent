@@ -151,7 +151,7 @@ export function MessageList({
         aria-relevant='additions'>
         <div
           ref={contentRef}
-          className='w-full min-w-0 py-4 md:py-6 space-y-4 sm:space-y-6'>
+          className='w-full min-w-0 pt-4 md:pt-6 pb-[var(--chat-composer-inset)] space-y-4 sm:space-y-6'>
           {showHome && (
             <div className='chat-message-gutter'>
               <ChatHomeScreen
@@ -190,7 +190,6 @@ export function MessageList({
               <TypingIndicator />
             </div>
           )}
-          <div className='h-2 shrink-0' aria-hidden='true' />
         </div>
       </div>
 
@@ -198,7 +197,7 @@ export function MessageList({
         type='button'
         onClick={() => scrollToBottom(reducedMotion ? 'auto' : 'smooth')}
         aria-label='Scroll to bottom'
-        className={`absolute bottom-4 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center w-10 h-10 rounded-full border border-[color:var(--color-rule-strong)] bg-[color:var(--color-paper)] text-[color:var(--color-primary)] shadow-[var(--shadow-md)] hover:bg-[color:var(--color-paper-3)] hover:border-[color:var(--color-primary)]/30 transition-[opacity,transform,background-color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] active:scale-95 touch-manipulation ${
+        className={`absolute bottom-[calc(var(--chat-composer-inset)+0.75rem)] left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center w-10 h-10 rounded-full border border-[color:var(--color-rule-strong)] bg-[color:var(--color-paper-2)] text-[color:var(--color-primary)] shadow-[var(--shadow-md)] hover:bg-[color:var(--color-paper-3)] hover:border-[color:var(--color-primary)]/30 transition-[opacity,transform,background-color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] active:scale-95 touch-manipulation ${
           showScrollDown
             ? 'opacity-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 translate-y-2 pointer-events-none'

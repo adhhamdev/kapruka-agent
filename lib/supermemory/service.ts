@@ -3,7 +3,6 @@ import {
   groupSavedInfoItems,
 } from '@/lib/supermemory/categorize';
 import { createSupermemoryClient } from '@/lib/supermemory/client';
-import { formatDeliveryMemoryText } from '@/lib/supermemory/delivery-memory';
 import { getSupermemoryApiKey, isSupermemoryEnabled } from '@/lib/supermemory/tools';
 import type { SavedInfoSnapshot } from '@/types/memory';
 import { EMPTY_SAVED_INFO_SNAPSHOT } from '@/types/memory';
