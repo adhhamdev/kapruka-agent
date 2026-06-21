@@ -9,12 +9,13 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "clean": "next clean"
-    },
+  },
   "dependencies": {
     "@ai-sdk/google": "^3.0.83",
     "@ai-sdk/mcp": "^1.0.52",
     "@ai-sdk/react": "^3.0.210",
     "@hookform/resolvers": "^5.2.1",
+    "@supermemory/tools": "^2.0.0",
     "ai": "^6.0.208",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",

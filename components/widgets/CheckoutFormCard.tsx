@@ -1,4 +1,5 @@
 import { CreditCard } from 'lucide-react';
+import { RememberDeliveryChip } from '@/components/memory/RememberDeliveryChip';
 import { formatPrice } from '@/lib/format';
 import { getCartItemCount } from '@/lib/cart/totals';
 import type { CartItem } from '@/lib/cart-storage';
@@ -38,6 +39,12 @@ export function CheckoutFormCard({ checkout, cart }: CheckoutFormCardProps) {
         className='w-full py-3 bg-[color:var(--color-accent)] hover:bg-[color:var(--color-accent-hover)] text-[color:var(--color-accent-ink)] rounded-[var(--radius-md)] font-semibold text-[15px] flex items-center justify-center gap-2 transition-[background-color,transform] active:scale-[0.98]'>
         Secure Checkout
       </a>
+      {checkout.delivery && (
+        <RememberDeliveryChip
+          orderNumber={checkout.orderNumber}
+          delivery={checkout.delivery}
+        />
+      )}
     </div>
   );
 }

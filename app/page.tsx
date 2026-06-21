@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { CartPanel } from '@/components/cart/CartPanel';
 import { ChatPanel } from '@/components/chat/ChatPanel';
 import { AppHeader } from '@/components/layout/AppHeader';
+import { SavedInfoPanel } from '@/components/memory/SavedInfoPanel';
 import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
 import { DEFAULT_SPEECH_CODE } from '@/constants/languages';
 import { useChat } from '@/hooks/use-chat';
@@ -22,6 +23,7 @@ export default function Home() {
   const { cart, setCart } = useCartStorage();
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const [cartOpen, setCartOpen] = useState(false);
+  const [savedInfoOpen, setSavedInfoOpen] = useState(false);
 
   const {
     messages,
@@ -110,6 +112,7 @@ export default function Home() {
         isChatPending={isPending}
         onStartNewChat={startNewChat}
         onToggleCart={() => setCartOpen((open) => !open)}
+        onOpenSavedInfo={() => setSavedInfoOpen(true)}
       />
 
       <div className='flex-1 flex flex-row overflow-hidden relative min-h-0 min-w-0'>
@@ -142,6 +145,10 @@ export default function Home() {
       </div>
 
       <WelcomeModal />
+      <SavedInfoPanel
+        open={savedInfoOpen}
+        onClose={() => setSavedInfoOpen(false)}
+      />
     </div>
   );
 }

@@ -1,12 +1,11 @@
 'use client';
 
-import { RotateCcw, ShoppingBag } from 'lucide-react';
-import { AgentAvatar } from '@/components/chat/AgentAvatar';
-import { NewChatButton } from '@/components/chat/NewChatButton';
 import { KaprukaLink, KaprukaText } from '@/components/brand/KaprukaLink';
+import { AgentAvatar } from '@/components/chat/AgentAvatar';
 import { KAPRUKA_LOGO_SRC } from '@/constants/brand';
-import { getCartItemCount } from '@/lib/cart/totals';
 import type { CartItem } from '@/lib/cart-storage';
+import { getCartItemCount } from '@/lib/cart/totals';
+import { RotateCcw, ShoppingBag, UserRound } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -16,6 +15,7 @@ interface AppHeaderProps {
   isChatPending?: boolean;
   onStartNewChat: () => void;
   onToggleCart: () => void;
+  onOpenSavedInfo?: () => void;
 }
 
 const headerIconButtonClass =
@@ -27,6 +27,7 @@ export function AppHeader({
   isChatPending = false,
   onStartNewChat,
   onToggleCart,
+  onOpenSavedInfo,
 }: AppHeaderProps) {
   const cartCount = getCartItemCount(cart);
 
@@ -51,7 +52,10 @@ export function AppHeader({
         </KaprukaLink>
         <Link href='/'>
           <div className='flex items-center gap-2'>
-            <span className='w-px h-5 sm:h-6 bg-white/20 shrink-0' aria-hidden='true' />
+            <span
+              className='w-px h-5 sm:h-6 bg-white/20 shrink-0'
+              aria-hidden='true'
+            />
             <AgentAvatar size='nav' className='mb-0 shrink-0' />
             <span
               className='font-semibold text-[13px] sm:text-[15px] tracking-tight text-white leading-tight truncate'
@@ -97,6 +101,16 @@ export function AppHeader({
             </span>
           )}
         </button>
+        {onOpenSavedInfo && (
+          <button
+            type='button'
+            onClick={onOpenSavedInfo}
+            aria-label='Saved info'
+            title='Saved info'
+            className={headerIconButtonClass}>
+            <UserRound className='w-4 h-4' aria-hidden='true' />
+          </button>
+        )}
       </div>
     </header>
   );

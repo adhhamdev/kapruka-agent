@@ -7,6 +7,7 @@ import {
   WELCOME_ILLUSTRATION_ALT,
   WELCOME_ILLUSTRATION_SRC,
   WELCOME_INTRO,
+  WELCOME_MEMORY_NOTE,
   WELCOME_MODAL_TITLE,
   WELCOME_YOU_CAN,
 } from '@/constants/welcome';
@@ -135,6 +136,9 @@ export function WelcomeModal() {
                 </li>
               ))}
             </ul>
+            <p className='mt-4 text-[12px] text-[color:var(--color-ink-3)] leading-relaxed text-left rounded-[var(--radius-md)] border border-[color:var(--color-rule)] bg-[color:var(--color-paper)] px-3 py-2.5'>
+              {WELCOME_MEMORY_NOTE}
+            </p>
           </section>
         </div>
 

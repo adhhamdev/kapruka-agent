@@ -310,7 +310,14 @@ export function createKaprukaTools(
           (sum, item) => sum + (item.quantity ?? 1),
           0,
         );
-        checkoutSessionRef.current = toCheckoutFormData(parsed, itemsCount);
+        checkoutSessionRef.current = toCheckoutFormData(parsed, itemsCount, {
+          recipientName: args.recipient.name,
+          recipientPhone: args.recipient.phone,
+          address: args.delivery.address,
+          city: args.delivery.city,
+          senderName: args.sender.name,
+          label: 'Last checkout',
+        });
 
         return {
           success: true,

@@ -4,8 +4,9 @@ export const WELCOME_MESSAGE = `Hi! I'm **Kapruka Agent** — your AI shopping a
 - Browse categories and search products
 - Check delivery dates and costs
 - Manage your basket
-- Checkout securely
+- Checkout securely — I can remember your delivery details for next time
 - Track orders
+- Remember your language, gift recipients, and shopping preferences
 
 What would you like to shop for today?`;
 

@@ -1,19 +1,17 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import {
-  ArrowUp,
-  Loader2,
-  Mic,
-  Paperclip,
-  Square,
-} from 'lucide-react';
 import { AttachmentPreview } from '@/components/chat/AttachmentPreview';
-import { ACCEPTED_ATTACHMENT_TYPES, ATTACHMENT_HINT, MAX_ATTACHMENTS } from '@/constants/languages';
+import {
+  ACCEPTED_ATTACHMENT_TYPES,
+  ATTACHMENT_HINT,
+  MAX_ATTACHMENTS,
+} from '@/constants/languages';
 import { useAttachments } from '@/hooks/use-attachments';
+import type { VoiceState } from '@/hooks/use-speech-recognition';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
 import type { ChatAttachment } from '@/types/attachments';
-import type { VoiceState } from '@/hooks/use-speech-recognition';
+import { ArrowUp, Loader2, Mic, Paperclip, Square } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 interface ChatComposerProps {
   value: string;
@@ -121,7 +119,10 @@ export function ChatComposer({
   return (
     <div className='chat-composer shrink-0 mt-auto w-full z-20 min-w-0 border-t border-[color:var(--color-rule)]/80 bg-[color:var(--color-paper-2)]/94 backdrop-blur-xl px-3 pt-2.5 pb-5 max-lg:pb-6 lg:pb-3 lg:border-t lg:shadow-none shadow-[0_-8px_24px_oklch(0%_0_0/0.04)]'>
       <div className='mx-auto w-full max-w-3xl flex flex-col gap-2 min-w-0'>
-        <AttachmentPreview attachments={attachments} onRemove={removeAttachment} />
+        <AttachmentPreview
+          attachments={attachments}
+          onRemove={removeAttachment}
+        />
 
         {(attachmentError || voiceError || voiceState === 'unsupported') && (
           <p
@@ -193,7 +194,9 @@ export function ChatComposer({
             <div className='flex shrink-0 items-center'>
               <button
                 type='button'
-                disabled={disabled || isPending || isListening || atAttachmentLimit}
+                disabled={
+                  disabled || isPending || isListening || atAttachmentLimit
+                }
                 onClick={() => fileInputRef.current?.click()}
                 aria-label={
                   atAttachmentLimit
@@ -206,7 +209,12 @@ export function ChatComposer({
 
               <button
                 type='button'
-                disabled={disabled || isPending || !isSupported || isRequestingPermission}
+                disabled={
+                  disabled ||
+                  isPending ||
+                  !isSupported ||
+                  isRequestingPermission
+                }
                 onClick={handleVoiceClick}
                 aria-label={voiceAriaLabel(voiceState, isRequestingPermission)}
                 aria-pressed={isListening}
@@ -218,7 +226,10 @@ export function ChatComposer({
                       : 'text-[color:var(--color-ink-2)] hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-paper-3)]'
                 }`}>
                 {isProcessing || isRequestingPermission ? (
-                  <Loader2 className={`${composerIconClass} animate-spin`} aria-hidden='true' />
+                  <Loader2
+                    className={`${composerIconClass} animate-spin`}
+                    aria-hidden='true'
+                  />
                 ) : isListening ? (
                   <Square className='w-4 h-4 fill-current' aria-hidden='true' />
                 ) : (
@@ -255,7 +266,10 @@ export function ChatComposer({
                   : 'bg-[color:var(--color-paper-3)] text-[color:var(--color-ink-3)]'
               } active:scale-[0.96] disabled:pointer-events-none`}>
               {isPending ? (
-                <Loader2 className={`${composerIconClass} animate-spin`} aria-hidden='true' />
+                <Loader2
+                  className={`${composerIconClass} animate-spin`}
+                  aria-hidden='true'
+                />
               ) : (
                 <ArrowUp className={composerIconClass} aria-hidden='true' />
               )}

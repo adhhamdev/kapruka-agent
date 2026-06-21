@@ -13,6 +13,7 @@ export interface KaprukaProductVariant {
   price?: number;
   inStock?: boolean;
   stockLevel?: string;
+  imageUrl?: string;
   attributes?: Record<string, string>;
 }
 
