@@ -62,7 +62,14 @@ function mcpResult(response: KaprukaToolResponse): Record<string, unknown> {
 
 export type WidgetToolOutput = Widget;
 
-export function createKaprukaTools(cartRef: { current: CartItem[] }) {
+export interface AgentUiFlags {
+  openBasket: boolean;
+}
+
+export function createKaprukaTools(
+  cartRef: { current: CartItem[] },
+  uiFlagsRef: { current: AgentUiFlags } = { current: { openBasket: false } },
+) {
   const checkoutSessionRef: { current: CheckoutFormData | null } = {
     current: null,
   };
@@ -480,6 +487,7 @@ export function createKaprukaTools(cartRef: { current: CartItem[] }) {
           imageUrl: resolvedImageUrl,
           productUrl: productUrl ?? url,
         });
+        uiFlagsRef.current.openBasket = true;
         return {
           status: 'success',
           message: `Add to cart success: Added item ${name}. Total unique items: ${cartRef.current.length}`,
@@ -512,6 +520,19 @@ export function createKaprukaTools(cartRef: { current: CartItem[] }) {
           status: 'success',
           message: 'Cleared cart successfully.',
           cart: cartRef.current,
+        };
+      },
+    }),
+
+    show_basket_action: tool({
+      description:
+        'Open the shopping basket panel so the customer can review items, quantities, and checkout.',
+      inputSchema: z.object({}),
+      execute: async () => {
+        uiFlagsRef.current.openBasket = true;
+        return {
+          status: 'success',
+          action: 'open_basket' as const,
         };
       },
     }),

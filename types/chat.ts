@@ -1,5 +1,4 @@
 export type {
-  ActiveTab,
   ChatHistoryEntry,
   ChatRequest,
   ChatRole,

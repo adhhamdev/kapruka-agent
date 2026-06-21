@@ -1,12 +1,13 @@
 'use client';
 
-import { FileText } from 'lucide-react';
+import { FileText, ShoppingBag } from 'lucide-react';
 import { AgentAvatar } from '@/components/chat/AgentAvatar';
 import { MarkdownContent } from '@/components/chat/MarkdownContent';
 import { AnimatedWidget } from '@/components/motion/AnimatedWidget';
 import { WidgetRenderer } from '@/components/widgets/WidgetRenderer';
 import { WIDGET_ONLY_FALLBACK } from '@/constants/languages';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
+import { isAddedToBasketMessage } from '@/lib/chat/basket-message';
 import {
   DUR_MEDIUM_S,
   EASE_OUT,
@@ -62,6 +63,7 @@ interface MessageBubbleProps {
   onBrowseCategory?: (categoryName: string) => void;
   onViewProductDetail?: (product: KaprukaProduct) => void;
   onLoadMoreCarousel: (messageId: string, widgetIndex: number) => void;
+  onOpenBasket?: () => void;
 }
 
 export function MessageBubble({
@@ -72,6 +74,7 @@ export function MessageBubble({
   onBrowseCategory,
   onViewProductDetail,
   onLoadMoreCarousel,
+  onOpenBasket,
 }: MessageBubbleProps) {
   const reducedMotion = useReducedMotion();
   const isUser = message.role === 'user';
@@ -91,6 +94,8 @@ export function MessageBubble({
   const hasText = Boolean(displayText.trim());
   const hasWidgets = readyWidgets.length > 0;
   const hasBubble = hasAttachments || hasText;
+  const showBasketAction =
+    !isUser && Boolean(onOpenBasket) && isAddedToBasketMessage(message);
   const bubbleMotion = isUser
     ? messageBubbleVariants.user
     : messageBubbleVariants.assistant;
@@ -112,22 +117,23 @@ export function MessageBubble({
       id={`msg-wrap-${message.id}`}
       aria-label={isUser ? 'Your message' : 'Agent message'}>
       {hasBubble && (
-        <div
-          className={`flex items-end gap-2 min-w-0 w-full ${
-            isUser
-              ? 'flex-row-reverse justify-end max-w-[min(100%,18rem)] sm:max-w-[min(100%,22rem)]'
-              : 'flex-row justify-start max-w-[min(100%,100%)] sm:max-w-[min(100%,36rem)]'
-          }`}>
-          {!isUser && (
-            <motion.div
-              initial={reducedMotion ? false : { opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.22, ease: EASE_OUT }}>
-              <AgentAvatar />
-            </motion.div>
-          )}
+        <div className='chat-message-gutter'>
+          <div
+            className={`flex items-end gap-2 min-w-0 w-full ${
+              isUser
+                ? 'flex-row-reverse justify-end max-w-[min(100%,18rem)] sm:max-w-[min(100%,22rem)] ml-auto'
+                : 'flex-row justify-start'
+            }`}>
+            {!isUser && (
+              <motion.div
+                initial={reducedMotion ? false : { opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.22, ease: EASE_OUT }}>
+                <AgentAvatar />
+              </motion.div>
+            )}
 
-          <div className='space-y-2 min-w-0 flex-1 max-w-full'>
+            <div className='space-y-2 min-w-0 flex-1 max-w-full'>
             {hasAttachments && (
               <ul
                 className={`flex flex-wrap gap-2 ${isUser ? 'justify-end' : 'justify-start'}`}
@@ -197,68 +203,110 @@ export function MessageBubble({
                 />
               </motion.div>
             )}
+
+            {showBasketAction && (
+              <button
+                type='button'
+                onClick={onOpenBasket}
+                className='inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[color:var(--color-border-default)] bg-[color:var(--color-bg-base)] px-3.5 py-2 text-[13px] font-medium text-[color:var(--color-text-primary)] whitespace-nowrap transition-[background-color,border-color,transform] duration-[var(--dur-short)] ease-[var(--ease-out)] hover:bg-[color:var(--color-paper-3)] hover:border-[color:var(--color-primary)]/25 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] focus-visible:ring-offset-2 touch-manipulation'>
+                <ShoppingBag
+                  className='w-4 h-4 shrink-0 text-[color:var(--color-primary)]'
+                  aria-hidden='true'
+                />
+                View basket
+              </button>
+            )}
+            </div>
           </div>
         </div>
       )}
 
-      {hasWidgets && (
-        <motion.div
-          initial={reducedMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.2, delay: 0.06, ease: EASE_OUT }}
-          className={`flex items-start gap-2 min-w-0 w-full mt-1.5 sm:mt-2 ${
-            isUser ? 'justify-end max-w-[min(100%,18rem)]' : 'justify-start max-w-full'
-          }`}>
-          {!isUser && !hasBubble && (
-            <motion.div
-              initial={reducedMotion ? false : { opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.22, ease: EASE_OUT }}>
-              <AgentAvatar />
-            </motion.div>
-          )}
-          {!isUser && hasBubble && (
-            <div className='w-8 shrink-0' aria-hidden='true' />
-          )}
+      {hasWidgets &&
+        widgetParts.map((part) => {
+          if (
+            !('state' in part) ||
+            part.state !== 'output-available' ||
+            !isWidgetOutput(part.output)
+          ) {
+            return null;
+          }
 
-          <div className='chat-widget-slot min-w-0 flex-1 max-w-full space-y-3 overflow-hidden'>
-            {widgetParts.map((part) => {
-              if (
-                !('state' in part) ||
-                part.state !== 'output-available' ||
-                !isWidgetOutput(part.output)
-              ) {
-                return null;
+          const widget = part.output;
+          const currentIndex = widgetRenderIndex;
+          widgetRenderIndex += 1;
+          const isCarousel = widget.type === 'carousel';
+          const showWidgetAvatar =
+            !isUser && !hasBubble && currentIndex === 0 && !isCarousel;
+
+          const widgetBody = (
+            <WidgetRenderer
+              widget={widget}
+              widgetIndex={currentIndex}
+              messageId={message.id}
+              cart={cart}
+              onAddToCart={onAddToCart}
+              onBrowseCategory={onBrowseCategory}
+              onViewProductDetail={onViewProductDetail}
+              onLoadMore={
+                widget.type === 'carousel' && widget.pagination?.nextCursor
+                  ? () => onLoadMoreCarousel(message.id, currentIndex)
+                  : undefined
               }
+            />
+          );
 
-              const widget = part.output;
-              const currentIndex = widgetRenderIndex;
-              widgetRenderIndex += 1;
+          if (isCarousel) {
+            return (
+              <motion.div
+                key={`${message.id}-widget-${currentIndex}`}
+                initial={reducedMotion ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2, delay: 0.06, ease: EASE_OUT }}
+                className='product-carousel-bleed w-full min-w-0 mt-1.5 sm:mt-2'>
+                {!isUser && !hasBubble && currentIndex === 0 && (
+                  <div className='chat-message-gutter mb-2 flex items-center gap-2'>
+                    <motion.div
+                      initial={reducedMotion ? false : { opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.22, ease: EASE_OUT }}>
+                      <AgentAvatar />
+                    </motion.div>
+                  </div>
+                )}
+                <AnimatedWidget index={currentIndex}>{widgetBody}</AnimatedWidget>
+              </motion.div>
+            );
+          }
 
-              return (
-                <AnimatedWidget
-                  key={`${message.id}-widget-${currentIndex}`}
-                  index={currentIndex}>
-                  <WidgetRenderer
-                    widget={widget}
-                    widgetIndex={currentIndex}
-                    messageId={message.id}
-                    cart={cart}
-                    onAddToCart={onAddToCart}
-                    onBrowseCategory={onBrowseCategory}
-                    onViewProductDetail={onViewProductDetail}
-                    onLoadMore={
-                      widget.type === 'carousel' && widget.pagination?.nextCursor
-                        ? () => onLoadMoreCarousel(message.id, currentIndex)
-                        : undefined
-                    }
-                  />
-                </AnimatedWidget>
-              );
-            })}
-          </div>
-        </motion.div>
-      )}
+          return (
+            <motion.div
+              key={`${message.id}-widget-${currentIndex}`}
+              initial={reducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2, delay: 0.06, ease: EASE_OUT }}
+              className='chat-message-gutter mt-1.5 sm:mt-2'>
+              <div
+                className={`flex items-start gap-2 min-w-0 w-full ${
+                  isUser ? 'justify-end' : 'justify-start'
+                }`}>
+                {showWidgetAvatar && (
+                  <motion.div
+                    initial={reducedMotion ? false : { opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.22, ease: EASE_OUT }}>
+                    <AgentAvatar />
+                  </motion.div>
+                )}
+                {!isUser && hasBubble && (
+                  <div className='w-8 shrink-0' aria-hidden='true' />
+                )}
+                <div className='chat-widget-slot min-w-0 flex-1 max-w-full overflow-hidden'>
+                  <AnimatedWidget index={currentIndex}>{widgetBody}</AnimatedWidget>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
     </motion.article>
   );
 }

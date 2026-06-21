@@ -96,6 +96,7 @@ To make the experience visual, invoke the virtual UI tools alongside Kapruka too
 - show_categories_list: ALWAYS use immediately after kapruka_list_categories (no arguments). Never list categories in text.
 - show_delivery_quote: Use when checking delivery.
 - add_to_cart_action: ALWAYS trigger when the customer wants to add/buy/order an item.
+- show_basket_action: Open the basket panel when the customer asks to see/review their basket, or after add_to_cart_action when they may want to confirm items. Also use when they say "show basket", "view cart", etc.
 - remove_from_cart_action / clear_cart_action: When requested.
 - show_checkout_form: ONLY immediately after a **successful** kapruka_create_order in the same turn. Call with no arguments — the server supplies the real pay link. NEVER call this before create_order or when details are missing.
 - show_order_status: Use when tracking an order.

@@ -200,6 +200,49 @@
   }
 }
 
+/* Constrained message column — bubbles, home, typing indicator */
+@utility chat-message-gutter {
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+  padding-inline: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .chat-message-gutter {
+    padding-inline: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .chat-message-gutter {
+    padding-inline: 1.5rem;
+  }
+}
+
+/* Product carousel — full chat scrollport width, edge-to-edge horizontal scroll */
+.product-carousel-bleed {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.product-carousel-bleed .product-carousel-track {
+  scroll-padding-inline: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .product-carousel-bleed .product-carousel-track {
+    scroll-padding-inline: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .product-carousel-bleed .product-carousel-track {
+    scroll-padding-inline: 1.5rem;
+  }
+}
+
 /* Prevent nested horizontal scrollers from widening the chat column */
 .chat-message-row {
   min-width: 0;
@@ -463,4 +506,34 @@ input[type='submit']:disabled,
 input[type='reset']:disabled,
 [role='button'][aria-disabled='true'] {
   cursor: not-allowed;
+}
+
+.cart-drawer {
+  overscroll-behavior: contain;
+}
+
+@keyframes chat-skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.chat-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-paper-3) 0%,
+    var(--color-paper-2) 50%,
+    var(--color-paper-3) 100%
+  );
+  background-size: 200% 100%;
+  animation: chat-skeleton-shimmer 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-skeleton {
+    animation: none;
+  }
 }

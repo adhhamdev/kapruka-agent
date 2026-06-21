@@ -1,9 +1,15 @@
 'use client';
 
 import { ChevronDown } from 'lucide-react';
+import { ChatHomeScreen } from '@/components/chat/ChatHomeScreen';
+import { ChatSessionLoading } from '@/components/chat/ChatSessionLoading';
 import { TypingIndicator } from '@/components/chat/TypingIndicator';
 import { MessageBubble } from '@/components/chat/MessageBubble';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
+import {
+  isChatHomeState,
+  visibleConversationMessages,
+} from '@/lib/chat/conversation-state';
 import type { CartItem } from '@/lib/cart-storage';
 import type { KaprukaProduct } from '@/lib/products';
 import type { Message } from '@/types/chat';
@@ -15,23 +21,31 @@ const LATEST_MESSAGE_TOP_PADDING = 16;
 interface MessageListProps {
   messages: Message[];
   isPending: boolean;
+  isSessionRestored: boolean;
   cart: CartItem[];
   onAddToCart: (product: KaprukaProduct) => void;
   onBrowseCategory?: (categoryName: string) => void;
   onViewProductDetail?: (product: KaprukaProduct) => void;
   onLoadMoreCarousel: (messageId: string, widgetIndex: number) => void;
+  onOpenBasket?: () => void;
+  onSelectSuggestion: (prompt: string) => void;
 }
 
 export function MessageList({
   messages,
   isPending,
+  isSessionRestored,
   cart,
   onAddToCart,
   onBrowseCategory,
   onViewProductDetail,
   onLoadMoreCarousel,
+  onOpenBasket,
+  onSelectSuggestion,
 }: MessageListProps) {
   const reducedMotion = useReducedMotion();
+  const showHome = isChatHomeState(messages);
+  const visibleMessages = visibleConversationMessages(messages);
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const latestMessageRef = useRef<HTMLDivElement>(null);
@@ -111,8 +125,8 @@ export function MessageList({
   }, [scrollToLatestMessageStart, updateScrollHint]);
 
   useEffect(() => {
-    const isNewMessage = messages.length > prevLengthRef.current;
-    prevLengthRef.current = messages.length;
+    const isNewMessage = visibleMessages.length > prevLengthRef.current;
+    prevLengthRef.current = visibleMessages.length;
 
     if (isNewMessage) {
       followLatestRef.current = true;
@@ -120,7 +134,11 @@ export function MessageList({
       const behavior: ScrollBehavior = reducedMotion ? 'auto' : 'smooth';
       scrollToLatestMessageStart(behavior);
     }
-  }, [messages, reducedMotion, scrollToLatestMessageStart]);
+  }, [visibleMessages, reducedMotion, scrollToLatestMessageStart]);
+
+  if (!isSessionRestored) {
+    return <ChatSessionLoading />;
+  }
 
   return (
     <div className='relative flex-1 min-h-0 min-w-0 flex flex-col'>
@@ -133,29 +151,45 @@ export function MessageList({
         aria-relevant='additions'>
         <div
           ref={contentRef}
-          className='mx-auto w-full max-w-3xl min-w-0 px-3 sm:px-4 md:px-6 py-4 md:py-6 space-y-4 sm:space-y-6'>
-          {messages.map((msg, index) => (
+          className='w-full min-w-0 py-4 md:py-6 space-y-4 sm:space-y-6'>
+          {showHome && (
+            <div className='chat-message-gutter'>
+              <ChatHomeScreen
+                onSelectSuggestion={onSelectSuggestion}
+                disabled={isPending}
+              />
+            </div>
+          )}
+
+          {visibleMessages.map((msg, index) => (
             <div
               key={msg.id}
-              ref={index === messages.length - 1 ? latestMessageRef : undefined}
+              ref={
+                index === visibleMessages.length - 1 ? latestMessageRef : undefined
+              }
               className='min-w-0'>
               <MessageBubble
                 message={msg}
                 cart={cart}
                 isStreaming={
                   isPending &&
-                  index === messages.length - 1 &&
+                  index === visibleMessages.length - 1 &&
                   msg.role === 'assistant'
                 }
                 onAddToCart={onAddToCart}
                 onBrowseCategory={onBrowseCategory}
                 onViewProductDetail={onViewProductDetail}
                 onLoadMoreCarousel={onLoadMoreCarousel}
+                onOpenBasket={onOpenBasket}
               />
             </div>
           ))}
 
-          {isPending && <TypingIndicator />}
+          {isPending && (
+            <div className='chat-message-gutter'>
+              <TypingIndicator />
+            </div>
+          )}
           <div className='h-2 shrink-0' aria-hidden='true' />
         </div>
       </div>

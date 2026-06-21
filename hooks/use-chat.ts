@@ -2,12 +2,12 @@
 
 import { useChat as useAiChat } from '@ai-sdk/react';
 import { DefaultChatTransport, type FileUIPart } from 'ai';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { mergeCartAfterAgentResponse } from '@/lib/cart/merge';
+import { messageShouldOpenBasket } from '@/lib/chat/basket-message';
 import { attachmentImageDataUrl } from '@/lib/attachments';
 import {
   clearChatHistoryStorage,
-  createWelcomeMessage,
   loadChatHistory,
   saveChatHistory,
 } from '@/lib/chat-history-storage';
@@ -16,15 +16,13 @@ import { ERROR_MESSAGES } from '@/lib/errors';
 import { createMessageId } from '@/lib/message-ids';
 import type { KaprukaProduct } from '@/lib/products';
 import type { ChatAttachment } from '@/types/attachments';
-import type {
-  ActiveTab,
-  KaprukaAgentUIMessage,
-} from '@/types/agent-ui-message';
+import type { KaprukaAgentUIMessage } from '@/types/agent-ui-message';
 import type { CarouselPagination, Widget } from '@/types/widgets';
 
 interface UseChatOptions {
   cart: CartItem[];
   setCart: (updater: CartItem[] | ((prev: CartItem[]) => CartItem[])) => void;
+  onOpenBasket?: () => void;
 }
 
 function toFileUIParts(attachments: ChatAttachment[]): FileUIPart[] {
@@ -36,10 +34,11 @@ function toFileUIParts(attachments: ChatAttachment[]): FileUIPart[] {
   }));
 }
 
-export function useChat({ cart, setCart }: UseChatOptions) {
+export function useChat({ cart, setCart, onOpenBasket }: UseChatOptions) {
   const [inputText, setInputText] = useState('');
-  const [activeTab, setActiveTab] = useState<ActiveTab>('chat');
+  const [isSessionRestored, setIsSessionRestored] = useState(false);
   const skipPersistRef = useRef(false);
+  const hasRestoredRef = useRef(false);
   const cartRef = useRef(cart);
   const cartAtRequestStartRef = useRef<CartItem[]>([]);
   cartRef.current = cart;
@@ -69,19 +68,23 @@ export function useChat({ cart, setCart }: UseChatOptions) {
     error,
     clearError,
   } = useAiChat<KaprukaAgentUIMessage>({
-    messages: loadChatHistory(),
+    messages: [],
     transport,
     onFinish: ({ message }) => {
       const serverCart = message.metadata?.cart;
-      if (!serverCart) return;
+      if (serverCart) {
+        setCart((currentCart) =>
+          mergeCartAfterAgentResponse(
+            cartAtRequestStartRef.current,
+            currentCart,
+            serverCart,
+          ),
+        );
+      }
 
-      setCart((currentCart) =>
-        mergeCartAfterAgentResponse(
-          cartAtRequestStartRef.current,
-          currentCart,
-          serverCart,
-        ),
-      );
+      if (messageShouldOpenBasket(message)) {
+        onOpenBasket?.();
+      }
     },
     onError: () => {
       /* surfaced via error state below */
@@ -90,7 +93,17 @@ export function useChat({ cart, setCart }: UseChatOptions) {
 
   const isPending = status === 'submitted' || status === 'streaming';
 
+  useLayoutEffect(() => {
+    const stored = loadChatHistory();
+    if (stored.length > 0) {
+      setMessages(stored);
+    }
+    hasRestoredRef.current = true;
+    setIsSessionRestored(true);
+  }, [setMessages]);
+
   useEffect(() => {
+    if (!hasRestoredRef.current) return;
     if (skipPersistRef.current) {
       skipPersistRef.current = false;
       return;
@@ -120,8 +133,6 @@ export function useChat({ cart, setCart }: UseChatOptions) {
   const sendFromComposer = useCallback(
     (text: string, attachments: ChatAttachment[] = []) => {
       if ((!text.trim() && attachments.length === 0) || isPending) return;
-
-      setActiveTab('chat');
 
       const displayText =
         text.trim() ||
@@ -157,9 +168,8 @@ export function useChat({ cart, setCart }: UseChatOptions) {
   const startNewChat = useCallback(() => {
     skipPersistRef.current = true;
     clearChatHistoryStorage();
-    setMessages([createWelcomeMessage()]);
+    setMessages([]);
     setInputText('');
-    setActiveTab('chat');
   }, [setMessages]);
 
   const loadMoreCarouselProducts = useCallback(
@@ -256,8 +266,7 @@ export function useChat({ cart, setCart }: UseChatOptions) {
     inputText,
     setInputText,
     isPending,
-    activeTab,
-    setActiveTab,
+    isSessionRestored,
     sendMessage: sendMessageText,
     sendFromComposer,
     appendMessage,

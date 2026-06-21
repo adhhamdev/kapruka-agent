@@ -40,8 +40,8 @@ export const WELCOME_CAPABILITIES: WelcomeFeature[] = [
 export const WELCOME_YOU_CAN: string[] = [
   'Ask in English, Sinhala, Tamil, or Tanglish',
   'Use voice input or attach images in chat',
-  'Browse quick prompts on the Discover tab',
-  'Switch between Chat, Discover, and Basket anytime',
+  'Tap a suggestion to start shopping instantly',
+  'Open Basket from the header anytime',
 ];
 
 export const WELCOME_MODAL_TITLE = `Welcome to ${APP_NAME}`;

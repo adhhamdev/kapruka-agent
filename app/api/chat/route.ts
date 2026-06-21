@@ -41,7 +41,8 @@ export async function POST(req: NextRequest) {
     }
 
     const cartRef = { current: cart as CartItem[] };
-    const agent = createKaprukaAgent(cartRef);
+    const uiFlagsRef = { current: { openBasket: false } };
+    const agent = createKaprukaAgent(cartRef, uiFlagsRef);
 
     return createAgentUIStreamResponse({
       agent,
@@ -49,7 +50,10 @@ export async function POST(req: NextRequest) {
       options: { cart: cartRef.current },
       messageMetadata: ({ part }) => {
         if (part.type === 'finish') {
-          return { cart: cartRef.current };
+          return {
+            cart: cartRef.current,
+            openBasket: uiFlagsRef.current.openBasket || undefined,
+          };
         }
         return undefined;
       },

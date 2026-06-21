@@ -162,15 +162,15 @@ function ensureUniqueMessageIds(
 }
 
 export function loadChatHistory(): KaprukaAgentUIMessage[] {
-  if (typeof window === 'undefined') return [createWelcomeMessage()];
+  if (typeof window === 'undefined') return getServerChatHistorySnapshot();
 
   try {
     const raw = localStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
-    if (!raw) return [createWelcomeMessage()];
+    if (!raw) return [];
 
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed) || parsed.length === 0) {
-      return [createWelcomeMessage()];
+      return [];
     }
 
     if (isLegacyFormat(parsed)) {
@@ -179,8 +179,13 @@ export function loadChatHistory(): KaprukaAgentUIMessage[] {
 
     return ensureUniqueMessageIds(parsed as KaprukaAgentUIMessage[]);
   } catch {
-    return [createWelcomeMessage()];
+    return [];
   }
+}
+
+/** Stable empty snapshot for SSR and pre-restore client renders. */
+export function getServerChatHistorySnapshot(): KaprukaAgentUIMessage[] {
+  return [];
 }
 
 export function saveChatHistory(messages: KaprukaAgentUIMessage[]) {
