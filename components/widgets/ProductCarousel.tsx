@@ -161,7 +161,7 @@ export function ProductCarousel({
 
         <div
           ref={scrollRef}
-          className='product-carousel-track flex overflow-x-auto overscroll-x-contain snap-x snap-mandatory gap-3 pb-1 px-3 sm:px-4 md:px-6 scrollbar-hide touch-pan-x min-w-0 w-full max-w-none'
+          className='product-carousel-track flex overflow-x-auto overscroll-x-contain snap-x snap-mandatory gap-3 pb-3 px-3 sm:px-4 md:px-6 scrollbar-hide touch-pan-x min-w-0 w-full max-w-none'
           role='list'
           aria-label='Product suggestions'>
           {products.map((prod, prodIdx) => {
@@ -177,7 +177,7 @@ export function ProductCarousel({
                 animate='visible'
                 variants={carouselCardVariants}
                 transition={carouselCardTransition(prodIdx)}
-                className='product-carousel-card group w-[min(100%,calc((100%-0.75rem)/2))] min-w-[9.25rem] sm:w-[10.5rem] lg:w-[11rem] shrink-0 snap-start bg-[color:var(--color-paper-2)] border border-[color:var(--color-border-default)] rounded-[var(--radius-md)] p-2 shadow-[0_4px_16px_-10px_oklch(18%_0.04_285/0.1)] flex flex-col gap-2 touch-manipulation'>
+                className='product-carousel-card group w-[min(100%,calc((100%-0.75rem)/2))] min-w-[9.25rem] sm:w-[10.5rem] lg:w-[11rem] shrink-0 snap-start bg-[color:var(--color-paper-2)] border border-[color:var(--color-border-default)] rounded-[var(--radius-md)] p-2 shadow-lg flex flex-col gap-2 touch-manipulation'>
                 <div className='relative w-full aspect-square rounded-[var(--radius-sm)] overflow-hidden bg-[color:var(--color-bg-base)]'>
                   <a
                     href={productUrl}

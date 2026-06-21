@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       throw new AppError('SERVICE_UNAVAILABLE', 503, 'Missing GEMINI_API_KEY');
     }
 
-    let body: { messages?: unknown; cart?: unknown };
+    let body: { messages?: unknown; cart?: unknown; memoryUserId?: unknown };
     try {
       body = await req.json();
     } catch {
@@ -24,6 +24,10 @@ export async function POST(req: NextRequest) {
     }
 
     const { messages, cart = [] } = body;
+    const memoryUserId =
+      typeof body.memoryUserId === 'string' && body.memoryUserId.trim()
+        ? body.memoryUserId.trim()
+        : undefined;
 
     if (!messages || !Array.isArray(messages)) {
       throw new AppError('INVALID_REQUEST', 400, 'Missing or invalid messages');
@@ -42,12 +46,15 @@ export async function POST(req: NextRequest) {
 
     const cartRef = { current: cart as CartItem[] };
     const uiFlagsRef = { current: { openBasket: false } };
-    const agent = createKaprukaAgent(cartRef, uiFlagsRef);
+    const agent = createKaprukaAgent(cartRef, uiFlagsRef, memoryUserId);
 
     return createAgentUIStreamResponse({
       agent,
       uiMessages: messages,
-      options: { cart: cartRef.current },
+      options: {
+        cart: cartRef.current,
+        ...(memoryUserId ? { memoryUserId } : {}),
+      },
       messageMetadata: ({ part }) => {
         if (part.type === 'finish') {
           return {

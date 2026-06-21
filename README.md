@@ -2,7 +2,7 @@
 
 **Meet Agent — your AI shopping assistant for Kapruka.**
 
-Kapruka Agent is a conversational assistant for Kapruka's full catalog — groceries, fashion, electronics, pharmacy, gifts, and much more. Ask in plain English, Sinhala, Tamil, or Tanglish; browse categories and product cards in chat; manage your basket; check delivery; checkout with a real Kapruka payment link; and track orders.
+Kapruka Agent is a conversational assistant for Kapruka's full catalog — groceries, fashion, electronics, pharmacy, gifts, and much more. Ask in plain English, Sinhala, Tamil, or Tanglish; browse categories and product cards in chat; manage your basket; check delivery; checkout with a real Kapruka payment link; and track orders. Optionally save delivery addresses, gift recipients, and shopping preferences on this device so Agent can pre-fill checkout next time — review or clear them anytime from **Saved info**.
 
 Production: **[https://agent-kapruka.vercel.app](https://agent-kapruka.vercel.app)**
 
@@ -14,23 +14,28 @@ Built for the **Kapruka Agent Challenge 2026**.
 
 | Feature | Description |
 |---------|-------------|
-| **Search & discover** | Keyword search, categories, quick prompts on the Discover tab |
+| **Search & discover** | Keyword search, categories, quick prompts on the chat home screen |
 | **Product carousel** | Horizontal scrollable cards in chat with **Load more** pagination |
-| **Product details** | Single-product cards with price, image, and add-to-basket |
+| **Product details** | Single-product cards with price, image, variants, and add-to-basket |
 | **Delivery quotes** | Check availability, date, and cost for Sri Lankan cities |
 | **Shopping basket** | Add, remove, adjust quantities, or **clear basket** — persisted locally |
+| **Saved info** | Optional memory for delivery addresses, gift recipients, language, and preferences — open the person icon in the header to review or remove |
+| **Faster checkout** | After checkout, tap **Yes, save it** to store delivery details; Agent recalls them on return visits |
 | **Guest checkout** | Secure Kapruka pay link via live MCP `create_order` |
 | **Order tracking** | Look up orders by confirmation email order number |
 | **Chat history** | Conversation restored on refresh (up to 80 messages) |
-| **New chat** | Start fresh with the pencil button (top-right of chat) |
+| **New chat** | Start fresh with the refresh button in the header |
 | **Voice input** | Dictate messages via browser speech recognition |
 | **Attachments** | Send images or documents (PDF, Word, txt) with strict validation |
 | **Markdown replies** | Agent responses render headings, lists, bold, and links |
 | **Scroll to latest** | Floating chevron when you scroll up in a long conversation |
+| **Welcome guide** | First-visit modal explains what Agent can do and how saved info works |
 
 **Languages:** English (default), Sinhala, Tamil, Tanglish — Agent mirrors the language you write in.
 
 **Currency:** All prices shown in **LKR**.
+
+**No account required:** Basket, chat history, and saved info are tied to this browser — no Kapruka login needed.
 
 ---
 
@@ -39,13 +44,16 @@ Built for the **Kapruka Agent Challenge 2026**.
 1. **Chat with Agent** — Type or dictate what you want (e.g. *“Show me laptops under 200000”* or *“Browse grocery categories”*).
 2. **Browse results** — Product carousels and detail cards appear inline. Tap **+** to add to basket.
 3. **Load more** — On search carousels, tap **Load more products** for the next page.
-4. **Check your basket** — Mobile: **Basket** tab. Desktop: right panel.
+4. **Check your basket** — Tap the **Basket** icon in the header (badge shows item count).
 5. **Checkout** — Tap **Checkout** in the basket; Agent collects delivery details and returns a pay link.
+6. **Save for next time** — After checkout, tap **Yes, save it** on the order card to remember the delivery address.
+7. **Review saved details** — Tap the **Saved info** icon (person) in the header to see or remove remembered addresses, recipients, and preferences.
 
 **Tips**
 
-- **Discover** tab — quick prompts (browse categories, track order, etc.).
-- **New chat** (pencil icon) — clears history and resets to the welcome message.
+- **Suggestions** on the chat home screen — tap a chip to start instantly (categories, track order, saved details, etc.).
+- **New chat** (refresh icon in header) — clears history and resets to the welcome message.
+- **Saved info** — optional; chat and checkout always work even if memory is off or unavailable.
 - Basket and chat history survive refresh (browser `localStorage`).
 - Kapruka logo and brand links open [kapruka.com](https://www.kapruka.com).
 
@@ -60,12 +68,13 @@ Built for the **Kapruka Agent Challenge 2026**.
 | **Styling** | [Tailwind CSS 4](https://tailwindcss.com/), CSS variables (`tokens.css`) |
 | **AI** | [Google Gemini](https://ai.google.dev/) via `@google/genai` — tool-calling agent loop |
 | **Catalog & checkout** | [Kapruka MCP](https://mcp.kapruka.com/mcp) via `@modelcontextprotocol/sdk` (Streamable HTTP) |
+| **Personal memory** | [Supermemory](https://supermemory.ai/) — optional saved delivery, recipients, and preferences (scoped per browser) |
 | **Markdown** | [Streamdown](https://streamdown.ai/) — streaming-safe MD in chat bubbles |
 | **Motion** | [Motion](https://motion.dev/) — message, cart, and widget animations |
 | **Icons** | [Lucide React](https://lucide.dev/) |
 | **Images** | `next/image` with remote patterns for Kapruka CDN + Shopify CDN |
 | **Fonts** | DM Sans (`next/font`) |
-| **Client persistence** | `localStorage` — basket + chat history |
+| **Client persistence** | `localStorage` — basket, chat history, anonymous memory user id |
 | **Voice** | Web Speech API (browser) |
 | **Runtime** | Node.js 20+ (API routes); deployable to Vercel |
 
@@ -100,6 +109,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `GEMINI_API_KEY` | Yes | Server-side Gemini API key |
+| `SUPERMEMORY_API_KEY` | No | Enables saved info / personal memory; without it, chat and checkout work normally |
 | `NEXT_PUBLIC_APP_URL` | Production | Public URL for OG, sitemap, social previews — `https://agent-kapruka.vercel.app` |
 
 ### Scripts
@@ -119,16 +129,20 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ```
 Browser
-  ├── Discover / Chat / Basket (single page, tabbed on mobile)
-  ├── localStorage: basket, chat history
+  ├── Chat + Basket (single page; basket as header sidebar / overlay)
+  ├── localStorage: basket, chat history, memory user id
+  ├── Saved info panel + post-checkout "Yes, save it" chip
   └── POST /api/chat ──► Gemini agent loop
                               ├── Virtual UI tools (carousel, cart actions, …)
+                              ├── Supermemory tools (optional — search, add, forget)
                               └── Kapruka MCP (search, delivery, checkout, track)
+  └── GET/POST/DELETE /api/memory ──► Saved info CRUD (Supermemory)
   └── POST /api/products/search ──► carousel "Load more" pagination
 ```
 
-- **Agent loop** (`lib/agent/agent-loop.ts`) — multi-turn Gemini with function calling; merges cart context each request.
+- **Agent loop** (`lib/agents/kapruka-agent.ts`) — multi-turn Gemini with function calling; merges cart context each request; attaches Supermemory tools when configured.
 - **MCP client** (`lib/kapruka-mcp.ts`) — seven live Kapruka tools over Streamable HTTP.
+- **Memory service** (`lib/supermemory/service.ts`) — fetch, add, forget, and clear saved info for the anonymous browser user id.
 - **Widgets** — structured UI payloads (carousel, detail, delivery quote, checkout form, order status) rendered client-side.
 
 See **[SPEC.md](./SPEC.md)** for API contracts, MCP tool mapping, and storage keys.  
@@ -140,22 +154,27 @@ See **[design.md](./design.md)** for visual system and interaction patterns.
 
 ```
 app/                    Next.js App Router (page, API routes, metadata, PWA icons)
-  api/chat/             Main agent endpoint
+  api/chat/             Main agent endpoint (streaming UI messages)
+  api/memory/           Saved info list, add, remove, clear-all
   api/products/search/  Carousel pagination endpoint
 components/
-  chat/                 Messages, composer, markdown, scroll affordances
+  chat/                 Messages, composer, markdown, scroll affordances, home screen
   cart/                 Basket panel and line items
-  discover/             Search sidebar and quick prompts
+  discover/             Quick prompt chips
+  memory/               Saved info panel, remember-delivery chip
   widgets/              Product carousel, detail, checkout, delivery, order status
-  layout/               Header, mobile tab bar
-constants/              Brand, agent config, attachment limits
-hooks/                  use-chat, attachments, speech, reduced motion
+  layout/               Header (basket + saved info), skip link
+  onboarding/           First-visit welcome modal
+constants/              Brand, agent config, welcome copy, attachment limits
+hooks/                  use-chat, use-saved-info, attachments, speech, reduced motion
 lib/
-  agent/                Gemini client, tools, system prompt, executor
+  agent/                System prompt, memory instructions, datetime context
+  agents/               Kapruka ToolLoopAgent factory
+  supermemory/          Supermemory client, categorization, delivery memory helpers
   cart/                 Mutations and totals
   kapruka-mcp.ts        MCP transport and typed tool wrappers
 public/                 Logos, avatar, static assets
-types/                  Chat, widgets, cart, attachments
+types/                  Chat, widgets, cart, attachments, memory
 ```
 
 ---
@@ -164,7 +183,9 @@ types/                  Chat, widgets, cart, attachments
 
 - Product data and checkout flow go through Kapruka’s official MCP service.
 - Basket and chat history stay in **browser localStorage** — not on our server.
-- `GEMINI_API_KEY` is **server-only**; never sent to the client.
+- **Saved info** (when enabled) is stored via Supermemory, scoped to an anonymous id in your browser — no Kapruka account or email required. You can remove individual items or clear everything from **Saved info** in the header.
+- Agent never stores payment card data or pay links in memory.
+- `GEMINI_API_KEY` and `SUPERMEMORY_API_KEY` are **server-only**; never sent to the client.
 - Attachments validated client-side (MIME allowlist, size limits) and again in `/api/chat`.
 - Security headers: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`.
 
@@ -178,6 +199,7 @@ types/                  Chat, widgets, cart, attachments
 | Products not loading | Check network access to `mcp.kapruka.com` |
 | Product images broken | CDN host must be in `next.config.ts` `images.remotePatterns` |
 | Basket or chat lost on refresh | Ensure localStorage is not blocked (private mode, strict settings) |
+| Saved info empty or unavailable | Optional feature — needs `SUPERMEMORY_API_KEY` on the server; shopping is unaffected |
 | Duplicate message keys / stale favicon | Hard refresh; use **New chat** to reset history |
 | Social preview wrong URL | Set `NEXT_PUBLIC_APP_URL` to `https://agent-kapruka.vercel.app` and redeploy |
 

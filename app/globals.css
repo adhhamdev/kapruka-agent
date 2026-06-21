@@ -144,11 +144,7 @@
   -webkit-overflow-scrolling: touch;
   overflow-x: clip;
   contain: inline-size;
-}
-
-.chat-composer {
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
+  scroll-padding-bottom: var(--chat-composer-inset);
 }
 
 .chat-composer-field {

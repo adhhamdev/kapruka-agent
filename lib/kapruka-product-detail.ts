@@ -1,5 +1,9 @@
 import type { KaprukaToolResponse } from '@/lib/kapruka-mcp';
 import type { KaprukaProductDetail } from '@/lib/products';
+import {
+  normalizeVariantAttributes,
+  parseVariantName,
+} from '@/lib/variant-display';
 
 interface ProductDetailJson {
   id?: string;
@@ -134,15 +138,23 @@ export function parseKaprukaProductDetailResponse(
         : undefined,
       variants: (parsed.variants ?? [])
         .filter((variant) => variant.id && variant.name)
-        .map((variant) => ({
-          id: variant.id!,
-          name: variant.name!,
-          sku: variant.sku,
-          price: variant.price?.amount,
-          inStock: variant.in_stock,
-          stockLevel: variant.stock_level,
-          attributes: variant.attributes,
-        })),
+        .map((variant) => {
+          const parsedName = parseVariantName(variant.name!);
+          const imageUrl = parsedName.imageUrl;
+          return {
+            id: variant.id!,
+            name: parsedName.label,
+            sku: variant.sku,
+            price: variant.price?.amount,
+            inStock: variant.in_stock,
+            stockLevel: variant.stock_level,
+            imageUrl,
+            attributes: normalizeVariantAttributes(
+              variant.attributes,
+              imageUrl,
+            ),
+          };
+        }),
       rating: parsed.rating ?? undefined,
     };
 

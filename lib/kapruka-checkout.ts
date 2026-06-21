@@ -1,5 +1,5 @@
 import type { KaprukaToolResponse } from '@/lib/kapruka-mcp';
-import type { CheckoutFormData } from '@/types/widgets';
+import type { CheckoutFormData, DeliverySnapshot } from '@/types/widgets';
 
 export interface ParsedCreateOrder {
   ok: true;
@@ -99,11 +99,13 @@ export function parseCreateOrderResponse(
 export function toCheckoutFormData(
   parsed: ParsedCreateOrder,
   itemsCount: number,
+  delivery?: DeliverySnapshot,
 ): CheckoutFormData {
   return {
     checkoutUrl: parsed.checkoutUrl,
     orderNumber: parsed.orderRef,
     totalAmount: parsed.grandTotal,
     itemsCount,
+    ...(delivery ? { delivery } : {}),
   };
 }

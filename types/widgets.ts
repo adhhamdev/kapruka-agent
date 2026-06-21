@@ -17,11 +17,21 @@ export interface DeliveryQuoteData {
   warning?: string;
 }
 
+export interface DeliverySnapshot {
+  recipientName: string;
+  recipientPhone: string;
+  address: string;
+  city: string;
+  senderName: string;
+  label?: string;
+}
+
 export interface CheckoutFormData {
   checkoutUrl: string;
   totalAmount: number;
   itemsCount?: number;
   orderNumber: string;
+  delivery?: DeliverySnapshot;
 }
 
 export interface OrderStatusLog {

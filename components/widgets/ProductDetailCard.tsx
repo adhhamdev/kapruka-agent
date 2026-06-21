@@ -10,7 +10,13 @@ import {
   getKaprukaProductUrl,
   type KaprukaProduct,
   type KaprukaProductDetail,
+  type KaprukaProductVariant,
 } from '@/lib/products';
+import {
+  normalizeVariantAttributes,
+  resolveVariantImageUrl,
+  resolveVariantLabel,
+} from '@/lib/variant-display';
 
 interface ProductDetailCardProps {
   product: KaprukaProductDetail;
@@ -170,41 +176,7 @@ export function ProductDetailCard({
           </h5>
           <ul className='space-y-2'>
             {product.variants.map((variant) => (
-              <li
-                key={variant.id}
-                className='flex items-start justify-between gap-3 rounded-[var(--radius-md)] border border-[color:var(--color-border-subtle)] px-3 py-2 text-[13px]'>
-                <div className='min-w-0'>
-                  <p className='font-medium text-[color:var(--color-ink)]'>
-                    {variant.name}
-                  </p>
-                  {variant.sku ? (
-                    <p className='text-[11px] font-mono text-[color:var(--color-ink-3)] mt-0.5'>
-                      {variant.sku}
-                    </p>
-                  ) : null}
-                  {variant.attributes && Object.keys(variant.attributes).length > 0 ? (
-                    <p className='text-[12px] text-[color:var(--color-ink-2)] mt-1'>
-                      {Object.entries(variant.attributes)
-                        .map(([key, value]) => `${formatAttributeLabel(key)}: ${value}`)
-                        .join(' · ')}
-                    </p>
-                  ) : null}
-                </div>
-                <div className='text-right shrink-0'>
-                  {variant.price != null ? (
-                    <p className='font-medium tabular-nums'>
-                      {formatPrice(variant.price)}
-                    </p>
-                  ) : null}
-                  <p className='text-[11px] text-[color:var(--color-ink-3)] mt-0.5'>
-                    {variant.inStock === false
-                      ? 'Unavailable'
-                      : variant.stockLevel === 'low'
-                        ? 'Low stock'
-                        : 'Available'}
-                  </p>
-                </div>
-              </li>
+              <VariantRow key={variant.id} variant={variant} />
             ))}
           </ul>
         </section>
@@ -278,6 +250,65 @@ export function ProductDetailCard({
         </a>
       </div>
     </article>
+  );
+}
+
+function VariantRow({ variant }: { variant: KaprukaProductVariant }) {
+  const label = resolveVariantLabel(variant);
+  const imageUrl = resolveVariantImageUrl(variant);
+  const attributes = normalizeVariantAttributes(
+    variant.attributes,
+    imageUrl,
+  );
+  const attributeEntries = Object.entries(attributes).filter(
+    ([, value]) => value.trim(),
+  );
+
+  return (
+    <li className='flex items-start gap-3 rounded-[var(--radius-md)] border border-[color:var(--color-border-subtle)] px-3 py-2 text-[13px]'>
+      {imageUrl ? (
+        <div className='relative w-12 h-12 shrink-0 rounded-[8px] overflow-hidden border border-[color:var(--color-border-subtle)] bg-[color:var(--color-bg-base)]'>
+          <ProductImage
+            src={imageUrl}
+            alt={label}
+            fill
+            sizes='48px'
+            className='object-cover'
+          />
+        </div>
+      ) : null}
+      <div className='flex min-w-0 flex-1 items-start justify-between gap-3'>
+        <div className='min-w-0'>
+          <p className='font-medium text-[color:var(--color-ink)]'>{label}</p>
+          {variant.sku ? (
+            <p className='text-[11px] font-mono text-[color:var(--color-ink-3)] mt-0.5'>
+              {variant.sku}
+            </p>
+          ) : null}
+          {attributeEntries.length > 0 ? (
+            <p className='text-[12px] text-[color:var(--color-ink-2)] mt-1'>
+              {attributeEntries
+                .map(([key, value]) => `${formatAttributeLabel(key)}: ${value}`)
+                .join(' · ')}
+            </p>
+          ) : null}
+        </div>
+        <div className='text-right shrink-0'>
+          {variant.price != null ? (
+            <p className='font-medium tabular-nums'>
+              {formatPrice(variant.price)}
+            </p>
+          ) : null}
+          <p className='text-[11px] text-[color:var(--color-ink-3)] mt-0.5'>
+            {variant.inStock === false
+              ? 'Unavailable'
+              : variant.stockLevel === 'low'
+                ? 'Low stock'
+                : 'Available'}
+          </p>
+        </div>
+      </div>
+    </li>
   );
 }
 

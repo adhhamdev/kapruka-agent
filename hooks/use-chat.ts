@@ -5,6 +5,7 @@ import { DefaultChatTransport, type FileUIPart } from 'ai';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { mergeCartAfterAgentResponse } from '@/lib/cart/merge';
 import { messageShouldOpenBasket } from '@/lib/chat/basket-message';
+import { getOrCreateMemoryUserId } from '@/lib/memory-user-id';
 import { attachmentImageDataUrl } from '@/lib/attachments';
 import {
   clearChatHistoryStorage,
@@ -53,6 +54,7 @@ export function useChat({ cart, setCart, onOpenBasket }: UseChatOptions) {
             body: {
               messages,
               cart: cartRef.current,
+              memoryUserId: getOrCreateMemoryUserId(),
             },
           };
         },

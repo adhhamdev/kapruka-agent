@@ -81,4 +81,7 @@
   --shadow-sm: 0 1px 2px oklch(18% 0.04 285 / 0.06);
   --shadow-md: 0 4px 12px oklch(18% 0.04 285 / 0.08);
   --shadow-elevated: 0 12px 32px oklch(18% 0.04 285 / 0.12);
+
+  /* Chat — clearance for floating composer */
+  --chat-composer-inset: calc(9rem + max(0.75rem, env(safe-area-inset-bottom)));
 }
