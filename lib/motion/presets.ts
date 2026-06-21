@@ -53,3 +53,25 @@ export const carouselCardVariants = {
   hidden: { opacity: 0, y: 10, scale: 0.96 },
   visible: { opacity: 1, y: 0, scale: 1 },
 };
+
+export const drawerBackdropTransition = {
+  duration: DUR_MEDIUM_S,
+  ease: EASE_OUT,
+};
+
+export const drawerPanelTransition = {
+  duration: DUR_MEDIUM_S,
+  ease: EASE_OUT,
+};
+
+export const drawerPanelVariants = {
+  hidden: { x: '100%' },
+  visible: { x: 0 },
+  exit: { x: '100%' },
+};
+
+export const drawerPanelReducedVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+  exit: { opacity: 0 },
+};

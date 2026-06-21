@@ -1,14 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CartPanel } from '@/components/cart/CartPanel';
 import { ChatPanel } from '@/components/chat/ChatPanel';
-import { DiscoverSidebar } from '@/components/discover/DiscoverSidebar';
 import { AppHeader } from '@/components/layout/AppHeader';
-import { MobileTabBar } from '@/components/layout/MobileTabBar';
 import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
 import { DEFAULT_SPEECH_CODE } from '@/constants/languages';
 import { useChat } from '@/hooks/use-chat';
+import { useMediaQuery } from '@/hooks/use-media-query';
 import {
   addProductToCart,
   clearCart,
@@ -18,25 +17,33 @@ import {
 import { useCartStorage } from '@/lib/cart-storage';
 import { createMessageId } from '@/lib/message-ids';
 import type { KaprukaProduct } from '@/lib/products';
-import type { ActiveTab } from '@/types/chat';
 
 export default function Home() {
   const { cart, setCart } = useCartStorage();
-  const [discoverOpen, setDiscoverOpen] = useState(true);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
   const [cartOpen, setCartOpen] = useState(false);
+
   const {
     messages,
     inputText,
     setInputText,
     isPending,
-    activeTab,
-    setActiveTab,
+    isSessionRestored,
     sendMessage,
     sendFromComposer,
     appendMessage,
     startNewChat,
     loadMoreCarouselProducts,
-  } = useChat({ cart, setCart });
+  } = useChat({
+    cart,
+    setCart,
+    onOpenBasket: () => setCartOpen(true),
+  });
+
+  useEffect(() => {
+    if (!isSessionRestored) return;
+    setCartOpen(isDesktop);
+  }, [isDesktop, isSessionRestored]);
 
   const handleAddToCart = (product: KaprukaProduct) => {
     setCart((prev) =>
@@ -59,7 +66,7 @@ export default function Home() {
           text: `Added **${product.name}** to your basket.`,
         },
       ],
-      metadata: { createdAt: Date.now() },
+      metadata: { createdAt: Date.now(), basketAdded: true },
     });
   };
 
@@ -76,60 +83,40 @@ export default function Home() {
   };
 
   const handleCheckout = () => {
-    setActiveTab('chat');
+    setCartOpen(false);
     sendMessage(
       'I want to checkout. Ask me for recipient, delivery, and sender details before creating the order.',
     );
   };
 
   const handleBrowseCategory = (categoryName: string) => {
-    setActiveTab('chat');
     sendMessage(`Show me products in the ${categoryName} category.`);
   };
 
   const handleViewProductDetail = (product: KaprukaProduct) => {
     if (!product.productId) return;
-    setActiveTab('chat');
     sendMessage(
       `Show full product details for ${product.name ?? 'this product'} (product_id: ${product.productId}).`,
     );
-  };
-
-  const handleDiscoverPrompt = (prompt: string) => {
-    setActiveTab('chat');
-    sendMessage(prompt);
-  };
-
-  const handleMobileTabChange = (tab: ActiveTab) => {
-    setActiveTab(tab);
-    if (tab === 'discover') {
-      setDiscoverOpen(true);
-    }
-    if (tab === 'cart') {
-      setCartOpen(true);
-    }
   };
 
   return (
     <div
       className='flex flex-col h-[100dvh] bg-[color:var(--color-bg-base)] sans antialiased overflow-hidden'
       id='app-root'>
-      <AppHeader />
+      <AppHeader
+        cart={cart}
+        cartOpen={cartOpen}
+        isChatPending={isPending}
+        onStartNewChat={startNewChat}
+        onToggleCart={() => setCartOpen((open) => !open)}
+      />
 
       <div className='flex-1 flex flex-row overflow-hidden relative min-h-0 min-w-0'>
-        <DiscoverSidebar
-          isActive={activeTab === 'discover'}
-          isOpen={discoverOpen}
-          onClose={() => setDiscoverOpen(false)}
-          onSendMessage={handleDiscoverPrompt}
-        />
-
         <ChatPanel
-          isActive={activeTab === 'chat'}
-          discoverOpen={discoverOpen}
-          cartOpen={cartOpen}
           messages={messages}
           isPending={isPending}
+          isSessionRestored={isSessionRestored}
           inputText={inputText}
           cart={cart}
           speechLanguageCode={DEFAULT_SPEECH_CODE}
@@ -138,15 +125,13 @@ export default function Home() {
           onAddToCart={handleAddToCart}
           onBrowseCategory={handleBrowseCategory}
           onViewProductDetail={handleViewProductDetail}
-          onStartNewChat={startNewChat}
-          onLoadMoreCarousel={loadMoreCarouselProducts}
-          onToggleDiscover={() => setDiscoverOpen((open) => !open)}
-          onToggleCart={() => setCartOpen((open) => !open)}
-        />
+        onLoadMoreCarousel={loadMoreCarouselProducts}
+        onOpenBasket={() => setCartOpen(true)}
+      />
 
         <CartPanel
-          isActive={activeTab === 'cart'}
           isOpen={cartOpen}
+          isSessionRestored={isSessionRestored}
           onClose={() => setCartOpen(false)}
           cart={cart}
           onUpdateQuantity={handleUpdateQuantity}
@@ -155,12 +140,6 @@ export default function Home() {
           onCheckout={handleCheckout}
         />
       </div>
-
-      <MobileTabBar
-        activeTab={activeTab}
-        cart={cart}
-        onTabChange={handleMobileTabChange}
-      />
 
       <WelcomeModal />
     </div>

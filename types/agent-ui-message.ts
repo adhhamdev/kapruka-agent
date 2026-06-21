@@ -6,6 +6,10 @@ export type KaprukaMessageMetadata = {
   createdAt?: number;
   cart?: CartItem[];
   isError?: boolean;
+  /** Local or agent signal to show a View basket affordance on this message. */
+  basketAdded?: boolean;
+  /** Server signal to open the basket panel after this assistant turn. */
+  openBasket?: boolean;
 };
 
 type KaprukaUITools = InferUITools<KaprukaTools>;
@@ -16,9 +20,6 @@ export type KaprukaAgentUIMessage = UIMessage<
   KaprukaUITools
 >;
 
-export type ActiveTab = 'chat' | 'discover' | 'cart';
-
-/** @deprecated Use KaprukaAgentUIMessage — kept for gradual migration references */
 export type Message = KaprukaAgentUIMessage;
 
 export type ChatRole = 'user' | 'assistant';

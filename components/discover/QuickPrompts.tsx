@@ -9,16 +9,18 @@ const ICON_MAP = {
 interface QuickPromptsProps {
   onSelectPrompt: (prompt: string) => void;
   disabled?: boolean;
+  heading?: string;
 }
 
 export function QuickPrompts({
   onSelectPrompt,
   disabled = false,
+  heading = 'Quick Prompts',
 }: QuickPromptsProps) {
   return (
     <div className='space-y-3'>
       <h4 className='text-[12px] font-semibold text-[color:var(--color-ink-3)] uppercase tracking-wider'>
-        Quick Prompts
+        {heading}
       </h4>
       <div className='flex flex-col gap-2'>
         {QUICK_STARTERS.map((qs) => {
