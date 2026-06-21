@@ -2,6 +2,7 @@
 
 import { RotateCcw, ShoppingBag } from 'lucide-react';
 import { AgentAvatar } from '@/components/chat/AgentAvatar';
+import { NewChatButton } from '@/components/chat/NewChatButton';
 import { KaprukaLink, KaprukaText } from '@/components/brand/KaprukaLink';
 import { KAPRUKA_LOGO_SRC } from '@/constants/brand';
 import { getCartItemCount } from '@/lib/cart/totals';

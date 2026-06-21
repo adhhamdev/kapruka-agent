@@ -1,27 +1,33 @@
 'use client';
 
-import { AgentAvatar } from '@/components/chat/AgentAvatar';
 import { KaprukaText } from '@/components/brand/KaprukaLink';
 import { APP_NAME } from '@/constants/brand';
 import {
   WELCOME_CAPABILITIES,
+  WELCOME_ILLUSTRATION_ALT,
+  WELCOME_ILLUSTRATION_SRC,
   WELCOME_INTRO,
   WELCOME_MODAL_TITLE,
   WELCOME_YOU_CAN,
 } from '@/constants/welcome';
 import { useWelcomeModal } from '@/hooks/use-welcome-modal';
 import { Check, Sparkles, X } from 'lucide-react';
+import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 
 export function WelcomeModal() {
   const { open, dismiss } = useWelcomeModal();
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (open && !dialog.open) {
       dialog.showModal();
+      requestAnimationFrame(() => {
+        panelRef.current?.focus({ preventScroll: true });
+      });
     } else if (!open && dialog.open) {
       dialog.close();
     }
@@ -32,27 +38,38 @@ export function WelcomeModal() {
       ref={dialogRef}
       aria-labelledby='welcome-modal-title'
       aria-describedby='welcome-modal-desc'
-      className='welcome-modal fixed inset-0 z-[100] m-0 h-[100dvh] max-h-[100dvh] w-full max-w-none border-0 bg-transparent p-0 backdrop:bg-[color:var(--color-ink)]/45 open:flex open:items-end sm:open:items-center open:justify-center open:p-4 overscroll-contain'
+      className='welcome-modal fixed inset-0 z-[100] m-0 h-[100dvh] max-h-[100dvh] w-full max-w-none border-0 bg-transparent p-0 backdrop:bg-[color:var(--color-ink)]/45 open:flex open:items-end sm:open:items-center open:justify-center open:p-4 overscroll-contain outline-none focus:outline-none focus-visible:outline-none'
       onClose={dismiss}
       onClick={(e) => {
         if (e.target === dialogRef.current) dismiss();
       }}>
       <div
+        ref={panelRef}
+        tabIndex={-1}
         role='document'
-        className='relative w-full max-w-md max-h-[min(92dvh,720px)] overflow-y-auto overscroll-y-contain rounded-t-[var(--radius-xl)] sm:rounded-[var(--radius-xl)] bg-[color:var(--color-paper-2)] shadow-[var(--shadow-elevated)] border border-[color:var(--color-rule-strong)] animate-fade-in touch-manipulation'
+        className='relative w-full max-w-lg max-h-[min(92dvh,720px)] overflow-y-auto overscroll-y-contain rounded-t-[var(--radius-xl)] sm:rounded-[var(--radius-xl)] bg-[color:var(--color-paper-2)] shadow-[var(--shadow-elevated)] border border-[color:var(--color-rule-strong)] animate-fade-in touch-manipulation outline-none focus:outline-none focus-visible:outline-none'
         onClick={(e) => e.stopPropagation()}>
         <button
           type='button'
           onClick={dismiss}
           aria-label='Close welcome dialog'
-          className='absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center text-[color:var(--color-ink-3)] hover:text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper-3)] transition-[background-color,color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] focus-visible:ring-offset-2 touch-manipulation'>
+          className='absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center text-white/90 bg-black/45 hover:bg-black/60 hover:text-white transition-[background-color,color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/40 touch-manipulation'>
           <X className='w-4 h-4' aria-hidden='true' />
         </button>
 
-        <div className='px-5 pt-8 pb-5 sm:px-6 sm:pt-10 sm:pb-6 text-center border-b border-[color:var(--color-border-subtle)]'>
-          <div className='flex justify-center mb-4'>
-            <AgentAvatar size='xl' className='mb-0' />
-          </div>
+        <figure className='relative w-full aspect-[2/3] max-h-[min(42dvh,280px)] sm:max-h-[320px] shrink-0 overflow-hidden rounded-t-[var(--radius-xl)]'>
+          <Image
+            src={WELCOME_ILLUSTRATION_SRC}
+            alt={WELCOME_ILLUSTRATION_ALT}
+            width={1024}
+            height={1536}
+            priority
+            sizes='(max-width: 640px) 100vw, 512px'
+            className='h-full w-full object-contain object-center'
+          />
+        </figure>
+
+        <div className='px-5 pt-6 pb-5 sm:px-6 sm:pt-7 sm:pb-6 text-center border-b border-[color:var(--color-border-subtle)]'>
           <p className='text-[11px] font-semibold uppercase tracking-widest text-[color:var(--color-primary)] mb-2 inline-flex items-center gap-1.5'>
             <Sparkles className='w-3.5 h-3.5' aria-hidden='true' />
             New here?

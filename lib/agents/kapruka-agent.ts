@@ -4,6 +4,7 @@ import {
   AGENT_TEMPERATURE,
   MAX_AGENT_TURNS,
 } from '@/constants/agent';
+import { buildDateTimeContextMessage } from '@/lib/agent/datetime-context';
 import { SYSTEM_INSTRUCTION } from '@/lib/agent/system-instruction';
 import { getKaprukaModel } from '@/lib/agents/kapruka-model';
 import type { CartItem } from '@/lib/cart-storage';
@@ -29,7 +30,11 @@ export function createKaprukaAgent(
     }),
     prepareCall: ({ options, ...settings }) => ({
       ...settings,
-      instructions: `${SYSTEM_INSTRUCTION}\n\n${buildCartContextMessage(options.cart)}`,
+      instructions: [
+        SYSTEM_INSTRUCTION,
+        buildDateTimeContextMessage(),
+        buildCartContextMessage(options.cart),
+      ].join('\n\n'),
     }),
   });
 }
