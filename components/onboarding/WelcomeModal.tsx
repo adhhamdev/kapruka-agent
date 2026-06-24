@@ -3,13 +3,36 @@
 import { KaprukaText } from '@/components/brand/KaprukaLink';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import { useWelcomeModal } from '@/hooks/use-welcome-modal';
-import { Check, Sparkles, X } from 'lucide-react';
+import type { WelcomeCapabilityIcon } from '@/lib/i18n/messages/en';
+import {
+  Heart,
+  Mic,
+  Package,
+  Search,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Truck,
+  X,
+  Check,
+  type LucideIcon,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 
 interface WelcomeModalProps {
   localeReady: boolean;
 }
+
+const CAPABILITY_ICONS: Record<WelcomeCapabilityIcon, LucideIcon> = {
+  mic: Mic,
+  search: Search,
+  truck: Truck,
+  'shopping-bag': ShoppingBag,
+  heart: Heart,
+  'shield-check': ShieldCheck,
+  package: Package,
+};
 
 export function WelcomeModal({ localeReady }: WelcomeModalProps) {
   const { messages } = useLocale();
@@ -91,25 +114,41 @@ export function WelcomeModal({ localeReady }: WelcomeModalProps) {
               {messages.welcome.whatAgentDoes}
             </h3>
             <ul className='space-y-3'>
-              {messages.welcome.capabilities.map((item) => (
-                <li
-                  key={item.title}
-                  className='flex gap-3 text-left rounded-[var(--radius-md)] border border-[color:var(--color-rule)] bg-[color:var(--color-paper)] px-3.5 py-3'>
-                  <span
-                    className='mt-0.5 shrink-0 w-5 h-5 rounded-full bg-[color:var(--color-primary-light)] text-[color:var(--color-primary)] flex items-center justify-center'
-                    aria-hidden='true'>
-                    <Check className='w-3 h-3' strokeWidth={2.5} />
-                  </span>
-                  <div className='min-w-0'>
-                    <p className='text-[14px] font-medium text-[color:var(--color-ink)] leading-snug'>
-                      {item.title}
-                    </p>
-                    <p className='text-[13px] text-[color:var(--color-ink-2)] leading-relaxed mt-0.5'>
-                      <KaprukaText>{item.description}</KaprukaText>
-                    </p>
-                  </div>
-                </li>
-              ))}
+              {messages.welcome.capabilities.map((item, index) => {
+                const Icon = CAPABILITY_ICONS[item.iconName] ?? Mic;
+                const isLiveVoice = item.iconName === 'mic' || index === 0;
+
+                return (
+                  <li
+                    key={item.title}
+                    className={`flex gap-3.5 text-left rounded-[var(--radius-md)] px-3.5 py-3.5 ${
+                      isLiveVoice
+                        ? 'border-2 border-[color:var(--color-primary)]/35 bg-[color:var(--color-primary)]/8 shadow-[0_0_0_1px_color-mix(in_oklch,var(--color-primary)_12%,transparent)]'
+                        : 'border border-[color:var(--color-rule)] bg-[color:var(--color-paper)]'
+                    }`}>
+                    <span
+                      className={`shrink-0 flex items-center justify-center rounded-full ${
+                        isLiveVoice
+                          ? 'w-11 h-11 bg-[color:var(--color-primary)] text-white shadow-md'
+                          : 'w-10 h-10 bg-[color:var(--color-primary-light)] text-[color:var(--color-primary)]'
+                      }`}
+                      aria-hidden='true'>
+                      <Icon
+                        className={isLiveVoice ? 'w-5 h-5' : 'w-[1.125rem] h-[1.125rem]'}
+                        strokeWidth={isLiveVoice ? 2.25 : 2}
+                      />
+                    </span>
+                    <div className='min-w-0'>
+                      <p className='text-[14px] font-semibold text-[color:var(--color-ink)] leading-snug'>
+                        {item.title}
+                      </p>
+                      <p className='text-[13px] text-[color:var(--color-ink-2)] leading-relaxed mt-0.5'>
+                        <KaprukaText>{item.description}</KaprukaText>
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </section>
 

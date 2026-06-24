@@ -13,6 +13,10 @@ export type KaprukaMessageMetadata = {
   openBasket?: boolean;
   /** Server signal to switch app locale after this assistant turn. */
   localeChange?: AppLocale;
+  /** Whether the message came from Gemini Live voice or text chat. */
+  source?: 'text' | 'live';
+  /** Live session id when source is live. */
+  liveSessionId?: string;
 };
 
 type KaprukaUITools = InferUITools<KaprukaTools>;

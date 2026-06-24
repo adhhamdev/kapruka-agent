@@ -42,6 +42,7 @@ export default function Home() {
     appendMessage,
     startNewChat,
     loadMoreCarouselProducts,
+    live,
   } = useChat({
     cart,
     setCart,
@@ -147,6 +148,12 @@ export default function Home() {
           onViewProductDetail={handleViewProductDetail}
           onLoadMoreCarousel={loadMoreCarouselProducts}
           onOpenBasket={() => setCartOpen(true)}
+          liveState={live.liveState}
+          isLiveActive={live.isLiveActive}
+          liveError={live.liveError}
+          onStartLive={() => void live.startLive()}
+          onStopLive={() => void live.stopLive()}
+          onClearLiveError={live.clearLiveError}
         />
 
         <CartPanel

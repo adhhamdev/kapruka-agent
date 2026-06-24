@@ -172,9 +172,15 @@ export function MessageList({
                 message={msg}
                 cart={cart}
                 isStreaming={
-                  isPending &&
                   index === visibleMessages.length - 1 &&
-                  msg.role === 'assistant'
+                  msg.role === 'assistant' &&
+                  (isPending ||
+                    msg.parts.some(
+                      (part) =>
+                        part.type === 'text' &&
+                        'state' in part &&
+                        part.state === 'streaming',
+                    ))
                 }
                 onAddToCart={onAddToCart}
                 onBrowseCategory={onBrowseCategory}

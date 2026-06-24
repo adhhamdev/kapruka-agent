@@ -4,11 +4,11 @@ export const si: Messages = {
   brand: {
     appName: 'Kapruka Agent',
     agentGreeting:
-      'හායි, මම Kapruka Agent — Kapruka හි සම්පූර්ණ කැටලොගය browse කරන්න, බෙදාහැරීම පරීක්ෂා කරන්න, ආරක්ෂිතව checkout කරන්න, සහ අවශ්‍ය නම් ඔබේ විස්තර save කර future visits වලදී වේගවත් උදව් දෙන්න.',
+      'හායි, මම Kapruka Agent — mic tap කර live කතා කරන්න, නැත්නම් type කර Kapruka catalog shop කරන්න. Products පෙන්වන්න, delivery check කරන්න, checkout secure කරන්න; ඕන නම් details save කර future visits වේගවත් කරන්න.',
     ogImageAlt:
-      'Kapruka Agent — Kapruka සඳහා AI shopping assistant: search, basket, checkout, saved delivery',
+      'Kapruka Agent — live voice, search, basket, checkout, saved delivery සහිත AI shopping assistant',
     appDescription:
-      'Kapruka සඳහා ඔබේ AI shopping assistant. සම්පූර්ණ කැටලොගය explore කරන්න, delivery පරීක්ෂා කරන්න, basket manage කරන්න, checkout එක chat එකෙන්ම — optional saved delivery, gift recipients, preferences සමඟ.',
+      'Kapruka Agent සමඟ live voice shopping — real-time voice, full catalog search, chat එකේ product cards, delivery check, basket, hands-free checkout. Optional saved addresses සහ preferences.',
   },
   language: {
     modalEyebrow: 'භාෂාව',
@@ -17,7 +17,8 @@ export const si: Messages = {
       'Kapruka Agent සහ app එක ඔබ සමඟ කතා කරන භාෂාව තෝරන්න. Saved info වලින් anytime වෙනස් කරන්න පුළුවන්.',
     continue: 'Continue',
     preferenceLabel: 'App භාෂාව',
-    preferenceDescription: 'App interface එක සහ Agent default replies වෙනස් කරයි.',
+    preferenceDescription:
+      'App interface එක සහ Agent default replies වෙනස් කරයි.',
     savedSectionTitle: 'භාෂාව',
     savedSectionDescription: 'Agent reply කරන භාෂාව.',
   },
@@ -33,6 +34,9 @@ export const si: Messages = {
   },
   chat: {
     welcome: 'සාදරයෙන් පිළිගනිමු',
+    liveVoiceTitle: 'Mic tap කර කතා කරන්න',
+    liveVoiceHint:
+      'Type කරන්න ඕන නැහැ. Sinhala, Tamil, English, Singlish — ඔබේ භාෂාවෙන් කතා කරන්න. Agent listen කර voice reply දෙයි.',
     suggestions: 'Suggestions',
     widgetFallback: 'ඔබට සුදුසු දේ මෙන්න.',
     addedToBasket: (name) => `**${name}** basket එකට add කළා.`,
@@ -57,12 +61,21 @@ export const si: Messages = {
     requestingMic: 'Microphone permission අහමින්…',
     voiceUnsupported: 'Voice input browser එකේ support නැහැ',
     voiceUnsupportedBrowser: 'Voice input browser එකේ support නැහැ.',
-    allowMic: 'Voice input සඳහා browser prompt එකේ microphone access allow කරන්න.',
+    allowMic:
+      'Voice input සඳහා browser prompt එකේ microphone access allow කරන්න.',
     listening: 'Listening… අවසන් වුණාම stop tap කරන්න',
     sending: 'Message යවමින්…',
     send: 'Message යවන්න',
     attachmentHint: (count, max) =>
       `${count}/${max} files · images හෝ PDF/Word/txt · 5 MB each`,
+    talkButtonLabel: 'Talk',
+    talkButtonLabelActive: 'Stop',
+    startLiveVoice: 'Live voice conversation start කරන්න',
+    stopLiveVoice: 'Live voice conversation stop කරන්න',
+    liveConnecting: 'Live voice connect වෙමින්…',
+    liveConnected: 'Live voice active — natural විදිහට කතා කරන්න',
+    liveReconnecting: 'Live voice reconnect වෙමින්…',
+    livePlaceholder: 'Type කරන්න හෝ speak කරන්න…',
   },
   cart: {
     title: 'Basket',
@@ -116,7 +129,7 @@ export const si: Messages = {
     newHere: 'අලුත්ද?',
     title: 'Kapruka Agent වෙත සාදරයෙන් පිළිගනිමු',
     intro:
-      'Kapruka සඳහා ඔබේ AI shopping assistant — catalog explore, products compare, delivery arrange, checkout chat එකෙන්ම. Delivery details සහ gift recipients optional save කර future orders වේගවත් කරන්න — Saved info වලින් review/remove කරන්න පුළුවන්.',
+      'Kapruka සඳහා AI shopping assistant — Agent live කතා කරන්න හෝ chat type කරන්න. Full catalog explore, products compare, delivery arrange, checkout chat එකෙන්ම. Delivery details සහ gift recipients optional save — Saved info වලින් review/remove.',
     whatAgentDoes: 'Kapruka Agent ඔබට කරන දේ',
     whatYouCan: 'ඔබට කරන්න පුළුවන් දේ',
     memoryNote:
@@ -124,53 +137,100 @@ export const si: Messages = {
     getStarted: 'Get Started',
     close: 'Welcome dialog close කරන්න',
     illustrationAlt:
-      'Kapruka Agent mobile: AI chat, gifts, products, basket, checkout, saved info.',
+      'Kapruka Agent mobile: live voice AI chat, gifts, products, basket, checkout, saved info.',
     capabilities: [
       {
+        title: 'Agent live කතා කරන්න',
+        iconName: 'mic',
+        description:
+          'Mic tap කර කතා කරන්න — Agent voice reply දෙයි. Type කරන්න ඕන නැහැ. කතා කරන අතරේ chat එකේ products පෙන්වයි.',
+      },
+      {
         title: 'Explore & search',
+        iconName: 'search',
         description:
           'Categories browse කර Kapruka catalog natural language එකෙන් search කරන්න — groceries, fashion, electronics, pharmacy, තව.',
       },
       {
         title: 'Check delivery',
+        iconName: 'truck',
         description:
           'Items city/date එකට deliver වෙනවද, cost සහ perishable notes බලන්න.',
       },
       {
         title: 'Manage basket',
-        description:
-          'Items add, update, review — basket device එකේ save.',
+        iconName: 'shopping-bag',
+        description: 'Items add, update, review — basket device එකේ save.',
       },
       {
         title: 'Remembers you',
+        iconName: 'heart',
         description:
           'Addresses, recipients, language, preferences save — return visit වලදී Agent recall කරයි.',
       },
       {
         title: 'Checkout securely',
+        iconName: 'shield-check',
         description: 'Pay කර ready වුණාම real Kapruka checkout link.',
       },
       {
         title: 'Track orders',
+        iconName: 'package',
         description: 'Order status සහ delivery history එක තැන.',
       },
     ],
     youCan: [
+      'Mic tap කර live voice conversation — Agent real time voice reply දෙයි',
       'English, Sinhala, Tamil, Singlish, Tanglish එකෙන් අහන්න',
-      'Voice input හෝ images chat එකට attach කරන්න',
+      'Live voice session එකේදීත් type කර images attach කරන්න පුළුවන්',
       'Suggestion tap කර shopping instantly start කරන්න',
       'Header එකෙන් Basket open කරන්න',
       'Saved info වලින් language සහ saved details බලන්න/වෙනස් කරන්න',
     ],
   },
   quickStarters: [
-    { label: 'Chocolates', iconName: 'sparkles', prompt: "Kapruka Chocolates category එකේ chocolate gifts search කරන්න." },
-    { label: 'Categories Browse', iconName: 'sparkles', prompt: 'Kapruka shopping categories පෙන්වන්න.' },
-    { label: 'Groceries', iconName: 'sparkles', prompt: 'Home delivery grocery essentials search කරන්න.' },
-    { label: 'New Arrivals', iconName: 'sparkles', prompt: 'Kapruka latest new arrivals පෙන්වන්න.' },
-    { label: 'Gift Vouchers', iconName: 'sparkles', prompt: 'Kapruka gift vouchers සහ certificates පෙන්වන්න.' },
-    { label: 'Track Order', iconName: 'truck', prompt: 'Kapruka order status track කරන්න ඕන.' },
-    { label: 'Saved Details', iconName: 'sparkles', prompt: 'Remember කරලා තියෙන delivery addresses, recipients, preferences මොනවද?' },
+    {
+      label: 'Talk live',
+      iconName: 'mic',
+      prompt:
+        'Hi Agent — gift ideas live කතා කරමු. Rs. 5000 යට popular options පෙන්වන්න.',
+    },
+    {
+      label: 'Chocolates',
+      iconName: 'sparkles',
+      prompt: 'Kapruka Chocolates category එකේ chocolate gifts search කරන්න.',
+    },
+    {
+      label: 'Categories Browse',
+      iconName: 'sparkles',
+      prompt: 'Kapruka shopping categories පෙන්වන්න.',
+    },
+    {
+      label: 'Groceries',
+      iconName: 'sparkles',
+      prompt: 'Home delivery grocery essentials search කරන්න.',
+    },
+    {
+      label: 'New Arrivals',
+      iconName: 'sparkles',
+      prompt: 'Kapruka latest new arrivals පෙන්වන්න.',
+    },
+    {
+      label: 'Gift Vouchers',
+      iconName: 'sparkles',
+      prompt: 'Kapruka gift vouchers සහ certificates පෙන්වන්න.',
+    },
+    {
+      label: 'Track Order',
+      iconName: 'truck',
+      prompt: 'Kapruka order status track කරන්න ඕන.',
+    },
+    {
+      label: 'Saved Details',
+      iconName: 'sparkles',
+      prompt:
+        'Remember කරලා තියෙන delivery addresses, recipients, preferences මොනවද?',
+    },
   ],
   rememberDelivery: {
     prompt: 'Delivery address එක next time සඳහා save කරන්නද?',
@@ -184,13 +244,11 @@ export const si: Messages = {
   },
   skipLink: 'Chat වෙත skip කරන්න',
   errors: {
-    network:
-      'Agent reach කරන්න බැරි වුණා. Connection check කර නැවත try කරන්න.',
+    network: 'Agent reach කරන්න බැරි වුණා. Connection check කර නැවත try කරන්න.',
     timeout: 'Agent usualට වඩා slow. Moment එකක් wait කර try කරන්න.',
     serviceUnavailable:
       'Shopping assistant temporarily unavailable. Minutes කිහිපයකින් try කරන්න.',
-    invalidRequest:
-      'Request එක issue එකක්. Message එක නැවත send කරන්න.',
+    invalidRequest: 'Request එක issue එකක්. Message එක නැවත send කරන්න.',
     rateLimited: 'Messages fast send කරනවා. Moment එකක් wait කරන්න.',
     generic: 'Something wrong. Try again හෝ page refresh කරන්න.',
     chatEmpty: 'Send කිරීමට message type කරන්න.',

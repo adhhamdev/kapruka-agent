@@ -1,7 +1,7 @@
 {
   "name": "Kapruka Agent",
   "short_name": "Kapruka Agent",
-  "description": "AI shopping assistant for Kapruka — search, deliver, checkout, and remember your details for next time.",
+  "description": "Live voice + chat shopping for Kapruka — search, deliver, checkout, and remember your details for next time.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

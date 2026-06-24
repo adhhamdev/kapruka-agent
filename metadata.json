@@ -1,6 +1,6 @@
 {
   "name": "Agent - Kapruka Shopping Agent",
-  "description": "Kapruka's general AI shopping assistant. Explore the full live catalog, delivery quotes, guest checkout, order tracking, voice input, and chat history — in English, Sinhala, Tamil, and Tanglish.",
+  "description": "Kapruka's AI shopping assistant with live voice. Talk to Agent in real time — search the full catalog, see product cards in chat, check delivery, manage your basket, guest checkout, and order tracking. English, Sinhala, Tamil, and Tanglish.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"],
   "technologies": [
@@ -8,7 +8,7 @@
     "React 19",
     "TypeScript",
     "Tailwind CSS 4",
-    "Google Gemini",
+    "Google Gemini Live API",
     "Kapruka MCP",
     "Streamdown",
     "Motion"

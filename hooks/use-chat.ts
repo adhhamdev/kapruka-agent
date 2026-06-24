@@ -15,6 +15,7 @@ import {
   saveChatHistory,
 } from '@/lib/chat-history-storage';
 import type { CartItem } from '@/lib/cart-storage';
+import { useGeminiLive } from '@/hooks/use-gemini-live';
 import { ERROR_MESSAGES } from '@/lib/errors';
 import { createMessageId } from '@/lib/message-ids';
 import type { KaprukaProduct } from '@/lib/products';
@@ -122,6 +123,16 @@ export function useChat({
 
   const isPending = status === 'submitted' || status === 'streaming';
 
+  const live = useGeminiLive({
+    cart,
+    setCart,
+    messages,
+    setMessages,
+    onOpenBasket,
+    onLocaleChange,
+    getPreferredLanguage,
+  });
+
   useLayoutEffect(() => {
     const stored = loadChatHistory();
     if (stored.length > 0) {
@@ -163,6 +174,12 @@ export function useChat({
     (text: string, attachments: ChatAttachment[] = []) => {
       if ((!text.trim() && attachments.length === 0) || isPending) return;
 
+      if (live.isLiveActive && text.trim() && attachments.length === 0) {
+        live.sendLiveText(text);
+        setInputText('');
+        return;
+      }
+
       const displayText =
         text.trim() ||
         (attachments.length === 1
@@ -181,7 +198,7 @@ export function useChat({
       });
       setInputText('');
     },
-    [isPending, sendMessage],
+    [isPending, live, sendMessage],
   );
 
   const sendMessageText = useCallback(
@@ -199,11 +216,12 @@ export function useChat({
   );
 
   const startNewChat = useCallback(() => {
+    void live.stopLive();
     skipPersistRef.current = true;
     clearChatHistoryStorage();
     setMessages([]);
     setInputText('');
-  }, [setMessages]);
+  }, [setMessages, live]);
 
   const loadMoreCarouselProducts = useCallback(
     async (messageId: string, widgetIndex: number) => {
@@ -305,5 +323,6 @@ export function useChat({
     appendMessage,
     startNewChat,
     loadMoreCarouselProducts,
+    live,
   };
 }

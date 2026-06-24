@@ -4,9 +4,7 @@ import {
   AGENT_TEMPERATURE,
   MAX_AGENT_TURNS,
 } from '@/constants/agent';
-import { buildDateTimeContextMessage } from '@/lib/agent/datetime-context';
-import { buildLanguageInstruction } from '@/lib/agent/language-instruction';
-import { MEMORY_INSTRUCTION } from '@/lib/agent/memory-instruction';
+import { buildAgentInstructions } from '@/lib/agent/build-agent-instructions';
 import { SYSTEM_INSTRUCTION } from '@/lib/agent/system-instruction';
 import { getKaprukaModel } from '@/lib/agents/kapruka-model';
 import type { CartItem } from '@/lib/cart-storage';
@@ -15,12 +13,10 @@ import {
   isSupermemoryEnabled,
 } from '@/lib/supermemory/tools';
 import {
-  buildCartContextMessage,
   cartItemSchema,
   createKaprukaTools,
   type AgentUiFlags,
 } from '@/lib/tools/kapruka-tools';
-import { isAppLocale } from '@/types/locale';
 
 export function createKaprukaAgent(
   cartRef: { current: CartItem[] },
@@ -51,26 +47,13 @@ export function createKaprukaAgent(
           ? createSupermemoryTools(scopedMemoryUserId)
           : {};
 
-      const instructionBlocks = [
-        SYSTEM_INSTRUCTION,
-        buildDateTimeContextMessage(),
-        buildCartContextMessage(options.cart),
-      ];
-
-      const preferredLocale = isAppLocale(options.preferredLanguage)
-        ? options.preferredLanguage
-        : undefined;
-      if (preferredLocale) {
-        instructionBlocks.push(buildLanguageInstruction(preferredLocale));
-      }
-
-      if (scopedMemoryUserId && isSupermemoryEnabled()) {
-        instructionBlocks.push(MEMORY_INSTRUCTION);
-      }
-
       return {
         ...settings,
-        instructions: instructionBlocks.join('\n\n'),
+        instructions: buildAgentInstructions({
+          cart: options.cart,
+          preferredLanguage: options.preferredLanguage,
+          memoryUserId: scopedMemoryUserId,
+        }),
         tools: { ...kaprukaTools, ...scopedMemoryTools },
       };
     },

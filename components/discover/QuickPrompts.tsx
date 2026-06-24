@@ -1,6 +1,6 @@
 'use client';
 
-import { Sparkles, Truck } from 'lucide-react';
+import { Sparkles, Truck, Mic } from 'lucide-react';
 import { useLocale } from '@/components/providers/LocaleProvider';
 
 interface QuickPromptsProps {
@@ -12,6 +12,7 @@ interface QuickPromptsProps {
 const ICONS = {
   sparkles: Sparkles,
   truck: Truck,
+  mic: Mic,
 } as const;
 
 export function QuickPrompts({

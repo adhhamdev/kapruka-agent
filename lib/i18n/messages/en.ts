@@ -1,12 +1,22 @@
 export interface QuickStarterMessages {
   label: string;
-  iconName: 'sparkles' | 'truck';
+  iconName: 'sparkles' | 'truck' | 'mic';
   prompt: string;
 }
+
+export type WelcomeCapabilityIcon =
+  | 'mic'
+  | 'search'
+  | 'truck'
+  | 'shopping-bag'
+  | 'heart'
+  | 'shield-check'
+  | 'package';
 
 export interface WelcomeFeatureMessages {
   title: string;
   description: string;
+  iconName: WelcomeCapabilityIcon;
 }
 
 export interface Messages {
@@ -38,6 +48,8 @@ export interface Messages {
   };
   chat: {
     welcome: string;
+    liveVoiceTitle: string;
+    liveVoiceHint: string;
     suggestions: string;
     widgetFallback: string;
     addedToBasket: (name: string) => string;
@@ -64,6 +76,14 @@ export interface Messages {
     sending: string;
     send: string;
     attachmentHint: (count: number, max: number) => string;
+    talkButtonLabel: string;
+    talkButtonLabelActive: string;
+    startLiveVoice: string;
+    stopLiveVoice: string;
+    liveConnecting: string;
+    liveConnected: string;
+    liveReconnecting: string;
+    livePlaceholder: string;
   };
   cart: {
     title: string;
@@ -147,11 +167,11 @@ export const en: Messages = {
   brand: {
     appName: 'Kapruka Agent',
     agentGreeting:
-      "Hi, I'm Kapruka Agent — browse Kapruka's full catalog, check delivery, checkout securely, and optionally save your details so I can help faster next time.",
+      "Hi, I'm Kapruka Agent — tap the mic to talk live, or type to shop Kapruka's full catalog. I'll show products, check delivery, and checkout securely; save your details for next time if you'd like.",
     ogImageAlt:
-      'Kapruka Agent — AI shopping assistant for Kapruka with search, basket, checkout, and saved delivery details',
+      'Kapruka Agent — AI shopping assistant with live voice, search, basket, checkout, and saved delivery details',
     appDescription:
-      'Your AI shopping assistant for Kapruka. Explore the full catalog, check delivery, manage your basket, and checkout in one chat — with optional saved delivery details, gift recipients, and preferences for faster return visits.',
+      'Talk live with Kapruka Agent — real-time voice shopping for Sri Lanka. Search the full catalog, see product cards in chat, check delivery, manage your basket, and checkout hands-free. Optional saved addresses and preferences for faster return visits.',
   },
   language: {
     modalEyebrow: 'Language',
@@ -160,7 +180,8 @@ export const en: Messages = {
       'Pick how you want Kapruka Agent and the app to speak with you. You can change this anytime from Saved info.',
     continue: 'Continue',
     preferenceLabel: 'App language',
-    preferenceDescription: 'Changes the app interface and Agent’s default replies.',
+    preferenceDescription:
+      'Changes the app interface and Agent’s default replies.',
     savedSectionTitle: 'Language',
     savedSectionDescription: 'How you prefer Agent to reply.',
   },
@@ -176,6 +197,9 @@ export const en: Messages = {
   },
   chat: {
     welcome: 'Welcome',
+    liveVoiceTitle: 'Tap the mic to talk',
+    liveVoiceHint:
+      'No typing needed. Speak in English, Sinhala, Tamil, or your own mix — Agent listens and talks back.',
     suggestions: 'Suggestions',
     widgetFallback: 'Here is what I found for you.',
     addedToBasket: (name) => `Added **${name}** to your basket.`,
@@ -200,12 +224,21 @@ export const en: Messages = {
     requestingMic: 'Requesting microphone permission…',
     voiceUnsupported: 'Voice input not supported in this browser',
     voiceUnsupportedBrowser: 'Voice input is not supported in this browser.',
-    allowMic: 'Allow microphone access in the browser prompt to use voice input.',
+    allowMic:
+      'Allow microphone access in the browser prompt to use voice input.',
     listening: 'Listening… tap stop when finished',
     sending: 'Sending message…',
     send: 'Send message',
     attachmentHint: (count, max) =>
       `${count}/${max} files · Up to 5 files · images or PDF/Word/txt · 5 MB each`,
+    talkButtonLabel: 'Talk',
+    talkButtonLabelActive: 'Stop',
+    startLiveVoice: 'Start live voice conversation',
+    stopLiveVoice: 'End live voice conversation',
+    liveConnecting: 'Connecting live voice…',
+    liveConnected: 'Live voice active — speak naturally',
+    liveReconnecting: 'Reconnecting live voice…',
+    livePlaceholder: 'Type or speak to Agent…',
   },
   cart: {
     title: 'Basket',
@@ -238,7 +271,8 @@ export const en: Messages = {
     peopleTitle: 'People you shop for',
     peopleDescription: 'Gift recipients and people you send items to.',
     addressesTitle: 'Delivery addresses',
-    addressesDescription: 'Names, phones, cities, and addresses used for delivery.',
+    addressesDescription:
+      'Names, phones, cities, and addresses used for delivery.',
     languageTitle: 'Language',
     languageDescription: 'How you prefer Agent to reply.',
     preferencesTitle: 'Shopping preferences',
@@ -259,7 +293,7 @@ export const en: Messages = {
     newHere: 'New here?',
     title: 'Welcome to Kapruka Agent',
     intro:
-      'Your AI shopping assistant for Kapruka — explore the full catalog, compare products, arrange delivery, and checkout without leaving the conversation. Agent can optionally remember delivery details and gift recipients on this device to speed up future orders — you can review or clear them anytime from Saved info.',
+      'Your AI shopping assistant for Kapruka — talk live with Agent or type in chat. Explore the full catalog, compare products, arrange delivery, and checkout without leaving the conversation. Agent can optionally remember delivery details and gift recipients on this device to speed up future orders — you can review or clear them anytime from Saved info.',
     whatAgentDoes: 'What Kapruka Agent does for you',
     whatYouCan: 'What you can do',
     memoryNote:
@@ -267,46 +301,66 @@ export const en: Messages = {
     getStarted: 'Get Started',
     close: 'Close welcome dialog',
     illustrationAlt:
-      'Kapruka Agent on mobile: AI chat for gifts, product cards, basket, checkout, delivery, and saved info.',
+      'Kapruka Agent on mobile: live voice AI chat, product cards, basket, checkout, delivery, and saved info.',
     capabilities: [
       {
+        title: 'Talk live with Agent',
+        iconName: 'mic',
+        description:
+          'Tap the mic and speak — Agent replies out loud. No typing needed. Product cards still appear in chat while you talk.',
+      },
+      {
         title: 'Explore & search',
+        iconName: 'search',
         description:
           "Browse categories and search Kapruka's full catalog — groceries, fashion, electronics, pharmacy, and more — in natural language.",
       },
       {
         title: 'Check delivery',
+        iconName: 'truck',
         description:
           'See whether items reach a city on your date, with costs and perishable notes.',
       },
       {
         title: 'Manage your basket',
+        iconName: 'shopping-bag',
         description:
           'Add, update, and review items — your basket stays saved on this device.',
       },
       {
         title: 'Remembers you',
+        iconName: 'heart',
         description:
           'Save delivery addresses, gift recipients, language preference, and shopping tastes — Agent recalls them next time you return.',
       },
       {
         title: 'Checkout securely',
-        description: 'Get a real Kapruka guest checkout link when you are ready to pay.',
+        iconName: 'shield-check',
+        description:
+          'Get a real Kapruka guest checkout link when you are ready to pay.',
       },
       {
         title: 'Track orders',
+        iconName: 'package',
         description: 'Look up order status and delivery history in one place.',
       },
     ],
     youCan: [
+      'Tap the mic for a live voice conversation — Agent talks back in real time',
       'Ask in English, Sinhala, Tamil, Singlish, or Tanglish',
-      'Use voice input or attach images in chat',
+      'Type or attach images anytime — even during a live voice session',
       'Tap a suggestion to start shopping instantly',
       'Open Basket from the header anytime',
       'Open Saved info to see or change language and saved details',
     ],
   },
   quickStarters: [
+    {
+      label: 'Talk live',
+      iconName: 'mic',
+      prompt:
+        'Hi Agent — I want to talk through gift ideas. Show me popular options under Rs. 5000.',
+    },
     {
       label: 'Chocolates',
       iconName: 'sparkles',
@@ -315,7 +369,8 @@ export const en: Messages = {
     {
       label: 'Browse Categories',
       iconName: 'sparkles',
-      prompt: "Show me Kapruka's shopping categories so I can explore what's available.",
+      prompt:
+        "Show me Kapruka's shopping categories so I can explore what's available.",
     },
     {
       label: 'Groceries',
@@ -358,7 +413,8 @@ export const en: Messages = {
   errors: {
     network:
       "We couldn't reach Agent right now. Please check your connection and try again.",
-    timeout: 'Agent is taking longer than usual. Please wait a moment and try again.',
+    timeout:
+      'Agent is taking longer than usual. Please wait a moment and try again.',
     serviceUnavailable:
       'Our shopping assistant is temporarily unavailable. Please try again in a few minutes.',
     invalidRequest:

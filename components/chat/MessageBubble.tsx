@@ -8,6 +8,7 @@ import { WidgetRenderer } from '@/components/widgets/WidgetRenderer';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { isAddedToBasketMessage } from '@/lib/chat/basket-message';
+import { mergeTranscriptChunk } from '@/lib/live/live-message-bridge';
 import {
   DUR_MEDIUM_S,
   EASE_OUT,
@@ -38,11 +39,11 @@ function isWidgetOutput(value: unknown): value is Widget {
   );
 }
 
-function getAssistantText(message: KaprukaAgentUIMessage): string {
+function getMessageText(message: KaprukaAgentUIMessage): string {
   return message.parts
     .filter((part) => part.type === 'text')
     .map((part) => (part.type === 'text' ? part.text : ''))
-    .join('');
+    .reduce((acc, text) => mergeTranscriptChunk(acc, text), '');
 }
 
 function getWidgetParts(message: KaprukaAgentUIMessage) {
@@ -86,7 +87,7 @@ export function MessageBubble({
     (part) => 'state' in part && part.state === 'output-available' && isWidgetOutput(part.output),
   );
 
-  const rawText = getAssistantText(message);
+  const rawText = getMessageText(message);
   const displayText =
     rawText.trim() ||
     (readyWidgets.length > 0 && !isUser ? messages.chat.widgetFallback : '');
