@@ -5,9 +5,10 @@ import { AgentAvatar } from '@/components/chat/AgentAvatar';
 import { MarkdownContent } from '@/components/chat/MarkdownContent';
 import { AnimatedWidget } from '@/components/motion/AnimatedWidget';
 import { WidgetRenderer } from '@/components/widgets/WidgetRenderer';
-import { WIDGET_ONLY_FALLBACK } from '@/constants/languages';
+import { useLocale } from '@/components/providers/LocaleProvider';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { isAddedToBasketMessage } from '@/lib/chat/basket-message';
+import { mergeTranscriptChunk } from '@/lib/live/live-message-bridge';
 import {
   DUR_MEDIUM_S,
   EASE_OUT,
@@ -38,11 +39,11 @@ function isWidgetOutput(value: unknown): value is Widget {
   );
 }
 
-function getAssistantText(message: KaprukaAgentUIMessage): string {
+function getMessageText(message: KaprukaAgentUIMessage): string {
   return message.parts
     .filter((part) => part.type === 'text')
     .map((part) => (part.type === 'text' ? part.text : ''))
-    .join('');
+    .reduce((acc, text) => mergeTranscriptChunk(acc, text), '');
 }
 
 function getWidgetParts(message: KaprukaAgentUIMessage) {
@@ -77,6 +78,7 @@ export function MessageBubble({
   onOpenBasket,
 }: MessageBubbleProps) {
   const reducedMotion = useReducedMotion();
+  const { messages } = useLocale();
   const isUser = message.role === 'user';
   const isError = Boolean(message.metadata?.isError);
   const fileParts = message.parts.filter((part) => part.type === 'file');
@@ -85,10 +87,10 @@ export function MessageBubble({
     (part) => 'state' in part && part.state === 'output-available' && isWidgetOutput(part.output),
   );
 
-  const rawText = getAssistantText(message);
+  const rawText = getMessageText(message);
   const displayText =
     rawText.trim() ||
-    (readyWidgets.length > 0 && !isUser ? WIDGET_ONLY_FALLBACK : '');
+    (readyWidgets.length > 0 && !isUser ? messages.chat.widgetFallback : '');
 
   const hasAttachments = fileParts.length > 0;
   const hasText = Boolean(displayText.trim());

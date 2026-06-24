@@ -1,12 +1,14 @@
 'use client';
 
 import { AttachmentPreview } from '@/components/chat/AttachmentPreview';
+import { LiveVoiceBar } from '@/components/chat/LiveVoiceBar';
+import { useLocale } from '@/components/providers/LocaleProvider';
 import {
   ACCEPTED_ATTACHMENT_TYPES,
-  ATTACHMENT_HINT,
   MAX_ATTACHMENTS,
 } from '@/constants/languages';
 import { useAttachments } from '@/hooks/use-attachments';
+import type { LiveConnectionState } from '@/hooks/use-gemini-live';
 import type { VoiceState } from '@/hooks/use-speech-recognition';
 import { useSpeechRecognition } from '@/hooks/use-speech-recognition';
 import type { ChatAttachment } from '@/types/attachments';
@@ -20,6 +22,12 @@ interface ChatComposerProps {
   isPending: boolean;
   disabled?: boolean;
   speechLanguageCode: string;
+  liveState?: LiveConnectionState;
+  isLiveActive?: boolean;
+  liveError?: string | null;
+  onStartLive?: () => void;
+  onStopLive?: () => void;
+  onClearLiveError?: () => void;
 }
 
 const iconButtonClass =
@@ -28,23 +36,6 @@ const iconButtonClass =
 const composerControlClass = `${iconButtonClass} w-11 h-11 min-w-11 min-h-11 shrink-0`;
 const composerIconClass = 'w-5 h-5';
 
-function voiceAriaLabel(
-  state: VoiceState,
-  isRequestingPermission: boolean,
-): string {
-  if (isRequestingPermission) return 'Requesting microphone permission…';
-  switch (state) {
-    case 'listening':
-      return 'Stop voice input';
-    case 'processing':
-      return 'Processing voice input…';
-    case 'unsupported':
-      return 'Voice input not supported in this browser';
-    default:
-      return 'Start voice input';
-  }
-}
-
 export function ChatComposer({
   value,
   onChange,
@@ -52,7 +43,14 @@ export function ChatComposer({
   isPending,
   disabled = false,
   speechLanguageCode,
+  liveState = 'idle',
+  isLiveActive = false,
+  liveError = null,
+  onStartLive,
+  onStopLive,
+  onClearLiveError,
 }: ChatComposerProps) {
+  const { messages } = useLocale();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -67,10 +65,10 @@ export function ChatComposer({
     voiceState,
     voiceError,
     clearVoiceError,
-    isListening,
+    isListening: isDictating,
     isProcessing,
     isRequestingPermission,
-    isSupported,
+    isSupported: isDictationSupported,
     startListening,
     stopListening,
   } = useSpeechRecognition({
@@ -80,16 +78,60 @@ export function ChatComposer({
     },
   });
 
+  const isLiveConnecting =
+    liveState === 'connecting' || liveState === 'reconnecting';
+  const useLiveVoice = Boolean(onStartLive && onStopLive);
+  const isMicActive = isLiveActive || isDictating;
+
+  const hasComposerContent = value.trim().length > 0 || attachments.length > 0;
+
+  const showRightActionLoader =
+    isProcessing || isRequestingPermission || isLiveConnecting;
+
+  const showSendButton =
+    !showRightActionLoader && !isDictating && hasComposerContent;
+
+  const showStopVoice =
+    !showRightActionLoader &&
+    (isDictating || (isLiveActive && !hasComposerContent));
+
+  const showMicButton =
+    !showRightActionLoader &&
+    !showSendButton &&
+    !showStopVoice &&
+    (useLiveVoice || isDictationSupported);
+
   const canSend =
     !disabled &&
     !isPending &&
-    !isListening &&
+    !isDictating &&
+    !isLiveConnecting &&
     (value.trim().length > 0 || attachments.length > 0);
 
   const atAttachmentLimit = attachments.length >= MAX_ATTACHMENTS;
 
+  const voiceAriaLabel = (state: VoiceState, requestingPermission: boolean) => {
+    if (isLiveActive) return messages.composer.stopLiveVoice;
+    if (requestingPermission) return messages.composer.requestingMic;
+    if (useLiveVoice) return messages.composer.startLiveVoice;
+    switch (state) {
+      case 'listening':
+        return messages.composer.stopVoice;
+      case 'processing':
+        return messages.composer.processingVoice;
+      case 'unsupported':
+        return messages.composer.voiceUnsupported;
+      default:
+        return messages.composer.startVoice;
+    }
+  };
+
   const inputDisabled =
-    disabled || isPending || isListening || isRequestingPermission;
+    disabled ||
+    isPending ||
+    isDictating ||
+    isRequestingPermission ||
+    isLiveConnecting;
 
   useEffect(() => {
     if (inputDisabled) return;
@@ -107,9 +149,25 @@ export function ChatComposer({
   };
 
   const handleVoiceClick = () => {
-    if (!isSupported || disabled || isPending || isRequestingPermission) return;
+    if (disabled || isPending || isRequestingPermission || isLiveConnecting) {
+      return;
+    }
+
     clearVoiceError();
-    if (isListening) {
+    onClearLiveError?.();
+
+    if (isLiveActive) {
+      void onStopLive?.();
+      return;
+    }
+
+    if (useLiveVoice) {
+      void onStartLive?.();
+      return;
+    }
+
+    if (!isDictationSupported) return;
+    if (isDictating) {
       stopListening();
     } else {
       void startListening();
@@ -124,35 +182,46 @@ export function ChatComposer({
           onRemove={removeAttachment}
         />
 
-        {(attachmentError || voiceError || voiceState === 'unsupported') && (
+        <LiveVoiceBar
+          liveState={liveState}
+          liveError={liveError}
+          onClearError={onClearLiveError}
+        />
+
+        {(attachmentError ||
+          voiceError ||
+          (!useLiveVoice && voiceState === 'unsupported')) && (
           <p
             className='text-[12px] text-[color:var(--color-error)] px-1'
             role='status'
             aria-live='polite'>
             {attachmentError ??
               voiceError ??
-              (voiceState === 'unsupported'
-                ? 'Voice input is not supported in this browser.'
+              (!useLiveVoice && voiceState === 'unsupported'
+                ? messages.composer.voiceUnsupportedBrowser
                 : null)}
           </p>
         )}
 
         {!attachmentError && attachments.length > 0 && (
           <p className='text-[11px] text-[color:var(--color-ink-3)] px-1'>
-            {attachments.length}/{MAX_ATTACHMENTS} files · {ATTACHMENT_HINT}
+            {messages.composer.attachmentHint(
+              attachments.length,
+              MAX_ATTACHMENTS,
+            )}
           </p>
         )}
 
-        {isRequestingPermission && (
+        {isRequestingPermission && !isLiveActive && (
           <p
             className='text-[12px] text-[color:var(--color-ink-2)] px-1'
             role='status'
             aria-live='polite'>
-            Allow microphone access in the browser prompt to use voice input.
+            {messages.composer.allowMic}
           </p>
         )}
 
-        {isListening && (
+        {isDictating && !isLiveActive && (
           <p
             className='text-[12px] text-[color:var(--color-primary)] px-1 flex items-center gap-2'
             role='status'
@@ -162,7 +231,7 @@ export function ChatComposer({
               <span className='w-1.5 h-1.5 rounded-full bg-[color:var(--color-primary)] animate-typing-2' />
               <span className='w-1.5 h-1.5 rounded-full bg-[color:var(--color-primary)] animate-typing-3' />
             </span>
-            Listening… tap stop when finished
+            {messages.composer.listening}
           </p>
         )}
 
@@ -188,58 +257,30 @@ export function ChatComposer({
           />
 
           <div
-            className={`chat-composer-field flex-1 min-w-0 flex items-center gap-1.5 min-h-[56px] bg-[color:var(--color-paper-2)] rounded-[var(--radius-pill)] pl-1.5 pr-1.5 py-1 shadow-[var(--shadow-elevated)] ${
-              isListening ? 'is-listening' : ''
+            className={`chat-composer-field flex-1 min-w-0 flex items-center gap-1.5 min-h-[52px] bg-[color:var(--color-paper-2)] rounded-[var(--radius-pill)] pl-1.5 pr-1.5 py-1 shadow-[var(--shadow-elevated)] ${
+              isMicActive ? 'is-listening' : ''
             }`}>
-            <div className='flex shrink-0 items-center'>
-              <button
-                type='button'
-                disabled={
-                  disabled || isPending || isListening || atAttachmentLimit
-                }
-                onClick={() => fileInputRef.current?.click()}
-                aria-label={
-                  atAttachmentLimit
-                    ? `Maximum ${MAX_ATTACHMENTS} attachments reached`
-                    : 'Attach image or document'
-                }
-                className={`${composerControlClass} text-[color:var(--color-ink-2)] hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-paper-3)]`}>
-                <Paperclip className={composerIconClass} aria-hidden='true' />
-              </button>
-
-              <button
-                type='button'
-                disabled={
-                  disabled ||
-                  isPending ||
-                  !isSupported ||
-                  isRequestingPermission
-                }
-                onClick={handleVoiceClick}
-                aria-label={voiceAriaLabel(voiceState, isRequestingPermission)}
-                aria-pressed={isListening}
-                className={`${composerControlClass} ${
-                  isListening
-                    ? 'bg-red-500 text-white hover:bg-red-600 animate-status-pulse'
-                    : isProcessing || isRequestingPermission
-                      ? 'text-[color:var(--color-ink-3)]'
-                      : 'text-[color:var(--color-ink-2)] hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-paper-3)]'
-                }`}>
-                {isProcessing || isRequestingPermission ? (
-                  <Loader2
-                    className={`${composerIconClass} animate-spin`}
-                    aria-hidden='true'
-                  />
-                ) : isListening ? (
-                  <Square className='w-4 h-4 fill-current' aria-hidden='true' />
-                ) : (
-                  <Mic className={composerIconClass} aria-hidden='true' />
-                )}
-              </button>
-            </div>
+            <button
+              type='button'
+              disabled={
+                disabled ||
+                isPending ||
+                isMicActive ||
+                atAttachmentLimit ||
+                isLiveActive
+              }
+              onClick={() => fileInputRef.current?.click()}
+              aria-label={
+                atAttachmentLimit
+                  ? messages.composer.attachLimit
+                  : messages.composer.attach
+              }
+              className={`${composerControlClass} text-[color:var(--color-ink-2)] hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-paper-3)]`}>
+              <Paperclip className={composerIconClass} aria-hidden='true' />
+            </button>
 
             <label htmlFor='chat-message' className='sr-only'>
-              Message to Agent
+              {messages.composer.messageLabel}
             </label>
             <input
               ref={messageInputRef}
@@ -252,28 +293,74 @@ export function ChatComposer({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               disabled={inputDisabled}
-              placeholder={isListening ? 'Listening…' : 'Ask Kapruka Agent…'}
+              placeholder={
+                isDictating
+                  ? messages.composer.listeningPlaceholder
+                  : isLiveActive
+                    ? messages.composer.livePlaceholder
+                    : messages.composer.placeholder
+              }
               className='chat-composer-input flex-1 min-w-0 w-0 basis-0 bg-transparent text-[16px] leading-normal text-[color:var(--color-ink)] min-h-[44px] py-2.5 px-1 placeholder-[color:var(--color-text-tertiary)] placeholder:transition-colors focus:placeholder-[color:var(--color-ink-3)]'
             />
 
-            <button
-              type='submit'
-              disabled={!canSend}
-              aria-label={isPending ? 'Sending message…' : 'Send message'}
-              className={`${composerControlClass} ${
-                canSend
-                  ? 'bg-[color:var(--color-primary)] text-white hover:bg-[color:var(--color-primary-hover)] shadow-sm'
-                  : 'bg-[color:var(--color-paper-3)] text-[color:var(--color-ink-3)]'
-              } active:scale-[0.96] disabled:pointer-events-none`}>
-              {isPending ? (
+            {showRightActionLoader ? (
+              <span
+                className={`${composerControlClass} text-[color:var(--color-ink-3)]`}
+                aria-hidden='true'>
                 <Loader2
                   className={`${composerIconClass} animate-spin`}
                   aria-hidden='true'
                 />
-              ) : (
-                <ArrowUp className={composerIconClass} aria-hidden='true' />
-              )}
-            </button>
+              </span>
+            ) : showSendButton ? (
+              <button
+                type='submit'
+                disabled={!canSend}
+                aria-label={
+                  isPending ? messages.composer.sending : messages.composer.send
+                }
+                className={`${composerControlClass} ${
+                  canSend
+                    ? 'bg-[color:var(--color-primary)] text-white hover:bg-[color:var(--color-primary-hover)] shadow-sm'
+                    : 'bg-[color:var(--color-paper-3)] text-[color:var(--color-ink-3)]'
+                } active:scale-[0.96] disabled:pointer-events-none`}>
+                {isPending ? (
+                  <Loader2
+                    className={`${composerIconClass} animate-spin`}
+                    aria-hidden='true'
+                  />
+                ) : (
+                  <ArrowUp className={composerIconClass} aria-hidden='true' />
+                )}
+              </button>
+            ) : showStopVoice ? (
+              <button
+                type='button'
+                disabled={disabled || isPending}
+                onClick={handleVoiceClick}
+                aria-label={voiceAriaLabel(voiceState, isRequestingPermission)}
+                aria-pressed
+                className={`${composerControlClass} bg-red-500 text-white hover:bg-red-600 animate-status-pulse active:scale-[0.96]`}>
+                <Square className='w-4 h-4 fill-current' aria-hidden='true' />
+              </button>
+            ) : showMicButton ? (
+              <button
+                type='button'
+                disabled={
+                  disabled ||
+                  isPending ||
+                  (!useLiveVoice && !isDictationSupported)
+                }
+                onClick={handleVoiceClick}
+                aria-label={voiceAriaLabel(voiceState, isRequestingPermission)}
+                className={`${composerControlClass} chat-mic-attract bg-[color:var(--color-primary)] text-white hover:bg-[color:var(--color-primary-hover)] shadow-sm ring-2 ring-[color:var(--color-primary)]/30 active:scale-[0.96]`}>
+                <Mic
+                  className={composerIconClass}
+                  strokeWidth={2.25}
+                  aria-hidden='true'
+                />
+              </button>
+            ) : null}
           </div>
         </form>
       </div>

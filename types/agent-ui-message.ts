@@ -1,5 +1,6 @@
 import type { InferUITools, UIMessage } from 'ai';
 import type { CartItem } from '@/lib/cart-storage';
+import type { AppLocale } from '@/types/locale';
 import type { KaprukaTools } from '@/lib/tools/kapruka-tools';
 
 export type KaprukaMessageMetadata = {
@@ -10,6 +11,12 @@ export type KaprukaMessageMetadata = {
   basketAdded?: boolean;
   /** Server signal to open the basket panel after this assistant turn. */
   openBasket?: boolean;
+  /** Server signal to switch app locale after this assistant turn. */
+  localeChange?: AppLocale;
+  /** Whether the message came from Gemini Live voice or text chat. */
+  source?: 'text' | 'live';
+  /** Live session id when source is live. */
+  liveSessionId?: string;
 };
 
 type KaprukaUITools = InferUITools<KaprukaTools>;

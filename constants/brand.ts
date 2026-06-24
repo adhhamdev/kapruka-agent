@@ -13,15 +13,15 @@ export const KAPRUKA_LOGO_SRC = '/logo-square.jpeg';
 /** Open Graph / social preview image (1200×630, includes Kapruka wordmark + agent avatar) */
 export const OG_IMAGE_PATH = '/og-image.png';
 export const OG_IMAGE_ALT =
-  'Kapruka Agent — AI shopping assistant for Kapruka with search, basket, checkout, and saved delivery details';
+  'Kapruka Agent — AI shopping assistant with live voice, search, basket, checkout, and saved delivery details';
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
 
 export const APP_DESCRIPTION =
-  'Your AI shopping assistant for Kapruka. Explore the full catalog, check delivery, manage your basket, and checkout in one chat — with optional saved delivery details, gift recipients, and preferences for faster return visits.';
+  'Talk live with Kapruka Agent — real-time voice shopping for Sri Lanka. Search the full catalog, see product cards in chat, check delivery, manage your basket, and checkout hands-free. Optional saved addresses and preferences for faster return visits.';
 
 export const PWA_DESCRIPTION =
-  'AI shopping assistant for Kapruka — search, deliver, checkout, and remember your details for next time.';
+  'Live voice + chat shopping for Kapruka — search, deliver, checkout, and remember your details for next time.';
 
 export const AGENT_GREETING =
-  "Hi, I'm Kapruka Agent — browse Kapruka's full catalog, check delivery, checkout securely, and optionally save your details so I can help faster next time.";
+  "Hi, I'm Kapruka Agent — tap the mic to talk live, or type to shop Kapruka's full catalog. I'll show products, check delivery, and checkout securely; save your details for next time if you'd like.";

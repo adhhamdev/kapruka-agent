@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CartItemRow } from '@/components/cart/CartItemRow';
 import { CartPanelLoading } from '@/components/cart/CartPanelLoading';
+import { useLocale } from '@/components/providers/LocaleProvider';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { calculateSubtotal, getCartItemCount } from '@/lib/cart/totals';
@@ -56,6 +57,7 @@ function CartPanelContent({
   onCheckout: () => void;
 }) {
   const reducedMotion = useReducedMotion();
+  const { messages } = useLocale();
   const itemCount = getCartItemCount(cart);
   const total = calculateSubtotal(cart);
 
@@ -65,7 +67,7 @@ function CartPanelContent({
         <h2
           id={titleId}
           className='text-[20px] font-semibold text-[color:var(--color-text-primary)] min-w-0 truncate'>
-          Basket
+          {messages.cart.title}
         </h2>
         <div className='flex items-center gap-2 shrink-0'>
           <motion.span
@@ -74,7 +76,7 @@ function CartPanelContent({
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.18, ease: EASE_OUT }}
             className='text-[12px] bg-[color:var(--color-bg-base)] text-[color:var(--color-text-secondary)] border border-[color:var(--color-border-default)] px-3 py-1 rounded-full font-medium tabular-nums whitespace-nowrap'>
-            {itemCount} Items
+            {messages.cart.items(itemCount)}
           </motion.span>
           {showMobileClose ? (
             <button
@@ -100,7 +102,7 @@ function CartPanelContent({
         {cart.length === 0 ? (
           <div className='h-full min-h-[12rem] flex flex-col items-center justify-center text-[color:var(--color-text-tertiary)]'>
             <ShoppingBag className='w-12 h-12 mb-4 opacity-50 stroke-1' />
-            <p className='font-medium text-[15px]'>Your basket is empty</p>
+            <p className='font-medium text-[15px]'>{messages.cart.empty}</p>
           </div>
         ) : (
           <LayoutGroup id={layoutGroupId}>
@@ -132,7 +134,7 @@ function CartPanelContent({
       <div className='shrink-0 p-5 bg-[color:var(--color-bg-base)] border-t border-[color:var(--color-border-subtle)] pb-[calc(env(safe-area-inset-bottom)+1.25rem)] md:pb-5'>
         <div className='flex justify-between items-center mb-4'>
           <span className='text-[15px] font-medium text-[color:var(--color-text-secondary)]'>
-            Total
+            {messages.cart.total}
           </span>
           <motion.span
             key={total}
@@ -149,14 +151,14 @@ function CartPanelContent({
             disabled={cart.length === 0}
             onClick={onCheckout}
             className='w-full py-3.5 bg-[color:var(--color-primary)] disabled:bg-[color:var(--color-rule)] disabled:text-[color:var(--color-ink-3)] text-white rounded-[var(--radius-md)] font-semibold text-[16px] transition-[background-color,transform] active:scale-[0.98] hover:bg-[color:var(--color-primary-hover)] touch-manipulation'>
-            Checkout
+            {messages.cart.checkout}
           </button>
           {cart.length > 0 && (
             <button
               type='button'
               onClick={onClearCart}
               className='w-full py-2 text-[13px] font-medium text-[color:var(--color-ink-3)] hover:text-[color:var(--color-error)] transition-colors touch-manipulation'>
-              Clear basket
+              {messages.cart.clear}
             </button>
           )}
         </div>
@@ -178,6 +180,7 @@ function CartMobileDrawer({
   const titleId = useId();
   const panelRef = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
+  const { messages } = useLocale();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -221,7 +224,7 @@ function CartMobileDrawer({
             transition={drawerBackdropTransition}
             className='fixed inset-0 z-40 bg-[color:var(--color-ink)]/40 md:hidden touch-manipulation'
             onClick={onClose}
-            aria-label='Close basket'
+            aria-label={messages.cart.close}
           />
 
           <motion.aside
@@ -246,7 +249,7 @@ function CartMobileDrawer({
                 titleId={titleId}
                 layoutGroupId='cart-items-drawer'
                 onClose={onClose}
-                closeLabel='Close basket'
+                closeLabel={messages.cart.close}
                 showMobileClose
                 onUpdateQuantity={onUpdateQuantity}
                 onRemoveItem={onRemoveItem}
@@ -276,6 +279,7 @@ function CartDesktopSidebar({
 }: CartPanelProps) {
   const titleId = useId();
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const { messages } = useLocale();
 
   if (!isDesktop) {
     return null;
@@ -287,7 +291,7 @@ function CartDesktopSidebar({
   return (
     <aside
       id='cart-sidebar'
-      aria-label='Shopping basket'
+      aria-label={messages.cart.sidebarLabel}
       aria-busy={isLoading}
       aria-hidden={!sidebarVisible}
       className={`hidden md:flex flex-col h-full shrink-0 overflow-hidden bg-[color:var(--color-bg-surface)] border-l border-[color:var(--color-border-subtle)] transition-[width,border-color] duration-200 ease-out ${
@@ -302,7 +306,7 @@ function CartDesktopSidebar({
             titleId={titleId}
             layoutGroupId='cart-items-sidebar'
             onClose={onClose}
-            closeLabel='Close basket panel'
+            closeLabel={messages.cart.closePanel}
             showMobileClose={false}
             onUpdateQuantity={onUpdateQuantity}
             onRemoveItem={onRemoveItem}

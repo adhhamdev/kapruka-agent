@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { DM_Sans } from 'next/font/google';
+import { LocaleProvider } from '@/components/providers/LocaleProvider';
 import { SkipLink } from '@/components/layout/SkipLink';
 import {
   createSiteMetadata,
@@ -28,8 +29,10 @@ export default function RootLayout({
       <body
         className='antialiased bg-[color:var(--color-paper)] text-[color:var(--color-ink)] selection:bg-[color:var(--color-accent)]/25 selection:text-[color:var(--color-ink)] overflow-hidden touch-manipulation'
         suppressHydrationWarning>
-        <SkipLink />
-        {children}
+        <LocaleProvider>
+          <SkipLink />
+          {children}
+        </LocaleProvider>
       </body>
     </html>
   );

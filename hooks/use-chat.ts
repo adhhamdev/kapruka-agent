@@ -6,6 +6,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { mergeCartAfterAgentResponse } from '@/lib/cart/merge';
 import { messageShouldOpenBasket } from '@/lib/chat/basket-message';
 import { getOrCreateMemoryUserId } from '@/lib/memory-user-id';
+import { getMessages } from '@/lib/i18n';
+import { getStoredLocale } from '@/lib/locale-storage';
 import { attachmentImageDataUrl } from '@/lib/attachments';
 import {
   clearChatHistoryStorage,
@@ -13,6 +15,7 @@ import {
   saveChatHistory,
 } from '@/lib/chat-history-storage';
 import type { CartItem } from '@/lib/cart-storage';
+import { useGeminiLive } from '@/hooks/use-gemini-live';
 import { ERROR_MESSAGES } from '@/lib/errors';
 import { createMessageId } from '@/lib/message-ids';
 import type { KaprukaProduct } from '@/lib/products';
@@ -24,6 +27,8 @@ interface UseChatOptions {
   cart: CartItem[];
   setCart: (updater: CartItem[] | ((prev: CartItem[]) => CartItem[])) => void;
   onOpenBasket?: () => void;
+  onLocaleChange?: (locale: import('@/types/locale').AppLocale) => void;
+  getPreferredLanguage?: () => import('@/types/locale').AppLocale | undefined;
 }
 
 function toFileUIParts(attachments: ChatAttachment[]): FileUIPart[] {
@@ -35,14 +40,22 @@ function toFileUIParts(attachments: ChatAttachment[]): FileUIPart[] {
   }));
 }
 
-export function useChat({ cart, setCart, onOpenBasket }: UseChatOptions) {
+export function useChat({
+  cart,
+  setCart,
+  onOpenBasket,
+  onLocaleChange,
+  getPreferredLanguage,
+}: UseChatOptions) {
   const [inputText, setInputText] = useState('');
   const [isSessionRestored, setIsSessionRestored] = useState(false);
   const skipPersistRef = useRef(false);
   const hasRestoredRef = useRef(false);
   const cartRef = useRef(cart);
   const cartAtRequestStartRef = useRef<CartItem[]>([]);
+  const getPreferredLanguageRef = useRef(getPreferredLanguage);
   cartRef.current = cart;
+  getPreferredLanguageRef.current = getPreferredLanguage;
 
   const transport = useMemo(
     () =>
@@ -50,17 +63,27 @@ export function useChat({ cart, setCart, onOpenBasket }: UseChatOptions) {
         api: '/api/chat',
         prepareSendMessagesRequest: ({ messages }) => {
           cartAtRequestStartRef.current = [...cartRef.current];
+          const preferredLanguage =
+            getPreferredLanguageRef.current?.() ??
+            getStoredLocale() ??
+            undefined;
           return {
             body: {
               messages,
               cart: cartRef.current,
               memoryUserId: getOrCreateMemoryUserId(),
+              ...(preferredLanguage ? { preferredLanguage } : {}),
             },
           };
         },
       }),
     [],
   );
+
+  const onOpenBasketRef = useRef(onOpenBasket);
+  const onLocaleChangeRef = useRef(onLocaleChange);
+  onOpenBasketRef.current = onOpenBasket;
+  onLocaleChangeRef.current = onLocaleChange;
 
   const {
     messages,
@@ -85,7 +108,12 @@ export function useChat({ cart, setCart, onOpenBasket }: UseChatOptions) {
       }
 
       if (messageShouldOpenBasket(message)) {
-        onOpenBasket?.();
+        onOpenBasketRef.current?.();
+      }
+
+      const localeChange = message.metadata?.localeChange;
+      if (localeChange) {
+        onLocaleChangeRef.current?.(localeChange);
       }
     },
     onError: () => {
@@ -94,6 +122,16 @@ export function useChat({ cart, setCart, onOpenBasket }: UseChatOptions) {
   });
 
   const isPending = status === 'submitted' || status === 'streaming';
+
+  const live = useGeminiLive({
+    cart,
+    setCart,
+    messages,
+    setMessages,
+    onOpenBasket,
+    onLocaleChange,
+    getPreferredLanguage,
+  });
 
   useLayoutEffect(() => {
     const stored = loadChatHistory();
@@ -136,12 +174,22 @@ export function useChat({ cart, setCart, onOpenBasket }: UseChatOptions) {
     (text: string, attachments: ChatAttachment[] = []) => {
       if ((!text.trim() && attachments.length === 0) || isPending) return;
 
+      if (live.isLiveActive && text.trim() && attachments.length === 0) {
+        live.sendLiveText(text);
+        setInputText('');
+        return;
+      }
+
       const displayText =
         text.trim() ||
         (attachments.length === 1
-          ? `Sent ${attachments[0].name}`
+          ? getMessages(getStoredLocale() ?? 'en').chat.sentAttachment(
+              attachments[0].name,
+            )
           : attachments.length > 1
-            ? `Sent ${attachments.length} attachments`
+            ? getMessages(getStoredLocale() ?? 'en').chat.sentAttachments(
+                attachments.length,
+              )
             : '');
 
       void sendMessage({
@@ -150,7 +198,7 @@ export function useChat({ cart, setCart, onOpenBasket }: UseChatOptions) {
       });
       setInputText('');
     },
-    [isPending, sendMessage],
+    [isPending, live, sendMessage],
   );
 
   const sendMessageText = useCallback(
@@ -168,11 +216,12 @@ export function useChat({ cart, setCart, onOpenBasket }: UseChatOptions) {
   );
 
   const startNewChat = useCallback(() => {
+    void live.stopLive();
     skipPersistRef.current = true;
     clearChatHistoryStorage();
     setMessages([]);
     setInputText('');
-  }, [setMessages]);
+  }, [setMessages, live]);
 
   const loadMoreCarouselProducts = useCallback(
     async (messageId: string, widgetIndex: number) => {
@@ -274,5 +323,6 @@ export function useChat({ cart, setCart, onOpenBasket }: UseChatOptions) {
     appendMessage,
     startNewChat,
     loadMoreCarouselProducts,
+    live,
   };
 }

@@ -4,11 +4,12 @@ import { ChatComposer } from '@/components/chat/ChatComposer';
 import { MessageList } from '@/components/chat/MessageList';
 import type { CartItem } from '@/lib/cart-storage';
 import type { KaprukaProduct } from '@/lib/products';
+import type { LiveConnectionState } from '@/hooks/use-gemini-live';
+import type { KaprukaAgentUIMessage } from '@/types/agent-ui-message';
 import type { ChatAttachment } from '@/types/attachments';
-import type { Message } from '@/types/chat';
 
 interface ChatPanelProps {
-  messages: Message[];
+  messages: KaprukaAgentUIMessage[];
   isPending: boolean;
   isSessionRestored: boolean;
   inputText: string;
@@ -21,6 +22,12 @@ interface ChatPanelProps {
   onViewProductDetail?: (product: KaprukaProduct) => void;
   onLoadMoreCarousel: (messageId: string, widgetIndex: number) => void;
   onOpenBasket?: () => void;
+  liveState?: LiveConnectionState;
+  isLiveActive?: boolean;
+  liveError?: string | null;
+  onStartLive?: () => void;
+  onStopLive?: () => void;
+  onClearLiveError?: () => void;
 }
 
 export function ChatPanel({
@@ -37,6 +44,12 @@ export function ChatPanel({
   onViewProductDetail,
   onLoadMoreCarousel,
   onOpenBasket,
+  liveState,
+  isLiveActive,
+  liveError,
+  onStartLive,
+  onStopLive,
+  onClearLiveError,
 }: ChatPanelProps) {
   const handleSelectSuggestion = (prompt: string) => {
     onSendMessage(prompt, []);
@@ -65,6 +78,12 @@ export function ChatPanel({
         isPending={isPending}
         disabled={!isSessionRestored}
         speechLanguageCode={speechLanguageCode}
+        liveState={liveState}
+        isLiveActive={isLiveActive}
+        liveError={liveError}
+        onStartLive={onStartLive}
+        onStopLive={onStopLive}
+        onClearLiveError={onClearLiveError}
       />
     </main>
   );

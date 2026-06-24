@@ -464,6 +464,41 @@
   animation: status-pulse 2s var(--ease-in-out) infinite;
 }
 
+@keyframes mic-attract {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes bounce-subtle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+.chat-mic-attract {
+  animation: mic-attract 2.4s ease-in-out infinite;
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-mic-attract,
+  .animate-bounce-subtle {
+    animation: none;
+  }
+}
+
 .animate-typing-1 {
   animation: typing-pulse 1s infinite ease-in-out;
 }

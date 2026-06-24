@@ -32,7 +32,7 @@ Server responsibilities: Gemini orchestration, Kapruka MCP proxy, Supermemory pr
 
 ### AI & integrations
 
-- **`@google/genai`** — Gemini via AI SDK `ToolLoopAgent`
+- **`@google/genai`** — Gemini text agent (AI SDK `ToolLoopAgent`) and **Gemini Live** (ephemeral tokens + WebSocket)
 - **`@modelcontextprotocol/sdk`** — `StreamableHTTPClientTransport` → `https://mcp.kapruka.com/mcp`
 - **`@supermemory/tools`** — optional `searchMemories`, `addMemory`, `getProfile`, `memoryForget` when `SUPERMEMORY_API_KEY` is set
 - **Agent model** — Configured in `constants/agent.ts` (`GEMINI_MODEL`, `MAX_AGENT_TURNS`, temperature)
@@ -47,8 +47,9 @@ Server responsibilities: Gemini orchestration, Kapruka MCP proxy, Supermemory pr
 
 ### Browser APIs
 
-- **Web Speech API** — voice input in composer (`hooks/use-speech-recognition.ts`)
-- **localStorage** — cart + chat persistence
+- **Gemini Live (WebSocket + Web Audio)** — real-time two-way voice (`hooks/use-gemini-live.ts`, `lib/live/audio-utils.ts`); mic capture as PCM, playback of model audio
+- **Web Speech API** — dictation fallback in composer when live voice is unavailable (`hooks/use-speech-recognition.ts`)
+- **localStorage** — cart + chat persistence (includes live transcript messages)
 - **FileReader** — attachment encoding to base64 for chat API
 
 ---
@@ -135,6 +136,66 @@ Body: `{ "memoryUserId": "string", "id?": "string", "text?": "string", "clearAll
 
 Implementation: `lib/supermemory/service.ts` · categorization: `lib/supermemory/categorize.ts`
 
+### `POST /api/live/token`
+
+Issues a short-lived **Gemini Live ephemeral token** and returns session metadata for the client WebSocket.
+
+**Request body (optional):**
+
+```json
+{
+  "liveSessionId?": "string — reuse for tool bridge continuity",
+  "memoryUserId?": "string"
+}
+```
+
+**Response:**
+
+```json
+{
+  "token": "string",
+  "liveSessionId": "string",
+  "model": "gemini-3.1-flash-live-preview",
+  "expiresAt": "ISO8601"
+}
+```
+
+Server embeds Kapruka Agent system instruction (cart context, memory, datetime) in the locked token config.
+
+**Runtime:** `nodejs`
+
+### `POST /api/live/tools`
+
+Executes Kapruka MCP and virtual UI tools on behalf of the Live session (same executor as text chat).
+
+**Request body:**
+
+```json
+{
+  "liveSessionId": "string",
+  "toolName": "string",
+  "args": { },
+  "cart": [ /* CartItem[] */ ]
+}
+```
+
+**Response:**
+
+```json
+{
+  "result": "string",
+  "uiEvents?": [ /* widget payloads */ ],
+  "cart?": [ /* updated cart */ ],
+  "openBasket?": boolean
+}
+```
+
+Tool session state keyed by `liveSessionId` (`lib/agent/tool-session-store.ts`).
+
+### `POST /api/live/session`
+
+Optional session lifecycle helpers (resumption handle storage, cleanup).
+
 ---
 
 ## 4. Agent tools
@@ -212,7 +273,9 @@ Agent behavior governed by `lib/agent/memory-instruction.ts`. Memory failures mu
 
 ### Composer
 
-- Text + attachments + voice
+- Text + attachments + **live voice** (primary) + dictation fallback
+- **Live voice mode** — tap mic → `POST /api/live/token` → WebSocket to Gemini Live; `LiveVoiceBar` shows connection state; user can type during live session
+- Tool calls from Live routed to `POST /api/live/tools`; widget `uiEvents` and transcripts bridged into `KaprukaAgentUIMessage` list (`lib/live/live-message-bridge.ts`)
 - Attachments: max 5 files, 5 MB each, 12 MB total
 - Allowed MIME: JPEG, PNG, WebP, GIF, PDF, txt, DOC/DOCX
 - Client validation: `lib/attachments.ts` · Server: `lib/attachment-validation.ts`
@@ -226,8 +289,8 @@ Agent behavior governed by `lib/agent/memory-instruction.ts`. Memory failures mu
 
 ### Discover / chat home
 
-- **Chat home screen** — agent avatar, greeting, suggestion chips (`ChatHomeScreen`)
-- Quick prompt chips including categories, track order, saved details
+- **Chat home screen** — agent avatar, greeting, **live voice callout**, suggestion chips (`ChatHomeScreen`)
+- Quick prompt chips including **Talk live**, categories, track order, saved details
 - Welcome block with agent avatar
 
 ### Layout
@@ -255,7 +318,7 @@ Untrusted URL patterns filtered in `lib/kapruka-product-image.ts`; missing image
 
 | Variable | Scope | Description |
 |----------|-------|-------------|
-| `GEMINI_API_KEY` | Server | Required for `/api/chat` |
+| `GEMINI_API_KEY` | Server | Required for `/api/chat` and `/api/live/*` |
 | `SUPERMEMORY_API_KEY` | Server | Optional — enables saved info and agent memory tools |
 | `NEXT_PUBLIC_APP_URL` | Client + metadata | Canonical app URL — `https://agent-kapruka.vercel.app` |
 
@@ -268,7 +331,7 @@ Untrusted URL patterns filtered in `lib/kapruka-product-image.ts`; missing image
 - Agent instructed never to store payment card data or pay links in memory
 - Attachment MIME allowlist + size caps (client + server)
 - HTTP security headers on all routes (`next.config.ts`)
-- `Permissions-Policy`: microphone `(self)` for voice input
+- `Permissions-Policy`: microphone `(self)` for live voice and dictation
 - Markdown links to external hosts restricted in `MarkdownContent` (Kapruka domains preferred)
 
 ---

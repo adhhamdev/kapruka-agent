@@ -1,0 +1,10 @@
+export const LIVE_MODEL = 'gemini-3.1-flash-live-preview';
+export const LIVE_TOKEN_USES = 10;
+export const LIVE_TOKEN_TTL_SECONDS = 30 * 60;
+export const LIVE_SESSION_TTL_MS = 35 * 60 * 1000;
+export const LIVE_INPUT_SAMPLE_RATE = 16000;
+export const LIVE_OUTPUT_SAMPLE_RATE = 24000;
+export const LIVE_MAX_HISTORY_TURNS = 20;
+export const LIVE_RECONNECT_MAX_ATTEMPTS = 5;
+export const LIVE_RECONNECT_BASE_DELAY_MS = 1000;
+export const LIVE_TOKEN_REFRESH_BEFORE_MS = 2 * 60 * 1000;

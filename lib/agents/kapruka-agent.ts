@@ -4,8 +4,7 @@ import {
   AGENT_TEMPERATURE,
   MAX_AGENT_TURNS,
 } from '@/constants/agent';
-import { buildDateTimeContextMessage } from '@/lib/agent/datetime-context';
-import { MEMORY_INSTRUCTION } from '@/lib/agent/memory-instruction';
+import { buildAgentInstructions } from '@/lib/agent/build-agent-instructions';
 import { SYSTEM_INSTRUCTION } from '@/lib/agent/system-instruction';
 import { getKaprukaModel } from '@/lib/agents/kapruka-model';
 import type { CartItem } from '@/lib/cart-storage';
@@ -14,7 +13,6 @@ import {
   isSupermemoryEnabled,
 } from '@/lib/supermemory/tools';
 import {
-  buildCartContextMessage,
   cartItemSchema,
   createKaprukaTools,
   type AgentUiFlags,
@@ -40,6 +38,7 @@ export function createKaprukaAgent(
     callOptionsSchema: z.object({
       cart: z.array(cartItemSchema),
       memoryUserId: z.string().trim().min(1).optional(),
+      preferredLanguage: z.enum(['en', 'si', 'ta']).optional(),
     }),
     prepareCall: ({ options, ...settings }) => {
       const scopedMemoryUserId = options.memoryUserId ?? memoryUserId;
@@ -48,19 +47,13 @@ export function createKaprukaAgent(
           ? createSupermemoryTools(scopedMemoryUserId)
           : {};
 
-      const instructionBlocks = [
-        SYSTEM_INSTRUCTION,
-        buildDateTimeContextMessage(),
-        buildCartContextMessage(options.cart),
-      ];
-
-      if (scopedMemoryUserId && isSupermemoryEnabled()) {
-        instructionBlocks.push(MEMORY_INSTRUCTION);
-      }
-
       return {
         ...settings,
-        instructions: instructionBlocks.join('\n\n'),
+        instructions: buildAgentInstructions({
+          cart: options.cart,
+          preferredLanguage: options.preferredLanguage,
+          memoryUserId: scopedMemoryUserId,
+        }),
         tools: { ...kaprukaTools, ...scopedMemoryTools },
       };
     },

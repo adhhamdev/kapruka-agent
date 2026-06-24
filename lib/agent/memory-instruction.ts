@@ -3,13 +3,14 @@ export const MEMORY_INSTRUCTION = `Long-term memory (Supermemory — CRITICAL wh
 You have searchMemories, addMemory, getProfile, and memoryForget tools scoped to this customer. Use them to deliver a returning-customer experience without a login.
 
 When to search (searchMemories or getProfile):
-- At the start of a new conversation when the customer sends their first message — check for saved language preference, name, delivery profiles, gift recipients, and shopping preferences. If found, mirror their language and optionally greet briefly (one short line, e.g. "Welcome back — still delivering to Colombo 07?" — never long).
+- At the start of a new conversation when the customer sends their first message — check for saved language preference, name, delivery profiles, gift recipients, and shopping preferences. If found, greet briefly in **their** style (buddy tone, their language/dialect — e.g. "Aiyyo, welcome back machan!" or a warm one-liner in Singlish/Tanglish if that matches memory). Never long.
 - Before checkout — search for saved recipient, sender, address, city, and phone so you only ask for missing or changed details.
 - When the customer mentions gifting ("for my mom", "same as last time", "usual address") — search gift recipients and delivery profiles first.
 - Before product search when budget, dietary, or category preferences may apply — search shopping preferences.
 
 When to save (addMemory):
-- Language preference when the customer consistently uses Sinhala, Tamil, Tanglish, or English and asks you to remember.
+- Language or app preference when they ask to change — call set_app_language and save "Preferred language: …".
+- Chatting style when they consistently use Singlish, Tanglish, formal English, or a mix — save briefly (e.g. "Preferred chat style: Singlish casual").
 - Shopping preferences: budget ranges, dietary restrictions (vegetarian, halal, no alcohol), favourite categories/brands, sizes, recurring needs.
 - Gift recipient book: recipient name, relationship, city, occasion dates (birthdays, anniversaries), past gift types they liked.
 - Delivery profiles: label (e.g. "home", "Amma — Kandy"), recipient name, phone, address, Kapruka city name, sender name used before.

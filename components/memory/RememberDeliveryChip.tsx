@@ -2,6 +2,7 @@
 
 import { BookmarkPlus, Check, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useLocale } from '@/components/providers/LocaleProvider';
 import { saveMemoryText } from '@/lib/memory-api';
 import {
   isRememberDeliveryDismissed,
@@ -21,6 +22,7 @@ export function RememberDeliveryChip({
   orderNumber,
   delivery,
 }: RememberDeliveryChipProps) {
+  const { messages } = useLocale();
   const [state, setState] = useState<ChipState>('prompt');
   const [message, setMessage] = useState<string | null>(null);
 
@@ -48,15 +50,12 @@ export function RememberDeliveryChip({
 
     if (result.ok) {
       setState('saved');
-      setMessage('Saved — we can use this address next time you checkout.');
+      setMessage(messages.rememberDelivery.saved);
       return;
     }
 
     setState('error');
-    setMessage(
-      result.message ||
-        'Could not save right now. You can still pay below — try again later from Saved info.',
-    );
+    setMessage(result.message || messages.rememberDelivery.errorFallback);
   };
 
   if (state === 'saved') {
@@ -83,7 +82,7 @@ export function RememberDeliveryChip({
           type='button'
           onClick={handleDismiss}
           className='mt-2 text-[13px] font-medium text-[color:var(--color-primary)] hover:underline'>
-          OK
+          {messages.rememberDelivery.ok}
         </button>
       </div>
     );
@@ -93,7 +92,7 @@ export function RememberDeliveryChip({
     <div className='mt-3 rounded-[var(--radius-md)] border border-white/20 bg-white/10 px-3.5 py-3 text-left'>
       <p className='flex items-start gap-2 text-[13px] text-white/95 leading-relaxed'>
         <BookmarkPlus className='w-4 h-4 shrink-0 mt-0.5' aria-hidden='true' />
-        Save this delivery address for next time?
+        {messages.rememberDelivery.prompt}
       </p>
       <div className='mt-3 flex flex-wrap gap-2'>
         <button
@@ -104,10 +103,10 @@ export function RememberDeliveryChip({
           {state === 'saving' ? (
             <>
               <Loader2 className='w-3.5 h-3.5 animate-spin' aria-hidden='true' />
-              Saving…
+              {messages.rememberDelivery.saving}
             </>
           ) : (
-            'Yes, save it'
+            messages.rememberDelivery.yesSave
           )}
         </button>
         <button
@@ -115,7 +114,7 @@ export function RememberDeliveryChip({
           onClick={handleDismiss}
           disabled={state === 'saving'}
           className='inline-flex items-center rounded-[var(--radius-pill)] border border-white/30 px-3.5 py-2 text-[13px] font-medium text-white/95 hover:bg-white/10 disabled:opacity-60 touch-manipulation'>
-          Not now
+          {messages.rememberDelivery.notNow}
         </button>
       </div>
     </div>
