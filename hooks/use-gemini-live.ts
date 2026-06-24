@@ -277,14 +277,18 @@ export function useGeminiLive({
           messagesRef.current,
           LIVE_MAX_HISTORY_TURNS,
         );
-        if (historySummary && sessionRef.current) {
+        if (sessionRef.current) {
+          const greetingPrompt = historySummary
+            ? `Here is our recent chat history for context:\n${historySummary}\n\nPlease welcome the user back or greet them warmly to let them know the live voice connection is active, and ask how you can help them continue.`
+            : `Please greet the user warmly and introduce yourself as the Kapruka shopping assistant to let them know the live voice session is active, and ask how you can help them find gifts today.`;
+
           sessionRef.current.sendClientContent({
             turns: [
               {
                 role: 'user',
                 parts: [
                   {
-                    text: `Here is our recent chat history for context:\n${historySummary}`,
+                    text: greetingPrompt,
                   },
                 ],
               },
@@ -326,13 +330,6 @@ export function useGeminiLive({
       if (content.interrupted) {
         playbackRef.current.stopAll();
         return;
-      }
-
-      if (content.inputTranscription?.text) {
-        const userId = ensureUserMessage();
-        updateMessageById(userId, (existing) =>
-          appendLiveTranscript(existing, 'user', content.inputTranscription!.text!),
-        );
       }
 
       if (content.outputTranscription?.text) {
@@ -415,90 +412,90 @@ export function useGeminiLive({
 
   const connectLive = useCallback(
     async (options?: { isTokenRefresh?: boolean }) => {
-    setLiveError(null);
-    setLiveState((state) =>
-      state === 'connected' ? 'reconnecting' : 'connecting',
-    );
+      setLiveError(null);
+      setLiveState((state) =>
+        state === 'connected' ? 'reconnecting' : 'connecting',
+      );
 
-    try {
-      const tokenPayload = await fetchToken();
-      if (!liveSessionIdRef.current) {
-        liveSessionIdRef.current = tokenPayload.liveSessionId;
-      }
-      tokenValueRef.current = tokenPayload.token;
-      tokenModelRef.current = tokenPayload.model;
+      try {
+        const tokenPayload = await fetchToken();
+        if (!liveSessionIdRef.current) {
+          liveSessionIdRef.current = tokenPayload.liveSessionId;
+        }
+        tokenValueRef.current = tokenPayload.token;
+        tokenModelRef.current = tokenPayload.model;
 
-      const ai = new GoogleGenAI({
-        apiKey: tokenPayload.token,
-        httpOptions: { apiVersion: 'v1alpha' },
-      });
+        const ai = new GoogleGenAI({
+          apiKey: tokenPayload.token,
+          httpOptions: { apiVersion: 'v1alpha' },
+        });
 
-      intentionalCloseRef.current = false;
-
-      if (options?.isTokenRefresh) {
-        intentionalCloseRef.current = true;
-        sessionRef.current?.close();
-        sessionRef.current = null;
         intentionalCloseRef.current = false;
+
+        if (options?.isTokenRefresh) {
+          intentionalCloseRef.current = true;
+          sessionRef.current?.close();
+          sessionRef.current = null;
+          intentionalCloseRef.current = false;
+        }
+
+        const session = await ai.live.connect({
+          model: tokenPayload.model,
+          callbacks: {
+            onopen: () => {
+              setLiveState('connected');
+            },
+            onmessage: (event) => {
+              void handleServerMessage(event);
+            },
+            onerror: () => {
+              if (!intentionalCloseRef.current) {
+                setLiveError('Live voice connection error.');
+              }
+            },
+            onclose: () => {
+              stopMic();
+              if (intentionalCloseRef.current) {
+                setLiveState('idle');
+                return;
+              }
+
+              if (reconnectAttemptsRef.current < LIVE_RECONNECT_MAX_ATTEMPTS) {
+                reconnectAttemptsRef.current += 1;
+                setLiveState('reconnecting');
+                const delay =
+                  LIVE_RECONNECT_BASE_DELAY_MS *
+                  2 ** (reconnectAttemptsRef.current - 1);
+                window.setTimeout(() => {
+                  void connectLive();
+                }, delay);
+              } else {
+                setLiveState('error');
+                setLiveError('Live voice disconnected. Tap to try again.');
+              }
+            },
+          },
+          config: {
+            sessionResumption: resumptionHandleRef.current
+              ? { handle: resumptionHandleRef.current }
+              : undefined,
+          },
+        });
+
+        sessionRef.current = session;
+        scheduleTokenRefresh(tokenPayload.expiresAt, () =>
+          connectLive({ isTokenRefresh: true }),
+        );
+      } catch (error) {
+        console.error('[Live] Connect failed:', error);
+        setLiveState('error');
+        setLiveError(
+          error instanceof Error
+            ? error.message
+            : 'Could not connect to live voice.',
+        );
       }
-
-      const session = await ai.live.connect({
-        model: tokenPayload.model,
-        callbacks: {
-          onopen: () => {
-            setLiveState('connected');
-          },
-          onmessage: (event) => {
-            void handleServerMessage(event);
-          },
-          onerror: () => {
-            if (!intentionalCloseRef.current) {
-              setLiveError('Live voice connection error.');
-            }
-          },
-          onclose: () => {
-            stopMic();
-            if (intentionalCloseRef.current) {
-              setLiveState('idle');
-              return;
-            }
-
-            if (reconnectAttemptsRef.current < LIVE_RECONNECT_MAX_ATTEMPTS) {
-              reconnectAttemptsRef.current += 1;
-              setLiveState('reconnecting');
-              const delay =
-                LIVE_RECONNECT_BASE_DELAY_MS *
-                2 ** (reconnectAttemptsRef.current - 1);
-              window.setTimeout(() => {
-                void connectLive();
-              }, delay);
-            } else {
-              setLiveState('error');
-              setLiveError('Live voice disconnected. Tap to try again.');
-            }
-          },
-        },
-        config: {
-          sessionResumption: resumptionHandleRef.current
-            ? { handle: resumptionHandleRef.current }
-            : undefined,
-        },
-      });
-
-      sessionRef.current = session;
-      scheduleTokenRefresh(tokenPayload.expiresAt, () =>
-        connectLive({ isTokenRefresh: true }),
-      );
-    } catch (error) {
-      console.error('[Live] Connect failed:', error);
-      setLiveState('error');
-      setLiveError(
-        error instanceof Error
-          ? error.message
-          : 'Could not connect to live voice.',
-      );
-    }
-  },
+    },
     [fetchToken, handleServerMessage, scheduleTokenRefresh, stopMic],
   );
 

@@ -484,8 +484,23 @@
   }
 }
 
+@keyframes mic-ripple {
+  0% {
+    box-shadow: 0 0 0 0 oklch(from var(--color-primary) l c h / 0.4),
+                0 0 0 0 oklch(from var(--color-primary) l c h / 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 12px oklch(from var(--color-primary) l c h / 0),
+                0 0 0 24px oklch(from var(--color-primary) l c h / 0);
+  }
+}
+
 .chat-mic-attract {
   animation: mic-attract 2.4s ease-in-out infinite;
+}
+
+.animate-mic-ripple {
+  animation: mic-ripple 1.8s cubic-bezier(0.24, 0, 0.38, 1) infinite;
 }
 
 .animate-bounce-subtle {

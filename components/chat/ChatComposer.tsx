@@ -191,48 +191,56 @@ export function ChatComposer({
         {(attachmentError ||
           voiceError ||
           (!useLiveVoice && voiceState === 'unsupported')) && (
-          <p
-            className='text-[12px] text-[color:var(--color-error)] px-1'
-            role='status'
-            aria-live='polite'>
-            {attachmentError ??
-              voiceError ??
-              (!useLiveVoice && voiceState === 'unsupported'
-                ? messages.composer.voiceUnsupportedBrowser
-                : null)}
-          </p>
+          <div className='flex justify-center'>
+            <p
+              className='text-[12px] text-[color:var(--color-error)] bg-[color:var(--color-error-bg)] border border-[color:var(--color-error)]/20 shadow-sm rounded-full px-3.5 py-1.5'
+              role='status'
+              aria-live='polite'>
+              {attachmentError ??
+                voiceError ??
+                (!useLiveVoice && voiceState === 'unsupported'
+                  ? messages.composer.voiceUnsupportedBrowser
+                  : null)}
+            </p>
+          </div>
         )}
 
         {!attachmentError && attachments.length > 0 && (
-          <p className='text-[11px] text-[color:var(--color-ink-3)] px-1'>
-            {messages.composer.attachmentHint(
-              attachments.length,
-              MAX_ATTACHMENTS,
-            )}
-          </p>
+          <div className='flex justify-center'>
+            <p className='text-[11px] text-[color:var(--color-ink-2)] bg-[color:var(--color-paper-2)]/90 backdrop-blur-sm border border-[color:var(--color-rule-strong)]/80 shadow-sm rounded-full px-3.5 py-1.5'>
+              {messages.composer.attachmentHint(
+                attachments.length,
+                MAX_ATTACHMENTS,
+              )}
+            </p>
+          </div>
         )}
 
         {isRequestingPermission && !isLiveActive && (
-          <p
-            className='text-[12px] text-[color:var(--color-ink-2)] px-1'
-            role='status'
-            aria-live='polite'>
-            {messages.composer.allowMic}
-          </p>
+          <div className='flex justify-center'>
+            <p
+              className='text-[12px] text-[color:var(--color-ink-2)] bg-[color:var(--color-paper-2)]/90 backdrop-blur-sm border border-[color:var(--color-rule-strong)]/80 shadow-sm rounded-full px-3.5 py-1.5'
+              role='status'
+              aria-live='polite'>
+              {messages.composer.allowMic}
+            </p>
+          </div>
         )}
 
         {isDictating && !isLiveActive && (
-          <p
-            className='text-[12px] text-[color:var(--color-primary)] px-1 flex items-center gap-2'
-            role='status'
-            aria-live='polite'>
-            <span className='inline-flex gap-1' aria-hidden='true'>
-              <span className='w-1.5 h-1.5 rounded-full bg-[color:var(--color-primary)] animate-typing-1' />
-              <span className='w-1.5 h-1.5 rounded-full bg-[color:var(--color-primary)] animate-typing-2' />
-              <span className='w-1.5 h-1.5 rounded-full bg-[color:var(--color-primary)] animate-typing-3' />
-            </span>
-            {messages.composer.listening}
-          </p>
+          <div className='flex justify-center'>
+            <p
+              className='text-[12px] text-[color:var(--color-primary)] bg-[color:var(--color-paper-2)]/90 backdrop-blur-sm border border-[color:var(--color-rule-strong)]/80 shadow-sm rounded-full px-3.5 py-1.5 flex items-center gap-2'
+              role='status'
+              aria-live='polite'>
+              <span className='inline-flex gap-1' aria-hidden='true'>
+                <span className='w-1.5 h-1.5 rounded-full bg-[color:var(--color-primary)] animate-typing-1' />
+                <span className='w-1.5 h-1.5 rounded-full bg-[color:var(--color-primary)] animate-typing-2' />
+                <span className='w-1.5 h-1.5 rounded-full bg-[color:var(--color-primary)] animate-typing-3' />
+              </span>
+              {messages.composer.listening}
+            </p>
+          </div>
         )}
 
         <form
@@ -353,7 +361,7 @@ export function ChatComposer({
                 }
                 onClick={handleVoiceClick}
                 aria-label={voiceAriaLabel(voiceState, isRequestingPermission)}
-                className={`${composerControlClass} chat-mic-attract bg-[color:var(--color-primary)] text-white hover:bg-[color:var(--color-primary-hover)] shadow-sm ring-2 ring-[color:var(--color-primary)]/30 active:scale-[0.96]`}>
+                className={`${composerControlClass} chat-mic-attract animate-mic-ripple bg-[color:var(--color-primary)] text-white hover:bg-[color:var(--color-primary-hover)] shadow-sm ring-2 ring-[color:var(--color-primary)]/30 active:scale-[0.96]`}>
                 <Mic
                   className={composerIconClass}
                   strokeWidth={2.25}
