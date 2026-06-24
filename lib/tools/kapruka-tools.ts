@@ -36,6 +36,7 @@ import {
 import { parseKaprukaSearchResponse } from '@/lib/kapruka-search';
 import type { KaprukaProduct, KaprukaProductDetail } from '@/lib/products';
 import type { CarouselPagination, Widget, CheckoutFormData, KaprukaCategory } from '@/types/widgets';
+import { isAppLocale, type AppLocale } from '@/types/locale';
 
 export const cartItemSchema = z.object({
   product_id: z.string(),
@@ -64,6 +65,7 @@ export type WidgetToolOutput = Widget;
 
 export interface AgentUiFlags {
   openBasket: boolean;
+  localeChange?: AppLocale;
 }
 
 export function createKaprukaTools(
@@ -540,6 +542,25 @@ export function createKaprukaTools(
         return {
           status: 'success',
           action: 'open_basket' as const,
+        };
+      },
+    }),
+
+    set_app_language: tool({
+      description:
+        'Switch the app UI language and default reply language when the customer asks to change language. Also save the preference via addMemory.',
+      inputSchema: z.object({
+        locale: z.enum(['en', 'si', 'ta']).describe('en=English, si=Sinhala, ta=Tamil'),
+      }),
+      execute: async ({ locale }) => {
+        if (!isAppLocale(locale)) {
+          return { status: 'error', message: 'Invalid locale.' };
+        }
+        uiFlagsRef.current.localeChange = locale as AppLocale;
+        return {
+          status: 'success',
+          locale,
+          message: `App language set to ${locale}.`,
         };
       },
     }),

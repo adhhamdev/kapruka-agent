@@ -2,7 +2,9 @@
 
 import { Loader2, Trash2, UserRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useLocale } from '@/components/providers/LocaleProvider';
 import { useSavedInfo } from '@/hooks/use-saved-info';
+import { LOCALE_OPTIONS, type AppLocale } from '@/types/locale';
 import type { SavedInfoItem } from '@/types/memory';
 
 interface SavedInfoPanelProps {
@@ -13,14 +15,61 @@ interface SavedInfoPanelProps {
 interface SavedInfoSectionProps {
   title: string;
   description: string;
+  removeLabel: string;
+  removeAria: (text: string) => string;
   items: SavedInfoItem[];
   onRemove: (id: string, text: string) => Promise<boolean>;
   removingId: string | null;
 }
 
+function LanguagePreferencePicker() {
+  const { locale, setLocale, messages } = useLocale();
+
+  return (
+    <section aria-labelledby='saved-info-language-pref'>
+      <h3
+        id='saved-info-language-pref'
+        className='text-[13px] font-semibold text-[color:var(--color-ink)]'>
+        {messages.language.preferenceLabel}
+      </h3>
+      <p className='mt-0.5 text-[12px] text-[color:var(--color-ink-3)] leading-relaxed'>
+        {messages.language.preferenceDescription}
+      </p>
+      <ul className='mt-2.5 grid grid-cols-1 sm:grid-cols-3 gap-2 list-none m-0 p-0'>
+        {LOCALE_OPTIONS.map((option) => {
+          const isActive = locale === option.code;
+          return (
+            <li key={option.code}>
+              <button
+                type='button'
+                role='radio'
+                aria-checked={isActive}
+                onClick={() => setLocale(option.code as AppLocale)}
+                className={`w-full rounded-[var(--radius-md)] border px-3 py-2.5 text-left transition-[border-color,background-color] touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] ${
+                  isActive
+                    ? 'border-[color:var(--color-primary)] bg-[color:var(--color-primary-light)]'
+                    : 'border-[color:var(--color-rule)] bg-[color:var(--color-paper)] hover:bg-[color:var(--color-paper-3)]'
+                }`}>
+                <span className='block text-[14px] font-semibold text-[color:var(--color-ink)]'>
+                  {option.nativeLabel}
+                </span>
+                <span className='block text-[12px] text-[color:var(--color-ink-3)]'>
+                  {option.label}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 function SavedInfoSection({
   title,
   description,
+  removeLabel,
+  removeAria,
   items,
   onRemove,
   removingId,
@@ -49,14 +98,14 @@ function SavedInfoSection({
               type='button'
               onClick={() => void onRemove(item.id, item.text)}
               disabled={removingId === item.id}
-              aria-label={`Remove: ${item.text.slice(0, 60)}`}
+              aria-label={removeAria(item.text)}
               className='shrink-0 inline-flex items-center gap-1 rounded-[var(--radius-sm)] px-2 py-1 text-[12px] font-medium text-[color:var(--color-ink-3)] hover:text-[color:var(--color-error)] hover:bg-[color:var(--color-paper-3)] disabled:opacity-50 touch-manipulation'>
               {removingId === item.id ? (
                 <Loader2 className='w-3.5 h-3.5 animate-spin' aria-hidden='true' />
               ) : (
                 <Trash2 className='w-3.5 h-3.5' aria-hidden='true' />
               )}
-              Remove
+              {removeLabel}
             </button>
           </li>
         ))}
@@ -71,6 +120,7 @@ export function SavedInfoPanel({ open, onClose }: SavedInfoPanelProps) {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  const { messages } = useLocale();
   const { snapshot, isLoading, actionError, totalCount, removeItem, clearAll } =
     useSavedInfo(open);
 
@@ -136,7 +186,7 @@ export function SavedInfoPanel({ open, onClose }: SavedInfoPanelProps) {
         <button
           type='button'
           onClick={onClose}
-          aria-label='Close saved info'
+          aria-label={messages.savedInfo.close}
           className='absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center text-[color:var(--color-ink-2)] bg-[color:var(--color-paper-3)] hover:bg-[color:var(--color-paper)] hover:text-[color:var(--color-ink)] transition-[background-color,color] touch-manipulation'>
           <X className='w-4 h-4' aria-hidden='true' />
         </button>
@@ -144,86 +194,91 @@ export function SavedInfoPanel({ open, onClose }: SavedInfoPanelProps) {
         <div className='px-5 pt-6 pb-4 sm:px-6 border-b border-[color:var(--color-border-subtle)]'>
           <p className='text-[11px] font-semibold uppercase tracking-widest text-[color:var(--color-primary)] mb-2 inline-flex items-center gap-1.5'>
             <UserRound className='w-3.5 h-3.5' aria-hidden='true' />
-            Your details
+            {messages.savedInfo.eyebrow}
           </p>
           <h2
             id='saved-info-title'
             className='text-[20px] sm:text-[22px] font-semibold text-[color:var(--color-ink)] leading-tight text-pretty pr-8'>
-            Saved info
+            {messages.savedInfo.title}
           </h2>
           <p
             id='saved-info-desc'
             className='mt-2 text-[14px] text-[color:var(--color-ink-2)] leading-relaxed text-pretty'>
-            Delivery addresses, people you shop for, and preferences Agent remembers
-            to make checkout faster. You can remove anything here at any time.
+            {messages.savedInfo.description}
           </p>
         </div>
 
         <div className='px-5 py-5 sm:px-6 space-y-5'>
+          <LanguagePreferencePicker />
+
           {isLoading && (
             <div className='flex items-center justify-center gap-2 py-8 text-[14px] text-[color:var(--color-ink-3)]'>
               <Loader2 className='w-4 h-4 animate-spin' aria-hidden='true' />
-              Loading your saved info…
+              {messages.savedInfo.loading}
             </div>
           )}
 
           {showUnavailable && (
             <p className='rounded-[var(--radius-md)] border border-[color:var(--color-rule)] bg-[color:var(--color-paper)] px-3.5 py-3 text-[13px] text-[color:var(--color-ink-2)] leading-relaxed'>
-              Saved info is not available right now. You can keep shopping and
-              chatting as usual — nothing is blocked.
+              {messages.savedInfo.unavailable}
             </p>
           )}
 
           {!snapshot.enabled && !isLoading && (
             <p className='rounded-[var(--radius-md)] border border-[color:var(--color-rule)] bg-[color:var(--color-paper)] px-3.5 py-3 text-[13px] text-[color:var(--color-ink-2)] leading-relaxed'>
-              Personal memory is turned off on this site. Chat and checkout work
-              normally without it.
+              {messages.savedInfo.disabled}
             </p>
           )}
 
           {showEmpty && (
             <p className='rounded-[var(--radius-md)] border border-dashed border-[color:var(--color-rule)] bg-[color:var(--color-paper)] px-3.5 py-4 text-[13px] text-[color:var(--color-ink-2)] leading-relaxed text-center'>
-              Nothing saved yet. After checkout you can tap{' '}
-              <span className='font-medium text-[color:var(--color-ink)]'>
-                Yes, save it
-              </span>{' '}
-              — or tell Agent to remember a delivery address or gift recipient.
+              {messages.savedInfo.empty}
             </p>
           )}
 
           {!isLoading && snapshot.available && totalCount > 0 && (
             <>
               <SavedInfoSection
-                title='People you shop for'
-                description='Gift recipients and people you send items to.'
+                title={messages.savedInfo.peopleTitle}
+                description={messages.savedInfo.peopleDescription}
+                removeLabel={messages.savedInfo.remove}
+                removeAria={messages.savedInfo.removeAria}
                 items={snapshot.people}
                 onRemove={handleRemove}
                 removingId={removingId}
               />
               <SavedInfoSection
-                title='Delivery addresses'
-                description='Names, phones, cities, and addresses used for delivery.'
+                title={messages.savedInfo.addressesTitle}
+                description={messages.savedInfo.addressesDescription}
+                removeLabel={messages.savedInfo.remove}
+                removeAria={messages.savedInfo.removeAria}
                 items={snapshot.addresses}
                 onRemove={handleRemove}
                 removingId={removingId}
               />
               <SavedInfoSection
-                title='Language'
-                description='How you prefer Agent to reply.'
+                title={messages.savedInfo.languageTitle}
+                description={messages.savedInfo.languageDescription}
+                removeLabel={messages.savedInfo.remove}
+                removeAria={messages.savedInfo.removeAria}
                 items={snapshot.language}
                 onRemove={handleRemove}
                 removingId={removingId}
               />
               <SavedInfoSection
-                title='Shopping preferences'
-                description='Budget, dietary notes, and other shopping tastes.'
+                title={messages.savedInfo.preferencesTitle}
+                description={messages.savedInfo.preferencesDescription}
+                removeLabel={messages.savedInfo.remove}
+                removeAria={messages.savedInfo.removeAria}
                 items={snapshot.preferences}
                 onRemove={handleRemove}
                 removingId={removingId}
               />
               <SavedInfoSection
-                title='Other saved details'
-                description='Anything else Agent remembered for you.'
+                title={messages.savedInfo.otherTitle}
+                description={messages.savedInfo.otherDescription}
+                removeLabel={messages.savedInfo.remove}
+                removeAria={messages.savedInfo.removeAria}
                 items={snapshot.other}
                 onRemove={handleRemove}
                 removingId={removingId}
@@ -245,8 +300,7 @@ export function SavedInfoPanel({ open, onClose }: SavedInfoPanelProps) {
             {confirmClear ? (
               <>
                 <p className='text-[13px] text-[color:var(--color-ink-2)] leading-relaxed'>
-                  Remove everything Agent remembers about you on this device?
-                  This cannot be undone.
+                  {messages.savedInfo.clearConfirm}
                 </p>
                 <div className='flex gap-2'>
                   <button
@@ -254,14 +308,16 @@ export function SavedInfoPanel({ open, onClose }: SavedInfoPanelProps) {
                     onClick={() => void handleClearAll()}
                     disabled={isClearing}
                     className='flex-1 py-3 rounded-[var(--radius-pill)] bg-[color:var(--color-error)] text-white font-semibold text-[14px] hover:opacity-90 disabled:opacity-60 touch-manipulation'>
-                    {isClearing ? 'Removing…' : 'Yes, remove everything'}
+                    {isClearing
+                      ? messages.savedInfo.clearing
+                      : messages.savedInfo.clearYes}
                   </button>
                   <button
                     type='button'
                     onClick={() => setConfirmClear(false)}
                     disabled={isClearing}
                     className='flex-1 py-3 rounded-[var(--radius-pill)] border border-[color:var(--color-rule)] bg-[color:var(--color-paper)] text-[color:var(--color-ink)] font-semibold text-[14px] hover:bg-[color:var(--color-paper-3)] disabled:opacity-60 touch-manipulation'>
-                    Cancel
+                    {messages.savedInfo.clearCancel}
                   </button>
                 </div>
               </>
@@ -270,7 +326,7 @@ export function SavedInfoPanel({ open, onClose }: SavedInfoPanelProps) {
                 type='button'
                 onClick={() => setConfirmClear(true)}
                 className='w-full py-3 rounded-[var(--radius-pill)] border border-[color:var(--color-rule)] bg-[color:var(--color-paper)] text-[color:var(--color-ink-2)] font-medium text-[14px] hover:bg-[color:var(--color-paper-3)] hover:text-[color:var(--color-error)] touch-manipulation'>
-                Clear everything about me
+                {messages.savedInfo.clearAll}
               </button>
             )}
           </div>

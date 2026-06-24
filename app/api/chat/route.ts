@@ -1,9 +1,11 @@
 import { NextRequest } from 'next/server';
 import { createAgentUIStreamResponse } from 'ai';
 import { createKaprukaAgent } from '@/lib/agents/kapruka-agent';
+import type { AgentUiFlags } from '@/lib/tools/kapruka-tools';
 import type { CartItem } from '@/lib/cart-storage';
 import { AppError, ERROR_MESSAGES } from '@/lib/errors';
 import { validateUiMessageAttachments } from '@/lib/validate-ui-attachments';
+import { isAppLocale } from '@/types/locale';
 import type { KaprukaAgentUIMessage } from '@/types/agent-ui-message';
 
 export const runtime = 'nodejs';
@@ -16,7 +18,12 @@ export async function POST(req: NextRequest) {
       throw new AppError('SERVICE_UNAVAILABLE', 503, 'Missing GEMINI_API_KEY');
     }
 
-    let body: { messages?: unknown; cart?: unknown; memoryUserId?: unknown };
+    let body: {
+      messages?: unknown;
+      cart?: unknown;
+      memoryUserId?: unknown;
+      preferredLanguage?: unknown;
+    };
     try {
       body = await req.json();
     } catch {
@@ -44,8 +51,18 @@ export async function POST(req: NextRequest) {
       throw new AppError('INVALID_REQUEST', 400, attachmentValidation.message);
     }
 
+    const preferredLanguageCandidate =
+      typeof body.preferredLanguage === 'string'
+        ? body.preferredLanguage
+        : undefined;
+    const preferredLanguage = isAppLocale(preferredLanguageCandidate)
+      ? preferredLanguageCandidate
+      : undefined;
+
     const cartRef = { current: cart as CartItem[] };
-    const uiFlagsRef = { current: { openBasket: false } };
+    const uiFlagsRef: { current: AgentUiFlags } = {
+      current: { openBasket: false },
+    };
     const agent = createKaprukaAgent(cartRef, uiFlagsRef, memoryUserId);
 
     return createAgentUIStreamResponse({
@@ -54,12 +71,14 @@ export async function POST(req: NextRequest) {
       options: {
         cart: cartRef.current,
         ...(memoryUserId ? { memoryUserId } : {}),
+        ...(preferredLanguage ? { preferredLanguage } : {}),
       },
       messageMetadata: ({ part }) => {
         if (part.type === 'finish') {
           return {
             cart: cartRef.current,
             openBasket: uiFlagsRef.current.openBasket || undefined,
+            localeChange: uiFlagsRef.current.localeChange,
           };
         }
         return undefined;

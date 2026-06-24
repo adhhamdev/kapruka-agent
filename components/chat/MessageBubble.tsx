@@ -5,7 +5,7 @@ import { AgentAvatar } from '@/components/chat/AgentAvatar';
 import { MarkdownContent } from '@/components/chat/MarkdownContent';
 import { AnimatedWidget } from '@/components/motion/AnimatedWidget';
 import { WidgetRenderer } from '@/components/widgets/WidgetRenderer';
-import { WIDGET_ONLY_FALLBACK } from '@/constants/languages';
+import { useLocale } from '@/components/providers/LocaleProvider';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { isAddedToBasketMessage } from '@/lib/chat/basket-message';
 import {
@@ -77,6 +77,7 @@ export function MessageBubble({
   onOpenBasket,
 }: MessageBubbleProps) {
   const reducedMotion = useReducedMotion();
+  const { messages } = useLocale();
   const isUser = message.role === 'user';
   const isError = Boolean(message.metadata?.isError);
   const fileParts = message.parts.filter((part) => part.type === 'file');
@@ -88,7 +89,7 @@ export function MessageBubble({
   const rawText = getAssistantText(message);
   const displayText =
     rawText.trim() ||
-    (readyWidgets.length > 0 && !isUser ? WIDGET_ONLY_FALLBACK : '');
+    (readyWidgets.length > 0 && !isUser ? messages.chat.widgetFallback : '');
 
   const hasAttachments = fileParts.length > 0;
   const hasText = Boolean(displayText.trim());

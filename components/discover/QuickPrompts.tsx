@@ -1,49 +1,58 @@
-import { Sparkles, Truck } from 'lucide-react';
-import { QUICK_STARTERS } from '@/constants/prompts';
+'use client';
 
-const ICON_MAP = {
+import { Sparkles, Truck } from 'lucide-react';
+import { useLocale } from '@/components/providers/LocaleProvider';
+
+interface QuickPromptsProps {
+  heading?: string;
+  onSelectPrompt: (prompt: string) => void;
+  disabled?: boolean;
+}
+
+const ICONS = {
   sparkles: Sparkles,
   truck: Truck,
 } as const;
 
-interface QuickPromptsProps {
-  onSelectPrompt: (prompt: string) => void;
-  disabled?: boolean;
-  heading?: string;
-}
-
 export function QuickPrompts({
+  heading,
   onSelectPrompt,
   disabled = false,
-  heading = 'Quick Prompts',
 }: QuickPromptsProps) {
+  const { messages } = useLocale();
+  const starters = messages.quickStarters;
+
   return (
-    <div className='space-y-3'>
-      <h4 className='text-[12px] font-semibold text-[color:var(--color-ink-3)] uppercase tracking-wider'>
-        {heading}
-      </h4>
-      <div className='flex flex-col gap-2'>
-        {QUICK_STARTERS.map((qs) => {
-          const Icon = ICON_MAP[qs.iconName];
+    <section aria-labelledby='quick-prompts-heading'>
+      {heading ? (
+        <h3
+          id='quick-prompts-heading'
+          className='text-[12px] font-semibold uppercase tracking-wider text-[color:var(--color-ink-3)] mb-2.5'>
+          {heading}
+        </h3>
+      ) : null}
+      <ul className='grid grid-cols-2 gap-2 list-none m-0 p-0'>
+        {starters.map((starter) => {
+          const Icon = ICONS[starter.iconName] ?? Sparkles;
           return (
-            <button
-              key={qs.label}
-              type='button'
-              disabled={disabled}
-              onClick={() => onSelectPrompt(qs.prompt)}
-              className='min-h-[48px] p-3.5 text-left bg-[color:var(--color-paper-2)] border border-[color:var(--color-rule-strong)] rounded-[var(--radius-md)] text-[14px] hover:border-[color:var(--color-primary)] hover:shadow-[var(--shadow-sm)] active:scale-[0.98] transition-all flex items-center justify-between group cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] focus-visible:ring-offset-2'>
-              <div className='flex items-center gap-3'>
-                <div className='text-[color:var(--color-primary)] group-hover:text-[color:var(--color-accent-ink)] transition-colors'>
-                  <Icon className='w-4 h-4' aria-hidden='true' />
-                </div>
-                <span className='font-medium text-[color:var(--color-ink)]'>
-                  {qs.label}
+            <li key={starter.label} className='min-w-0'>
+              <button
+                type='button'
+                disabled={disabled}
+                onClick={() => onSelectPrompt(starter.prompt)}
+                className='w-full h-full min-h-[44px] text-left rounded-[var(--radius-md)] border border-[color:var(--color-rule)] bg-[color:var(--color-paper)] px-3 py-2.5 text-[13px] font-medium text-[color:var(--color-ink)] hover:bg-[color:var(--color-paper-3)] hover:border-[color:var(--color-rule-strong)] disabled:opacity-50 transition-[background-color,border-color] touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)]'>
+                <span className='flex items-center gap-2 min-w-0'>
+                  <Icon
+                    className='w-3.5 h-3.5 shrink-0 text-[color:var(--color-primary)]'
+                    aria-hidden='true'
+                  />
+                  <span className='truncate'>{starter.label}</span>
                 </span>
-              </div>
-            </button>
+              </button>
+            </li>
           );
         })}
-      </div>
-    </div>
+      </ul>
+    </section>
   );
 }

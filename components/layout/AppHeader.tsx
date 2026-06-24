@@ -2,6 +2,7 @@
 
 import { KaprukaLink, KaprukaText } from '@/components/brand/KaprukaLink';
 import { AgentAvatar } from '@/components/chat/AgentAvatar';
+import { useLocale } from '@/components/providers/LocaleProvider';
 import { KAPRUKA_LOGO_SRC } from '@/constants/brand';
 import type { CartItem } from '@/lib/cart-storage';
 import { getCartItemCount } from '@/lib/cart/totals';
@@ -29,7 +30,17 @@ export function AppHeader({
   onToggleCart,
   onOpenSavedInfo,
 }: AppHeaderProps) {
+  const { messages } = useLocale();
   const cartCount = getCartItemCount(cart);
+
+  const basketAriaLabel =
+    cartCount > 0
+      ? cartOpen
+        ? messages.header.hideBasketWithCount(cartCount)
+        : messages.header.showBasketWithCount(cartCount)
+      : cartOpen
+        ? messages.header.hideBasket
+        : messages.header.showBasket;
 
   return (
     <header
@@ -39,7 +50,7 @@ export function AppHeader({
         <KaprukaLink
           className='inline-flex shrink-0 rounded-sm'
           variant='on-dark'
-          ariaLabel='Shop at Kapruka.com'>
+          ariaLabel={messages.header.shopAtKapruka}>
           <Image
             src={KAPRUKA_LOGO_SRC}
             alt=''
@@ -71,26 +82,18 @@ export function AppHeader({
           type='button'
           onClick={onStartNewChat}
           disabled={isChatPending}
-          aria-label='New chat'
-          title='New chat'
+          aria-label={messages.header.newChat}
+          title={messages.header.newChat}
           className={headerIconButtonClass}>
           <RotateCcw className='w-4 h-4' aria-hidden='true' />
         </button>
         <button
           type='button'
           onClick={onToggleCart}
-          aria-label={
-            cartCount > 0
-              ? cartOpen
-                ? `Hide basket, ${cartCount} items`
-                : `Show basket, ${cartCount} items`
-              : cartOpen
-                ? 'Hide basket'
-                : 'Show basket'
-          }
+          aria-label={basketAriaLabel}
           aria-expanded={cartOpen}
           aria-controls='cart-sidebar'
-          title='Basket'
+          title={messages.header.basket}
           className={headerIconButtonClass}>
           <ShoppingBag className='w-4 h-4' aria-hidden='true' />
           {cartCount > 0 && (
@@ -105,8 +108,8 @@ export function AppHeader({
           <button
             type='button'
             onClick={onOpenSavedInfo}
-            aria-label='Saved info'
-            title='Saved info'
+            aria-label={messages.header.savedInfo}
+            title={messages.header.savedInfo}
             className={headerIconButtonClass}>
             <UserRound className='w-4 h-4' aria-hidden='true' />
           </button>

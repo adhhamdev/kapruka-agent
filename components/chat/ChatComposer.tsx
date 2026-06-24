@@ -1,9 +1,9 @@
 'use client';
 
 import { AttachmentPreview } from '@/components/chat/AttachmentPreview';
+import { useLocale } from '@/components/providers/LocaleProvider';
 import {
   ACCEPTED_ATTACHMENT_TYPES,
-  ATTACHMENT_HINT,
   MAX_ATTACHMENTS,
 } from '@/constants/languages';
 import { useAttachments } from '@/hooks/use-attachments';
@@ -28,23 +28,6 @@ const iconButtonClass =
 const composerControlClass = `${iconButtonClass} w-11 h-11 min-w-11 min-h-11 shrink-0`;
 const composerIconClass = 'w-5 h-5';
 
-function voiceAriaLabel(
-  state: VoiceState,
-  isRequestingPermission: boolean,
-): string {
-  if (isRequestingPermission) return 'Requesting microphone permission…';
-  switch (state) {
-    case 'listening':
-      return 'Stop voice input';
-    case 'processing':
-      return 'Processing voice input…';
-    case 'unsupported':
-      return 'Voice input not supported in this browser';
-    default:
-      return 'Start voice input';
-  }
-}
-
 export function ChatComposer({
   value,
   onChange,
@@ -53,6 +36,7 @@ export function ChatComposer({
   disabled = false,
   speechLanguageCode,
 }: ChatComposerProps) {
+  const { messages } = useLocale();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -87,6 +71,20 @@ export function ChatComposer({
     (value.trim().length > 0 || attachments.length > 0);
 
   const atAttachmentLimit = attachments.length >= MAX_ATTACHMENTS;
+
+  const voiceAriaLabel = (state: VoiceState, isRequestingPermission: boolean) => {
+    if (isRequestingPermission) return messages.composer.requestingMic;
+    switch (state) {
+      case 'listening':
+        return messages.composer.stopVoice;
+      case 'processing':
+        return messages.composer.processingVoice;
+      case 'unsupported':
+        return messages.composer.voiceUnsupported;
+      default:
+        return messages.composer.startVoice;
+    }
+  };
 
   const inputDisabled =
     disabled || isPending || isListening || isRequestingPermission;
@@ -132,14 +130,14 @@ export function ChatComposer({
             {attachmentError ??
               voiceError ??
               (voiceState === 'unsupported'
-                ? 'Voice input is not supported in this browser.'
+                ? messages.composer.voiceUnsupportedBrowser
                 : null)}
           </p>
         )}
 
         {!attachmentError && attachments.length > 0 && (
           <p className='text-[11px] text-[color:var(--color-ink-3)] px-1'>
-            {attachments.length}/{MAX_ATTACHMENTS} files · {ATTACHMENT_HINT}
+            {messages.composer.attachmentHint(attachments.length, MAX_ATTACHMENTS)}
           </p>
         )}
 
@@ -148,7 +146,7 @@ export function ChatComposer({
             className='text-[12px] text-[color:var(--color-ink-2)] px-1'
             role='status'
             aria-live='polite'>
-            Allow microphone access in the browser prompt to use voice input.
+            {messages.composer.allowMic}
           </p>
         )}
 
@@ -162,7 +160,7 @@ export function ChatComposer({
               <span className='w-1.5 h-1.5 rounded-full bg-[color:var(--color-primary)] animate-typing-2' />
               <span className='w-1.5 h-1.5 rounded-full bg-[color:var(--color-primary)] animate-typing-3' />
             </span>
-            Listening… tap stop when finished
+            {messages.composer.listening}
           </p>
         )}
 
@@ -200,8 +198,8 @@ export function ChatComposer({
                 onClick={() => fileInputRef.current?.click()}
                 aria-label={
                   atAttachmentLimit
-                    ? `Maximum ${MAX_ATTACHMENTS} attachments reached`
-                    : 'Attach image or document'
+                    ? messages.composer.attachLimit
+                    : messages.composer.attach
                 }
                 className={`${composerControlClass} text-[color:var(--color-ink-2)] hover:text-[color:var(--color-primary)] hover:bg-[color:var(--color-paper-3)]`}>
                 <Paperclip className={composerIconClass} aria-hidden='true' />
@@ -239,7 +237,7 @@ export function ChatComposer({
             </div>
 
             <label htmlFor='chat-message' className='sr-only'>
-              Message to Agent
+              {messages.composer.messageLabel}
             </label>
             <input
               ref={messageInputRef}
@@ -252,14 +250,20 @@ export function ChatComposer({
               value={value}
               onChange={(e) => onChange(e.target.value)}
               disabled={inputDisabled}
-              placeholder={isListening ? 'Listening…' : 'Ask Kapruka Agent…'}
+              placeholder={
+                isListening
+                  ? messages.composer.listeningPlaceholder
+                  : messages.composer.placeholder
+              }
               className='chat-composer-input flex-1 min-w-0 w-0 basis-0 bg-transparent text-[16px] leading-normal text-[color:var(--color-ink)] min-h-[44px] py-2.5 px-1 placeholder-[color:var(--color-text-tertiary)] placeholder:transition-colors focus:placeholder-[color:var(--color-ink-3)]'
             />
 
             <button
               type='submit'
               disabled={!canSend}
-              aria-label={isPending ? 'Sending message…' : 'Send message'}
+              aria-label={
+                isPending ? messages.composer.sending : messages.composer.send
+              }
               className={`${composerControlClass} ${
                 canSend
                   ? 'bg-[color:var(--color-primary)] text-white hover:bg-[color:var(--color-primary-hover)] shadow-sm'
